@@ -1,0 +1,33 @@
+---
+import type { Principle } from '~/content/principles';
+import VoteWidget from '~/components/voting/VoteWidget.astro';
+import TerminalAnim from '~/components/terminal/TerminalAnim.astro';
+import type { Term } from '~/content/terms';
+
+interface Props {
+  principle: Principle;
+  index: number;
+  term?: Term;
+}
+const { principle: p, index: i, term } = Astro.props;
+const targetId = `P-${p.r}`;
+---
+<article class="principle reveal" data-idx={i} style={`--p-hue: ${p.hue}`}>
+  <span class="p-folio" aria-hidden="true">{p.r}</span>
+  <div class="p-num">{p.n}</div>
+  <div class="p-body">
+    <p class="p-lead" set:html={p.lead.replace(/<span class="hl">([^<]+)<\/span>/g, '<span class="hl">$1<svg class="und" aria-hidden="true" viewBox="0 0 100 7" preserveAspectRatio="none"><path d="M2 4 Q 30 2, 55 5 T 98 3"/></svg></span>')} />
+    <p class="p-sub">{p.sub}</p>
+    {p.foot && (
+      <div class="p-footnote"><sup>{p.foot.id}</sup>{p.foot.note}</div>
+    )}
+    <div class="p-vote">
+      <VoteWidget targetType="principle" targetId={targetId} />
+    </div>
+  </div>
+  {term && <TerminalAnim term={term} index={i} />}
+</article>
+
+<style>
+.p-vote { margin-top: 14px; }
+</style>

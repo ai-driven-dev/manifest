@@ -1,0 +1,192 @@
+/* ============ TERMINAL ILLUSTRATIONS ============ */
+.term{
+  grid-column: 1 / -1;
+  margin-top: clamp(18px, 2.5vh, 26px);
+  border: none;
+  border-radius: 10px;
+  background: oklch(0.155 0.015 60);
+  color: oklch(0.92 0.015 60);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.65;
+  overflow: hidden;
+  position: relative;
+  box-shadow:
+    0 0 0 1px oklch(0.26 0.02 60),
+    0 1px 0 oklch(0.32 0.02 60) inset,
+    0 16px 36px -28px oklch(0.1 0.015 60 / .5);
+}
+.term .tbar{ display: none; }
+/* CRT scanlines overlay */
+.term::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    0deg,
+    oklch(1 0 0 / 0.022) 0px,
+    oklch(1 0 0 / 0.022) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  z-index: 3;
+  border-radius: 10px;
+}
+/* Terminal title as first-line comment */
+.term .tbody-title{
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: oklch(0.48 0.015 60);
+  padding: clamp(14px, 1.8vw, 18px) clamp(18px, 2.2vw, 24px) 0;
+  position: relative;
+  z-index: 2;
+}
+.term .tbody-title::before{
+  content: "# ";
+  color: oklch(0.55 0.1 var(--value-hue, 28));
+}
+.term .body{
+  padding: clamp(10px, 1.4vw, 14px) clamp(18px, 2.2vw, 24px) clamp(16px, 2vw, 22px);
+  min-height: 130px;
+  position: relative;
+  z-index: 2;
+}
+.term .ln{
+  display: block;
+  white-space: pre;
+  opacity: 0;
+  animation: tln .5s forwards;
+}
+.term.play .ln{ animation-play-state: running }
+.term .ln[data-d]{}
+@keyframes tln{
+  from{opacity:0; transform: translateX(-4px)}
+  to{opacity:1; transform: none}
+}
+.term .prompt{color: oklch(0.7 0.14 145)}
+.term .arg{color: oklch(0.82 0.1 80)}
+.term .ok{color: oklch(0.74 0.16 145)}
+.term .err{color: oklch(0.7 0.17 28)}
+.term .warn{color: oklch(0.78 0.13 80)}
+.term .dim{color: oklch(0.5 0.01 60); font-style: italic}
+.term .accent{
+  color: oklch(0.78 0.18 var(--value-hue, 28));
+  text-shadow: 0 0 8px oklch(0.78 0.18 var(--value-hue, 28) / 0.4);
+}
+.term .hl{
+  background: oklch(0.52 0.17 var(--value-hue, 28) / 0.22);
+  padding: 0 4px; border-radius: 2px;
+  color: oklch(0.9 0.015 60);
+}
+.term .cursor{
+  display: inline-block;
+  width: 7px; height: 13px;
+  background: oklch(0.78 0.18 var(--value-hue, 28));
+  vertical-align: -2px;
+  margin-left: 2px;
+  animation: blink 1s steps(2) infinite;
+  box-shadow: 0 0 10px oklch(0.78 0.18 var(--value-hue, 28) / 0.55);
+}
+@keyframes blink{ 50%{opacity: 0} }
+
+/* specific micro-animations */
+.term .bar{
+  display:inline-block;
+  height: 8px; width: 0;
+  background: oklch(0.72 0.16 145);
+  vertical-align: middle;
+  margin: 0 6px;
+  animation: fill 2.4s ease-out forwards;
+}
+.term .bar.warn{background: oklch(0.78 0.13 80)}
+@keyframes fill{ to{ width: 140px } }
+
+.term .rotate-word{
+  display:inline-block;
+  color: oklch(0.78 0.13 80);
+  position: relative;
+  min-width: 9ch;
+}
+.term .rotate-word span{
+  position:absolute; left: 0; top: 0;
+  animation: rot 8s infinite;
+  opacity: 0;
+}
+.term .rotate-word span:nth-child(1){animation-delay: 0s}
+.term .rotate-word span:nth-child(2){animation-delay: 1.6s}
+.term .rotate-word span:nth-child(3){animation-delay: 3.2s}
+.term .rotate-word span:nth-child(4){animation-delay: 4.8s}
+.term .rotate-word span:nth-child(5){animation-delay: 6.4s}
+@keyframes rot{
+  0%, 18%{opacity: 1; transform: translateY(0)}
+  22%, 100%{opacity: 0; transform: translateY(-8px)}
+}
+
+.term .sparkle{
+  display:inline-block; width: 10px; text-align:center;
+  animation: spark 1.8s steps(4) infinite;
+}
+@keyframes spark{
+  0%{content:"·"} 25%{content:"*"} 50%{content:"+"} 75%{content:"·"}
+}
+
+.term .pulse-dot{
+  display:inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: oklch(0.72 0.16 145);
+  vertical-align: middle; margin-right: 8px;
+  animation: pd 1.4s ease-in-out infinite;
+}
+@keyframes pd{ 50%{opacity: .3; transform: scale(.8)} }
+
+.term .tree{
+  color: oklch(0.6 0.01 60);
+}
+.term .tree .branch{
+  display:inline-block;
+  animation: grow .6s ease-out forwards;
+  opacity: 0;
+  transform: translateX(-6px);
+}
+@keyframes grow{ to{opacity:1; transform:none} }
+
+.term .tokens i{
+  display:inline-block;
+  width: 8px; height: 16px;
+  background: oklch(0.5 0.04 240);
+  margin-right: 2px;
+  vertical-align: middle;
+}
+.term .tokens i.good{ background: oklch(0.72 0.16 145) }
+.term .tokens i.noise{ background: oklch(0.45 0.08 28); opacity: .55 }
+.term .tokens i.prune{
+  animation: prune 2s ease-out forwards;
+}
+@keyframes prune{
+  0%{opacity:.55} 60%{opacity:.2; transform: scaleY(.2)} 100%{opacity:0; width:0; margin:0}
+}
+
+.term .diff .plus{color: oklch(0.72 0.16 145)}
+.term .diff .minus{color: oklch(0.7 0.17 28); text-decoration: line-through; text-decoration-color: oklch(0.7 0.17 28 / .6)}
+
+.term .spinner{
+  display:inline-block; width: 8px;
+  animation: spin 1s steps(4) infinite;
+}
+@keyframes spin{ 0%{content:"|"} 25%{content:"/"} 50%{content:"-"} 75%{content:"\\"} }
+
+/* Ink-mode adjust: terminals stay dark for contrast */
+
+.p-footnote{
+  margin-top: 12px;
+  font-family: var(--mono);
+  font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.p-footnote sup{
+  color: var(--accent); margin-right: 4px; font-family: var(--serif); font-style: italic; font-size: 11px;
+}
+.principle:last-child:nth-child(odd){ border-right: 1px solid var(--rule); }

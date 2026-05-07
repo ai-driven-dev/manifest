@@ -1,0 +1,14 @@
+---
+import { SEEDS } from '~/content/seeds';
+---
+<div class="wall">
+  <div class="wall-head">Signatories</div>
+  <div class="wall-grid" id="wallGrid">
+    {SEEDS.map((s) => (
+      <div class="sig">
+        {s.linkedin ? <a href={s.linkedin} target="_blank" rel="noopener">{s.name}</a> : s.name}
+        <span class="meta">{s.meta}</span>
+      </div>
+    ))}
+  </div>
+</div>

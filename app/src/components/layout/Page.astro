@@ -1,0 +1,40 @@
+---
+import '~/styles/tokens.css';
+import '~/styles/sections/base.css';
+import '~/styles/sections/cover.css';
+import '~/styles/sections/layout.css';
+import '~/styles/sections/preamble.css';
+import '~/styles/sections/chapters.css';
+import '~/styles/sections/values.css';
+import '~/styles/sections/value-art.css';
+import '~/styles/sections/principles.css';
+import '~/styles/sections/terminal.css';
+import '~/styles/sections/signature.css';
+import '~/styles/sections/signature-wall.css';
+import '~/styles/sections/reveal.css';
+import '~/styles/sections/responsive.css';
+import '~/styles/sections/print.css';
+import '~/styles/sections/tweaks.css';
+
+interface Props {
+  title?: string;
+}
+const { title = 'The Manifesto for AI-Driven Development' } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Inter+Tight:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Caveat:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

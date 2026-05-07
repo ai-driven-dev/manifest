@@ -1,0 +1,14 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: manifest-astro:latest
+    container_name: manifest-astro
+    ports:
+      - "4321:4321"
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: "4321"
+    restart: unless-stopped

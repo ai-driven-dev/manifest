@@ -1,0 +1,107 @@
+/* ============ PRINCIPLES ============ */
+.principles{ padding: 0 0 clamp(60px, 10vh, 120px); }
+.p-grid{
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--rule);
+}
+.principle{
+  grid-column: span 6;
+  padding: clamp(32px, 4.5vh, 52px) clamp(28px, 3.2vw, 52px);
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 22px;
+  align-items: start;
+  overflow: hidden;
+  --value-hue: var(--p-hue, 28);
+}
+.principle:nth-child(odd){
+  border-right: 1px solid var(--rule);
+}
+
+/* Ghost Roman folio watermark */
+.principle .p-folio{
+  position: absolute;
+  top: clamp(16px, 2.2vh, 26px);
+  right: clamp(18px, 2.2vw, 32px);
+  font-family: var(--serif);
+  font-style: italic;
+  font-variation-settings: "opsz" 144, "wght" 220;
+  font-size: clamp(80px, 10vw, 150px);
+  line-height: 0.8;
+  color: oklch(0.45 0.14 var(--value-hue, 28));
+  opacity: 0.09;
+  letter-spacing: -0.05em;
+  user-select: none;
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity .4s;
+}
+.principle:hover .p-folio{ opacity: 0.18; }
+.principle > *{ position: relative; z-index: 1; }
+
+.p-num{
+  font-family: var(--serif);
+  font-style: italic;
+  font-variation-settings: "opsz" 144, "wght" 340;
+  font-size: clamp(40px, 4.2vw, 60px);
+  line-height: 1;
+  color: oklch(0.48 0.12 var(--value-hue, 28));
+  letter-spacing: -0.02em;
+  transition: color .3s;
+  padding-top: 4px;
+}
+.p-body{ padding-top: 8px; }
+.p-lead{
+  font-family: var(--serif);
+  font-variation-settings: "opsz" 72, "wght" 360;
+  font-size: clamp(22px, 2.1vw, 28px);
+  line-height: 1.24;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-bottom: 14px;
+  text-wrap: pretty;
+}
+.p-lead .hl{
+  position: relative;
+  display: inline-block;
+  color: var(--ink);
+  font-variation-settings: "wght" 440;
+  background: linear-gradient(
+    to bottom,
+    transparent 58%,
+    oklch(0.52 0.17 var(--value-hue, 28) / 0.2) 58%,
+    oklch(0.52 0.17 var(--value-hue, 28) / 0.2) 92%,
+    transparent 92%
+  ) no-repeat left center / 0% 100%;
+  transition: background-size .9s cubic-bezier(.7,.1,.2,1) .3s;
+  padding: 0 3px;
+}
+.principle.seen .p-lead .hl{ background-size: 100% 100%; }
+.p-lead .hl svg.und{
+  position: absolute;
+  left: -3px; right: -3px;
+  bottom: -4px;
+  width: calc(100% + 6px);
+  height: 7px;
+  overflow: visible;
+  pointer-events: none;
+}
+.p-lead .hl svg.und path{
+  stroke: oklch(0.52 0.17 var(--value-hue, 28));
+  stroke-width: 1.6;
+  fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  transition: stroke-dashoffset .85s cubic-bezier(.7,.1,.2,1) .5s;
+}
+.principle.seen .p-lead .hl svg.und path{ stroke-dashoffset: 0; }
+.p-sub{
+  font-family: var(--sans);
+  font-size: 14.5px; line-height: 1.55; color: var(--ink-2);
+  max-width: 48ch;
+}

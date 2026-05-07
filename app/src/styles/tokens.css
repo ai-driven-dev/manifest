@@ -1,0 +1,14 @@
+:root {
+  --paper: oklch(0.972 0.008 82);
+  --paper-2: oklch(0.955 0.012 82);
+  --ink: oklch(0.18 0.012 60);
+  --ink-2: oklch(0.35 0.012 60);
+  --ink-3: oklch(0.55 0.010 60);
+  --rule: oklch(0.82 0.012 70);
+  --accent: oklch(0.52 0.17 28);
+  --accent-soft: oklch(0.52 0.17 28 / 0.12);
+  --serif: "Fraunces", "Times New Roman", serif;
+  --sans: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+  --hand: "Caveat", cursive;
+}

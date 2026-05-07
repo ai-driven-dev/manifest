@@ -1,0 +1,22 @@
+/* ============ RESPONSIVE ============ */
+@media (max-width: 900px){
+  .cover-top, .cover-bot{flex-wrap: wrap; gap: 10px}
+  .cover-top nav, .cover-top .lang{display: flex; gap: 12px}
+  .preamble{grid-template-columns: 1fr; gap: 16px}
+  .chapter-open{grid-template-columns: 1fr; gap: 16px}
+  .chapter-mark .folio::after{display:none}
+  .drop{font-size: 120px}
+  .chapter-lede{grid-template-columns: 40px 1fr; gap: 16px}
+  .plate-row{grid-template-columns: 40px 1fr; gap: 10px}
+  .plate-row .over, .plate-row .right, .plate-row .note{grid-column: 2}
+  .plate-row .over::before, .plate-row .over::after{width: 12px}
+  .p-grid{ grid-template-columns: 1fr }
+  .principle{
+    grid-column: span 1;
+    border-right: none !important;
+    padding-right: 0 !important; padding-left: 0 !important;
+    grid-template-columns: 48px 1fr;
+  }
+  .signature{grid-template-columns: 1fr}
+  .seal{justify-self: start}
+}

@@ -1,0 +1,178 @@
+---
+// Single client island: wires observers, parallax, tweaks panel, sign+vote+downvote flows.
+// EDIT MODE sentinel preserved verbatim (do not rename markers).
+---
+<script>
+  import { observeReveals, observeTerminals, observeValueArt, attachHeroParallax } from '~/lib/observers';
+  import { signSignature, castVote, submitFeedback, getSignatureCount } from '~/lib/api/client';
+
+  // ------- Reveals + animations -------
+  observeReveals();
+  observeTerminals();
+  observeValueArt();
+  attachHeroParallax();
+
+  // ------- Tweaks panel (preserves documentElement indirection) -------
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "accentHue": 28,
+    "paper": "cool",
+    "serifScale": 0.98,
+    "rainbow": false
+  }/*EDITMODE-END*/;
+  let state: { accentHue: number; paper: string; serifScale: number; rainbow: boolean } = { ...TWEAK_DEFAULTS };
+
+  function applyPrincipleColors() {
+    document.querySelectorAll<HTMLElement>('.principle').forEach((el) => {
+      const hueAttr = (el.style as CSSStyleDeclaration).getPropertyValue('--p-hue');
+      if (state.rainbow) {
+        const h = hueAttr ? parseInt(hueAttr, 10) : state.accentHue;
+        el.style.setProperty('--p-color', `oklch(0.52 0.14 ${h})`);
+      } else {
+        el.style.removeProperty('--p-color');
+      }
+    });
+  }
+
+  function applyState() {
+    const root = document.documentElement.style;
+    root.setProperty('--accent', `oklch(0.52 0.17 ${state.accentHue})`);
+    root.setProperty('--accent-soft', `oklch(0.52 0.17 ${state.accentHue} / 0.12)`);
+    if (state.paper === 'warm') {
+      root.setProperty('--paper', 'oklch(0.972 0.008 82)');
+      root.setProperty('--paper-2', 'oklch(0.955 0.012 82)');
+      root.setProperty('--ink', 'oklch(0.18 0.012 60)');
+      root.setProperty('--ink-2', 'oklch(0.35 0.012 60)');
+      root.setProperty('--ink-3', 'oklch(0.55 0.010 60)');
+      root.setProperty('--rule', 'oklch(0.82 0.012 70)');
+    } else if (state.paper === 'cool') {
+      root.setProperty('--paper', 'oklch(0.975 0.006 240)');
+      root.setProperty('--paper-2', 'oklch(0.96 0.008 240)');
+      root.setProperty('--ink', 'oklch(0.18 0.012 240)');
+      root.setProperty('--ink-2', 'oklch(0.35 0.012 240)');
+      root.setProperty('--ink-3', 'oklch(0.55 0.010 240)');
+      root.setProperty('--rule', 'oklch(0.82 0.012 240)');
+    } else {
+      root.setProperty('--paper', 'oklch(0.16 0.012 60)');
+      root.setProperty('--paper-2', 'oklch(0.19 0.014 60)');
+      root.setProperty('--ink', 'oklch(0.94 0.01 80)');
+      root.setProperty('--ink-2', 'oklch(0.75 0.01 80)');
+      root.setProperty('--ink-3', 'oklch(0.55 0.010 80)');
+      root.setProperty('--rule', 'oklch(0.32 0.012 70)');
+    }
+    document.documentElement.style.fontSize = (16 * state.serifScale) + 'px';
+    document.querySelectorAll<HTMLElement>('#swatches .swatch').forEach((b) => {
+      b.classList.toggle('on', Number(b.dataset.hue) === state.accentHue);
+    });
+    const ps = document.getElementById('paperSel') as HTMLSelectElement | null; if (ps) ps.value = state.paper;
+    const ss = document.getElementById('serifScale') as HTMLInputElement | null; if (ss) ss.value = String(state.serifScale);
+    const rb = document.getElementById('rainbowToggle') as HTMLInputElement | null; if (rb) rb.checked = !!state.rainbow;
+    applyPrincipleColors();
+  }
+
+  function persist(patch: Partial<typeof state>) {
+    state = { ...state, ...patch };
+    applyState();
+    try { window.parent.postMessage({ type: '__edit_mode_set_keys', edits: patch }, '*'); } catch {}
+  }
+
+  window.addEventListener('message', (e) => {
+    const d: any = e.data || {};
+    if (d.type === '__activate_edit_mode') document.getElementById('tweaks')?.classList.add('on');
+    if (d.type === '__deactivate_edit_mode') document.getElementById('tweaks')?.classList.remove('on');
+  });
+  try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch {}
+
+  document.getElementById('swatches')?.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLElement>('.swatch'); if (!b) return;
+    persist({ accentHue: Number(b.dataset.hue) });
+  });
+  document.getElementById('paperSel')?.addEventListener('change', (e) => persist({ paper: (e.target as HTMLSelectElement).value }));
+  document.getElementById('serifScale')?.addEventListener('input', (e) => persist({ serifScale: Number((e.target as HTMLInputElement).value) }));
+  document.getElementById('rainbowToggle')?.addEventListener('change', (e) => persist({ rainbow: (e.target as HTMLInputElement).checked }));
+  applyState();
+
+  // ------- Signature counter -------
+  async function refreshSignatureCount() {
+    try {
+      const c = await getSignatureCount();
+      document.querySelectorAll('[data-signature-count]').forEach((el) => { el.textContent = String(c); });
+    } catch {}
+  }
+  refreshSignatureCount();
+
+  // ------- Sign flow -------
+  const signDialog = document.getElementById('signDialog') as HTMLDialogElement | null;
+  const signOpenBtn = document.getElementById('signOpen');
+  const signFormDialog = document.getElementById('signDialogForm') as HTMLFormElement | null;
+  const signNameDialog = document.getElementById('dialogSignName') as HTMLInputElement | null;
+  const signLinkedinDialog = document.getElementById('dialogSignLinkedin') as HTMLInputElement | null;
+
+  signOpenBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (signDialog?.showModal) signDialog.showModal();
+  });
+  signFormDialog?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = signNameDialog?.value.trim() || '';
+    if (!name) return;
+    const linkedin = signLinkedinDialog?.value.trim() || undefined;
+    const r = await signSignature({ name, linkedin });
+    if (r.ok) {
+      // append to wall
+      const grid = document.getElementById('wallGrid');
+      if (grid) {
+        const el = document.createElement('div');
+        el.className = 'sig new';
+        el.innerHTML = (linkedin ? `<a href="${linkedin}" target="_blank" rel="noopener">${name}</a>` : name) + '<span class="meta">2026</span>';
+        grid.appendChild(el);
+      }
+      await refreshSignatureCount();
+      signDialog?.close();
+      if (signFormDialog) signFormDialog.reset();
+    }
+  });
+  signDialog?.querySelector<HTMLButtonElement>('[data-close]')?.addEventListener('click', () => signDialog.close());
+
+  document.getElementById('printBtn')?.addEventListener('click', () => window.print());
+
+  // ------- Vote + downvote flows -------
+  const dvDialog = document.getElementById('downvoteDialog') as HTMLDialogElement | null;
+  const dvForm = document.getElementById('downvoteForm') as HTMLFormElement | null;
+  const dvType = document.getElementById('dvTargetType') as HTMLInputElement | null;
+  const dvId = document.getElementById('dvTargetId') as HTMLInputElement | null;
+  const dvReason = document.getElementById('dvReason') as HTMLTextAreaElement | null;
+  const dvAlt = document.getElementById('dvAlternative') as HTMLTextAreaElement | null;
+
+  document.querySelectorAll<HTMLElement>('.vote-widget').forEach((widget) => {
+    const targetType = widget.dataset.voteTargetType as 'principle' | 'value';
+    const targetId = widget.dataset.voteTargetId as string;
+    const scoreEl = widget.querySelector<HTMLElement>('[data-vote-score]');
+    widget.querySelector<HTMLElement>('[data-vote-action="up"]')?.addEventListener('click', async () => {
+      const r = await castVote({ targetType, targetId, value: 1 });
+      if (r.ok && scoreEl) scoreEl.textContent = String(r.score);
+    });
+    widget.querySelector<HTMLElement>('[data-vote-action="down"]')?.addEventListener('click', async () => {
+      const r = await castVote({ targetType, targetId, value: -1 });
+      if (r.ok && scoreEl) scoreEl.textContent = String(r.score);
+      if (dvDialog?.showModal && dvType && dvId) {
+        dvType.value = targetType;
+        dvId.value = targetId;
+        dvDialog.showModal();
+      }
+    });
+  });
+
+  dvForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!dvType || !dvId || !dvReason || !dvAlt) return;
+    await submitFeedback({
+      targetType: dvType.value as 'principle' | 'value',
+      targetId: dvId.value,
+      reason: dvReason.value,
+      alternative: dvAlt.value,
+    });
+    dvDialog?.close();
+    dvForm.reset();
+  });
+  dvDialog?.querySelector<HTMLButtonElement>('[data-close]')?.addEventListener('click', () => dvDialog.close());
+</script>
