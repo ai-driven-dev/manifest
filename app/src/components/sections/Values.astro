@@ -1,0 +1,60 @@
+---
+import { VALUES } from '~/content/values';
+import ValueArt from '~/components/values/ValueArt.astro';
+import VoteWidget from '~/components/voting/VoteWidget.astro';
+---
+<section id="values" class="values">
+  <div class="chapter-open reveal">
+    <div class="chapter-mark">
+      <div class="folio">Folio 1</div>
+      <span class="drop">1</span>
+      <div class="roman">Chapter 1</div>
+    </div>
+    <div class="chapter-body">
+      <div class="chapter-eyebrow"><span class="pip"></span> <span>The Values — four tensions</span></div>
+      <h2>Through this work, <em>we have come</em> to value <span class="amp">&amp;</span> to weigh.</h2>
+      <div class="chapter-lede">
+        <svg class="fleuron" width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+          <path d="M22 4 C 28 14, 40 14, 40 22 C 40 30, 28 30, 22 40 C 16 30, 4 30, 4 22 C 4 14, 16 14, 22 4 Z" stroke="currentColor" stroke-width="1" fill="none"/>
+          <circle cx="22" cy="22" r="2" fill="currentColor"/>
+        </svg>
+        <p>Each value below is a compass, not a rule. Read the line. Feel which side the weight falls on — then notice that the other side never disappears. It simply weighs less.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="values-epigraph reveal">
+    <p>Four tensions. Each side still matters. <em>The weight falls left.</em></p>
+  </div>
+
+  <div class="plate">
+    {VALUES.map((v) => (
+      <div class="plate-row reveal">
+        <div class="pr-folio">{v.n}</div>
+        <div class="pr-text">
+          <div class="left serif">{v.left}</div>
+          <div class="over">over</div>
+          <div class="right serif">{v.right}
+            <svg class="strike" preserveAspectRatio="none" viewBox="0 0 400 12"><path d="M2 6 Q 100 3, 200 7 T 398 5"/></svg>
+          </div>
+          <div class="note" set:html={v.note} />
+          <div class="value-vote">
+            <VoteWidget targetType="value" targetId={v.id} />
+          </div>
+        </div>
+        <div class="pr-art">
+          <ValueArt anim={v.anim} />
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div class="values-note">
+    <div class="lbl">Note</div>
+    <p>That is, while there is value in the items on the right, we value the items on the left more.</p>
+  </div>
+</section>
+
+<style>
+.value-vote { margin-top: 10px; }
+</style>

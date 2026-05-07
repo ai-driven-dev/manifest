@@ -4,66 +4,98 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Ce que c'est
 
-Page unique autonome : **The Manifesto for AI-Driven Development** (`index.html`, ~1900 lignes).
-CSS et JS sont **inlinés dans le même fichier** — pas de `package.json`, pas de bundler, pas de build.
+Manifesto for AI-Driven Development — Astro 4 SSR app, dockerisée, avec store
+en mémoire (signatures, votes, feedback) et 1:1 visuel avec l'ancienne page
+single-file `index.html`. Le worktree d'origine contenait un seul HTML
+monolithique : il a été migré vers `app/` (Astro + TypeScript + Vitest +
+Playwright).
 
-Cousin de `../website/` (Astro, ai-driven-dev.fr) mais **totalement indépendant** : ne partage aucun
-asset ni config. Ne pas importer depuis `../website`.
+Cousin de `../website/` (Astro, ai-driven-dev.fr) mais **totalement
+indépendant** : ne partage aucun asset ni config. Ne pas importer depuis
+`../website`.
 
-## Prévisualiser
+## Lancer / prévisualiser
 
 ```bash
-open index.html                      # ouverture directe (fichiers locaux)
-python3 -m http.server 8000          # préférable — fonts Google + fetch relatifs
+# Dev (HMR)
+cd app && npm install && npm run dev
+
+# Production locale
+cd app && npm run build && PORT=4321 HOST=127.0.0.1 node ./dist/server/entry.mjs
+
+# Docker
+cd app && docker compose up -d --build
+# → http://localhost:4321
 ```
 
-Pas de tests, pas de lint configurés. Les polices (Fraunces, Inter Tight, JetBrains Mono, Caveat)
-sont chargées depuis Google Fonts — prévoir un fallback si offline.
+## Tests
 
-## Architecture du fichier unique
+```bash
+cd app
+npm test                  # Vitest unit (store)
+npx playwright test       # Playwright e2e (api, sign, vote, visual)
+```
 
-Tout vit dans `index.html`. Le fichier suit cet ordre :
+## Architecture
 
-1. **`<style>` (lignes ~10–1161)** — variables CSS dans `:root` (paper/ink/accent en `oklch`),
-   puis sections dans l'ordre du DOM : `.cover`, `.preamble`, `.values`, `.principles`, `.signature`,
-   `.focus`, `#tweaks`.
-2. **`<body>` (lignes ~1163–1459)** — 5 sections sémantiques + overlay `.focus` + panneau `#tweaks`.
-3. **`<script>` (lignes ~1460–1885)** — données + handlers.
+```
+app/
+├── Dockerfile, compose.yaml, .dockerignore
+├── astro.config.mjs       SSR + @astrojs/node standalone
+├── public/baseline/       Original index.html, servi à /baseline pour parité visuelle
+├── src/
+│   ├── content/           Données éditoriales : principles.ts, values.ts, terms.ts, seeds.ts
+│   ├── styles/
+│   │   ├── tokens.css     :root tokens oklch (uniquement)
+│   │   └── sections/*.css Styles par section (cover, values, principles, …)
+│   ├── lib/
+│   │   ├── store/         Interface + impl mémoire + provider singleton
+│   │   ├── api/client.ts  Fetch helpers typés (sign, vote, feedback, count)
+│   │   └── observers.ts   Reveal / terminal / value-art / parallax
+│   ├── components/
+│   │   ├── layout/Page.astro
+│   │   ├── sections/{Cover,Preamble,Values,Principles,Signature}.astro
+│   │   ├── values/ValueArt.astro
+│   │   ├── principles/{PrincipleGrid,PrincipleCard}.astro
+│   │   ├── terminal/TerminalAnim.astro
+│   │   ├── signature/{SignDialog,SignatureWall}.astro
+│   │   ├── voting/{VoteWidget,DownvoteDialog}.astro
+│   │   ├── tweaks/TweaksPanel.astro
+│   │   └── ClientApp.astro    Single client island (hydratation tweaks + sign + vote + observers)
+│   └── pages/
+│       ├── index.astro    Composition (≤ 60 LOC)
+│       └── api/
+│           ├── signatures.ts  GET count, POST sign
+│           ├── votes.ts       POST +1/-1
+│           └── feedback.ts    POST reason + alternative
+└── tests/
+    ├── parity-text.ts        AC-9 — content ↔ original baseline
+    ├── check-component-loc.sh AC-6 — LOC budget
+    └── e2e/{api,sign,vote,visual}.spec.ts
+```
 
-### Contenu éditorial = données JS
+## Règles d'architecture (voir `aidd_docs/rules/architecture/`)
 
-Le texte et la structure du manifeste vivent dans des tableaux JS, **pas dans le HTML** :
-
-- `PRINCIPLES` — les 12 principes (`n`, `r`, `hue`, `lead`, `sub`, `foot?`, `essay[]`).
-  Rendus par `pGrid` ; l'overlay `.focus` lit `essay[]` au clic.
-- `TERMS` — animations terminal par principe (un bloc par entrée).
-- `SEEDS` — signatures par défaut affichées dans le mur.
-- `DATA` (bloc VALUE ART) — contenu ASCII des 4 valeurs (`v1..v4`) : `trace`, `drift`, `models`,
-  `commits`, `frozen`, `stairs`, `flat`. Populé dans les spans `.va-trace`, `.va-drift`, etc.
-
-**Pour ajouter / modifier un principe ou une valeur** : éditer le tableau JS, pas le HTML.
-
-**Manifeste monolingue** : anglais uniquement. Pas d'I18N ; si une version FR/ES devient nécessaire,
-dupliquer le fichier plutôt que réintroduire un switch.
-
-### Persistance & intégrations
-
-- **Signatures utilisateur** → `localStorage['aidd-signatures-v2']` (pas de backend).
-- **Edit mode parent iframe** → bloc sentinelle `/*EDITMODE-BEGIN*/ … /*EDITMODE-END*/` (ligne ~1786).
-  Ne pas renommer ces marqueurs : un outil parent peut réécrire ce bloc via `postMessage`
-  (`__activate_edit_mode`, `__edit_mode_set_keys`).
-- **Thème runtime** : `#tweaks` écrit `--accent`, `--paper`, `--rule`, etc. sur `documentElement`.
-  Respecter cette indirection — ne pas hard-coder des couleurs dans les sélecteurs.
-
-### Animations / observers
-
-- `IntersectionObserver` sur `.reveal` et `.plate-row` → ajoute `.seen` une fois visible.
-- Second observer sur `.term` rejoue les animations de lignes à chaque re-entrée.
-- Parallax souris sur `.cover-seal` via `mousemove` (lignes ~1879).
+- `astro-components.md` — `.astro` ≤ 200 LOC, `index.astro` ≤ 60 LOC, VoteWidget réutilisé.
+- `api-routes.md` — JSON in/out, validation stricte, contrats versionnés.
+- `store-provider.md` — interface-first, swappable, framework-agnostic.
+- `styles-tokens.md` — `oklch()` uniquement, pas de hex/HSL hors `tokens.css`.
+- `docker.md` — multi-stage Node 22 alpine, non-root, port 4321.
+- `testing.md` — Vitest unit + Playwright e2e + visual diff ≤ 1 %.
 
 ## Conventions
 
-- Respecter la palette `oklch()` et les variables CSS — pas de hex, pas de HSL.
-- Garder le fichier **single-file** (pas de split JS/CSS sans accord explicite) : c'est un artefact
-  portable destiné à être forké, imprimé, hébergé n'importe où.
-- Contenu éditorial : ne pas enrichir sans demande — c'est de la doctrine, pas de la copie marketing.
+- Couleurs : `oklch()` exclusivement, via variables CSS (`var(--accent)` etc.).
+- Données éditoriales : tableaux TypeScript dans `src/content/`, pas de hard-code dans le HTML.
+- Tweaks panel : écrit sur `documentElement` (indirection préservée).
+- Edit mode parent iframe : sentinelle `/*EDITMODE-BEGIN*/…/*EDITMODE-END*/`
+  préservée dans `src/components/ClientApp.astro` (ne pas renommer).
+
+## Édition du contenu
+
+- Ajouter/modifier un principe : `app/src/content/principles.ts`.
+- Ajouter/modifier une valeur : `app/src/content/values.ts` + ASCII art dans `ValueArt.astro`.
+- Ajouter/modifier un terminal : `app/src/content/terms.ts`.
+- Modifier la palette par défaut : `app/src/styles/tokens.css`.
+
+Manifeste monolingue : anglais uniquement. Pas d'I18N.

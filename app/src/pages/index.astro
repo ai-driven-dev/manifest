@@ -1,0 +1,25 @@
+---
+import Page from '~/components/layout/Page.astro';
+import Cover from '~/components/sections/Cover.astro';
+import Preamble from '~/components/sections/Preamble.astro';
+import Values from '~/components/sections/Values.astro';
+import Principles from '~/components/sections/Principles.astro';
+import Signature from '~/components/sections/Signature.astro';
+import SignDialog from '~/components/signature/SignDialog.astro';
+import DownvoteDialog from '~/components/voting/DownvoteDialog.astro';
+import TweaksPanel from '~/components/tweaks/TweaksPanel.astro';
+import ClientApp from '~/components/ClientApp.astro';
+---
+<Page>
+  <Cover />
+  <div class="wrap">
+    <Preamble />
+    <Values />
+    <Principles />
+    <Signature />
+  </div>
+  <TweaksPanel />
+  <SignDialog />
+  <DownvoteDialog />
+  <ClientApp />
+</Page>

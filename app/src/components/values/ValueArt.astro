@@ -1,0 +1,98 @@
+---
+interface Props {
+  anim: 'v1' | 'v2' | 'v3' | 'v4';
+}
+const { anim } = Astro.props;
+---
+{anim === 'v1' && (
+  <div class="value-art" data-anim="v1">
+    <div class="va-col va-good">
+      <div class="va-col-head"><span class="va-col-label">direction</span><span class="va-col-badge">do</span></div>
+      <pre><span class="va-l" style="--i:0"><span class="va-num">1.</span>  plan          <span class="va-ok">✓</span></span>
+<span class="va-l" style="--i:1"><span class="va-num">2.</span>  steer         <span class="va-ok">✓</span></span>
+<span class="va-l" style="--i:2"><span class="va-num">3.</span>  ship          <span class="va-ok">✓</span></span>
+<span class="va-l" style="--i:3"><span class="va-dim2">———————————————</span></span>
+<span class="va-l" style="--i:4"><span class="va-key">●—→—→—→—→—→</span><span class="va-cursor" style="--cd:1.4s"></span></span>
+<span class="va-l" style="--i:5"><span class="va-dim2">intent is ours.</span></span></pre>
+    </div>
+    <div class="va-sep"></div>
+    <div class="va-col va-bad">
+      <div class="va-col-head"><span class="va-col-label">drift</span><span class="va-col-badge">don't</span></div>
+      <pre><span class="va-l" style="--i:7"><span class="va-warn">~</span>  suggest?     accept</span>
+<span class="va-l" style="--i:8"><span class="va-warn">~</span>  suggest?     sure</span>
+<span class="va-l" style="--i:9"><span class="va-warn">~</span>  suggest?     ok</span>
+<span class="va-l" style="--i:10"><span class="va-dim2">———————————————</span></span>
+<span class="va-l" style="--i:11">~ · ok · sure · ~ · ok · ·</span>
+<span class="va-l" style="--i:12"><span class="va-dim2">where did we end up?</span></span></pre>
+    </div>
+  </div>
+)}
+{anim === 'v2' && (
+  <div class="value-art" data-anim="v2">
+    <div class="va-col va-good">
+      <div class="va-col-head"><span class="va-col-label">methods</span><span class="va-col-badge">do</span></div>
+      <pre><span class="va-l" style="--i:0"><span class="va-num">1.</span>  plan</span>
+<span class="va-l" style="--i:1">    <span class="va-dim2">↓</span></span>
+<span class="va-l" style="--i:2"><span class="va-num">2.</span>  implement</span>
+<span class="va-l" style="--i:3">    <span class="va-dim2">↓</span></span>
+<span class="va-l" style="--i:4"><span class="va-num">3.</span>  assert</span>
+<span class="va-l" style="--i:5">    <span class="va-key">↻</span>  <span class="va-dim2">repeat — stable</span><span class="va-cursor" style="--cd:1.5s"></span></span></pre>
+    </div>
+    <div class="va-sep"></div>
+    <div class="va-col va-bad">
+      <div class="va-col-head"><span class="va-col-label">models</span><span class="va-col-badge">don't</span></div>
+      <pre><span class="va-l va-model-line" data-idx="0" style="--i:7"><span class="va-dim2">try</span>   claude</span>
+<span class="va-l va-model-line" data-idx="1" style="--i:8"><span class="va-dim2">try</span>   gpt</span>
+<span class="va-l va-model-line" data-idx="2" style="--i:9"><span class="va-dim2">try</span>   codex</span>
+<span class="va-l va-model-line" data-idx="3" style="--i:10"><span class="va-dim2">try</span>   cursor</span>
+<span class="va-l va-model-line" data-idx="4" style="--i:11"><span class="va-dim2">try</span>   next ?</span>
+<span class="va-l" style="--i:12"><span class="va-dim2">switching tools.</span></span></pre>
+    </div>
+  </div>
+)}
+{anim === 'v3' && (
+  <div class="value-art" data-anim="v3">
+    <div class="va-col va-good">
+      <div class="va-col-head"><span class="va-col-label">evolution</span><span class="va-col-badge">do</span></div>
+      <pre><span class="va-l" style="--i:0">items.sum()         <span class="va-ok">✓ tests</span>  ship</span>
+<span class="va-l" style="--i:1">+ tax               <span class="va-ok">✓ tests</span>  ship</span>
+<span class="va-l" style="--i:2">+ discount          <span class="va-ok">✓ tests</span>  ship</span>
+<span class="va-l" style="--i:3">+ refactor          <span class="va-ok">✓ tests</span>  ship</span>
+<span class="va-l" style="--i:4"><span class="va-dim2">———————————————————</span></span>
+<span class="va-l" style="--i:5"><span class="va-dim2">green → ship → loop.</span><span class="va-cursor" style="--cd:1.4s"></span></span></pre>
+    </div>
+    <div class="va-sep"></div>
+    <div class="va-col va-bad">
+      <div class="va-col-head"><span class="va-col-label">perfection</span><span class="va-col-badge">don't</span></div>
+      <pre><span class="va-l" style="--i:7">items.sum()         <span class="va-ok">✓ tests</span></span>
+<span class="va-l" style="--i:8"><span class="va-warn">  →</span> reduce()</span>
+<span class="va-l" style="--i:9"><span class="va-warn">  →</span> fold()</span>
+<span class="va-l" style="--i:10"><span class="va-warn">  →</span> transduce() ?</span>
+<span class="va-l" style="--i:11"><span class="va-warn">  →</span> <span class="va-dim2">…</span></span>
+<span class="va-l" style="--i:12"><span class="va-dim2">green, still refactoring.</span></span></pre>
+    </div>
+  </div>
+)}
+{anim === 'v4' && (
+  <div class="value-art" data-anim="v4">
+    <div class="va-col va-good">
+      <div class="va-col-head"><span class="va-col-label">learning</span><span class="va-col-badge">do</span></div>
+      <pre><span class="va-l" style="--i:0"><span class="va-cmd">$</span> vim <span class="va-str">CONTEXT.md</span>       <span class="va-ok">✓</span></span>
+<span class="va-l" style="--i:1"><span class="va-cmd">$</span> vim <span class="va-str">PATTERNS.md</span>      <span class="va-ok">✓</span></span>
+<span class="va-l" style="--i:2"><span class="va-cmd">$</span> ai <span class="va-str">"implement X"</span></span>
+<span class="va-l" style="--i:3">   → <span class="va-key">aligned</span></span>
+<span class="va-l" style="--i:4">   → reviewed</span>
+<span class="va-l" style="--i:5">   → shipped        <span class="va-ok">✓</span><span class="va-cursor" style="--cd:1.6s"></span></span></pre>
+    </div>
+    <div class="va-sep"></div>
+    <div class="va-col va-bad">
+      <div class="va-col-head"><span class="va-col-label">shortcut</span><span class="va-col-badge">don't</span></div>
+      <pre><span class="va-l" style="--i:7"><span class="va-cmd">&gt;</span> build it all</span>
+<span class="va-l" style="--i:8">  <span class="va-warn">5000 lines · 30s</span></span>
+<span class="va-l" style="--i:9"><span class="va-cmd">&gt;</span> fix the bugs</span>
+<span class="va-l" style="--i:10">  <span class="va-warn">new 3200 lines</span></span>
+<span class="va-l" style="--i:11"><span class="va-cmd">&gt;</span> still broken · fix</span>
+<span class="va-l" style="--i:12">  <span class="va-err">patch hell · throwaway</span></span></pre>
+    </div>
+  </div>
+)}

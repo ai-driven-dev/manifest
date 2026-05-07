@@ -1,0 +1,42 @@
+---
+interface Props {
+  targetType: 'principle' | 'value';
+  targetId: string;
+  className?: string;
+}
+const { targetType, targetId, className = '' } = Astro.props;
+---
+<div class={`vote-widget ${className}`} data-vote-target-type={targetType} data-vote-target-id={targetId}>
+  <button type="button" class="vote-btn vote-up" aria-label="Upvote" data-vote-action="up">+1</button>
+  <span class="vote-score" data-vote-score>0</span>
+  <button type="button" class="vote-btn vote-down" aria-label="Downvote" data-vote-action="down">−1</button>
+</div>
+
+<style>
+.vote-widget {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: var(--paper-2);
+}
+.vote-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--ink-2);
+  padding: 2px 6px;
+  border-radius: 999px;
+  transition: color 0.15s, background 0.15s;
+}
+.vote-btn:hover { color: var(--accent); background: var(--accent-soft); }
+.vote-score { min-width: 1.4ch; text-align: center; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+</style>

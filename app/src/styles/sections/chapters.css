@@ -1,0 +1,94 @@
+/* ============ CHAPTER OPENERS ============ */
+.chapter-open{
+  display: grid;
+  grid-template-columns: minmax(140px, 240px) 1fr;
+  gap: clamp(32px, 5vw, 80px);
+  align-items: start;
+  padding: clamp(72px, 12vh, 140px) 0 clamp(40px, 6vh, 72px);
+  position: relative;
+}
+.chapter-open::before{
+  content:""; position:absolute; left: 0; right: 0; top: 0; height: 1px;
+  background: linear-gradient(to right, transparent, var(--rule) 8%, var(--rule) 92%, transparent);
+}
+.chapter-mark{ position: relative; padding-top: 6px; }
+.chapter-mark .folio{
+  font-family: var(--mono);
+  font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--ink-3);
+  display:flex; align-items:center; gap: 10px;
+  margin-bottom: 32px;
+}
+.chapter-mark .folio::after{ content:""; flex:1; height:1px; background: var(--rule); }
+.drop{
+  font-family: var(--serif);
+  font-variation-settings: "opsz" 144, "wght" 340;
+  font-style: italic;
+  font-size: clamp(120px, 16vw, 200px);
+  line-height: .82;
+  letter-spacing: -0.03em;
+  color: var(--accent);
+  display: block; position: relative;
+}
+.drop::after{
+  content:""; position:absolute;
+  left: 0; bottom: -14px; width: 52px; height: 1px; background: var(--accent);
+}
+.chapter-mark .roman{
+  margin-top: 26px;
+  font-family: var(--mono);
+  font-size: 11px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.chapter-body{ padding-top: 18px; }
+.chapter-eyebrow{
+  font-family: var(--mono);
+  font-size: 10.5px; letter-spacing: .28em; text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 28px;
+  display:flex; align-items:center; gap: 14px;
+}
+.chapter-eyebrow .pip{
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+.chapter-body h2{
+  font-family: var(--serif);
+  font-variation-settings: "opsz" 144, "wght" 340;
+  font-weight: 340;
+  font-size: clamp(40px, 6vw, 88px);
+  line-height: .98;
+  letter-spacing: -0.028em;
+  color: var(--ink);
+  text-wrap: balance;
+  margin-bottom: 36px;
+}
+.chapter-body h2 em{
+  font-style: italic; color: var(--ink-2);
+  font-variation-settings: "opsz" 144, "wght" 340;
+}
+.chapter-body h2 .amp{
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--accent);
+  font-size: 1.08em; padding: 0 .05em;
+  font-variation-settings: "opsz" 144, "wght" 320;
+}
+.chapter-lede{
+  display:grid;
+  grid-template-columns: 64px 1fr;
+  gap: 24px;
+  align-items: start;
+  max-width: 720px;
+}
+.chapter-lede .fleuron{ padding-top: 14px; color: var(--accent); opacity: .9; }
+.chapter-lede p{
+  font-family: var(--serif);
+  font-variation-settings: "opsz" 72, "wght" 360;
+  font-style: italic;
+  font-size: clamp(20px, 1.9vw, 26px);
+  line-height: 1.4;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}

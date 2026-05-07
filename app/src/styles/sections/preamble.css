@@ -1,0 +1,32 @@
+/* ============ HERO PREAMBLE ============ */
+.preamble{
+  padding: clamp(80px, 14vh, 160px) 0 clamp(60px, 10vh, 100px);
+  border-bottom: 1px solid var(--rule);
+  display:grid;
+  grid-template-columns: 1fr 2fr;
+  gap: clamp(24px, 5vw, 80px);
+  align-items: start;
+}
+.preamble .label{
+  font-family: var(--mono);
+  font-size: 11px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--ink-3);
+  padding-top: 8px;
+  display:flex; align-items:center; gap: 12px;
+}
+.preamble .label::before{
+  content:""; width: 24px; height: 1px; background: var(--accent);
+}
+.preamble p{
+  font-family: var(--serif);
+  font-variation-settings: "opsz" 72, "wght" 350;
+  font-style: italic;
+  font-size: clamp(22px, 2.6vw, 36px);
+  line-height: 1.3;
+  color: var(--ink);
+  max-width: 42ch;
+  text-wrap: pretty;
+}
+.preamble p em{
+  font-style: normal; color: var(--accent); font-weight: 400;
+}

@@ -1,0 +1,13 @@
+node_modules
+dist
+.git
+.gitignore
+tests/e2e/baseline
+tests/e2e/visual.spec.ts-snapshots
+playwright-report
+test-results
+*.log
+.env
+.env.*
+.DS_Store
+README.md

@@ -1,0 +1,6 @@
+/* ============ REVEAL ============ */
+.reveal{
+  opacity: 0; transform: translateY(18px);
+  transition: opacity .9s ease, transform .9s cubic-bezier(.2,.7,.2,1);
+}
+.reveal.seen{ opacity: 1; transform: none }

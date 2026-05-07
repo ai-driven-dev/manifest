@@ -1,0 +1,36 @@
+---
+import SignatureWall from '~/components/signature/SignatureWall.astro';
+---
+<section id="sign" class="signature">
+  <div class="left">
+    <h3>Sign the manifesto.</h3>
+    <p>If this reflects how you already work — or how you want to — claim it. Your name. Your link. Nothing else. You join the ones who build with intention.</p>
+
+    <form class="sign-form" id="signForm" onsubmit="return false">
+      <input type="text" id="signName" placeholder="Your name" maxlength="60" required />
+      <input type="url" id="signLinkedin" placeholder="Your LinkedIn" maxlength="200" />
+      <button class="sign-action" type="submit" id="signOpen">Sign <span class="arrow">→</span></button>
+    </form>
+
+    <div>
+      <button class="print-btn" id="printBtn">⎙ Print as broadside</button>
+    </div>
+  </div>
+
+  <div class="seal" aria-hidden="true">
+    <div class="seal-circle">
+      <svg class="ring" viewBox="0 0 180 180">
+        <defs>
+          <path id="circlePath" d="M 90,90 m -74,0 a 74,74 0 1,1 148,0 a 74,74 0 1,1 -148,0"/>
+        </defs>
+        <text>
+          <textPath href="#circlePath">· AI-DRIVEN DEVELOPMENT · FIRST EDITION · 2026 · AI-DRIVEN DEVELOPMENT · </textPath>
+        </text>
+      </svg>
+      <div class="num">12</div>
+    </div>
+    <small>Twelve Principles · Four Values</small>
+  </div>
+
+  <SignatureWall />
+</section>

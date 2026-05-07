@@ -1,0 +1,22 @@
+---
+---
+<dialog id="signDialog" class="sign-dialog">
+  <form method="dialog" id="signDialogForm" class="sign-form">
+    <h4>Sign the manifesto.</h4>
+    <input type="text" id="dialogSignName" placeholder="Your name" maxlength="60" required />
+    <input type="url" id="dialogSignLinkedin" placeholder="Your LinkedIn (optional)" maxlength="200" />
+    <div class="dialog-actions">
+      <button type="button" class="dialog-cancel" data-close>Cancel</button>
+      <button type="submit" class="sign-action">Sign <span class="arrow">→</span></button>
+    </div>
+  </form>
+</dialog>
+<style>
+.sign-dialog { border: 1px solid var(--rule); padding: 24px; border-radius: 4px; background: var(--paper); color: var(--ink); max-width: 420px; width: 90vw; }
+.sign-dialog::backdrop { background: oklch(0.18 0.012 60 / 0.45); }
+.sign-dialog h4 { font-family: var(--serif); font-size: 22px; margin-bottom: 16px; }
+.sign-dialog .sign-form { display: grid; gap: 12px; }
+.sign-dialog input { font-family: var(--sans); font-size: 14px; padding: 10px 12px; border: 1px solid var(--rule); background: var(--paper-2); color: var(--ink); border-radius: 2px; }
+.dialog-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px; }
+.dialog-cancel { background: none; border: 1px solid var(--rule); padding: 8px 14px; cursor: pointer; font-family: var(--mono); font-size: 11px; color: var(--ink-2); border-radius: 2px; }
+</style>

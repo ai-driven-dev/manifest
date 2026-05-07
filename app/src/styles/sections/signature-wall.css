@@ -1,0 +1,59 @@
+/* ============ SIGNATURE WALL ============ */
+.wall{
+  margin-top: clamp(48px, 8vh, 80px);
+  padding: 36px 0 0;
+  border-top: 1px solid var(--rule);
+  grid-column: 1 / -1;
+}
+.wall .wall-head{
+  font-family: var(--mono);
+  font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 20px;
+  display:flex; align-items:center; gap: 14px;
+}
+.wall .wall-head::before{
+  content:""; width: 24px; height: 1px; background: var(--accent);
+}
+.wall-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 18px 24px;
+}
+.sig{
+  font-family: var(--hand);
+  font-size: clamp(22px, 2.3vw, 28px);
+  line-height: 1;
+  color: var(--ink);
+  position: relative;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+  overflow: hidden;
+}
+.sig.new::before{
+  content:""; position:absolute; inset: 0;
+  background: linear-gradient(90deg, var(--accent-soft), transparent);
+  animation: sig-ink 1.2s ease-out forwards;
+  pointer-events:none;
+}
+@keyframes sig-ink{
+  0%{ clip-path: inset(0 100% 0 0) }
+  100%{ clip-path: inset(0 0 0 0); opacity: 0 }
+}
+.sig a{
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px dashed transparent;
+  transition: border-color .2s, color .2s;
+}
+.sig a:hover{
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+.sig .meta{
+  display:block;
+  font-family: var(--mono);
+  font-size: 9px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--ink-3);
+  margin-top: 4px;
+}
