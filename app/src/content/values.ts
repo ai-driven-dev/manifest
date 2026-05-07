@@ -14,7 +14,7 @@ export interface ValueEntry {
   right: string;
   /** Short note rendered under the pair (HTML allowed) */
   note: string;
-  /** Stable id used by API targets (vote/feedback) */
+  /** Stable id (kept for anchors and reveal targeting) */
   id: string;
 }
 

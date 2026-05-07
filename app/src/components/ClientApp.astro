@@ -1,18 +1,15 @@
 ---
-// Single client island: wires observers, parallax, tweaks panel, sign+vote+downvote flows.
+// Single client island: wires observers, parallax, tweaks panel.
 // EDIT MODE sentinel preserved verbatim (do not rename markers).
 ---
 <script>
   import { observeReveals, observeTerminals, observeValueArt, attachHeroParallax } from '~/lib/observers';
-  import { refreshSignatureCount, wireFloatingChrome, wireSignFlow, wireVoteWidgets } from '~/lib/wire';
 
-  // ------- Reveals + animations -------
   observeReveals();
   observeTerminals();
   observeValueArt();
   attachHeroParallax();
 
-  // ------- Tweaks panel (preserves documentElement indirection) -------
   const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
     "accentHue": 28,
     "paper": "cool",
@@ -90,11 +87,4 @@
   document.getElementById('serifScale')?.addEventListener('input', (e) => persist({ serifScale: Number((e.target as HTMLInputElement).value) }));
   document.getElementById('rainbowToggle')?.addEventListener('change', (e) => persist({ rainbow: (e.target as HTMLInputElement).checked }));
   applyState();
-
-  // ------- Wired flows -------
-  refreshSignatureCount();
-  wireFloatingChrome();
-  wireSignFlow();
-  wireVoteWidgets();
-  document.getElementById('printBtn')?.addEventListener('click', () => window.print());
 </script>

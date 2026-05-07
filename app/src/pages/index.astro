@@ -1,33 +1,25 @@
 ---
 import Page from '~/components/layout/Page.astro';
-import FloatingChrome from '~/components/layout/FloatingChrome.astro';
 import Footer from '~/components/layout/Footer.astro';
 import Cover from '~/components/sections/Cover.astro';
 import Preamble from '~/components/sections/Preamble.astro';
 import Values from '~/components/sections/Values.astro';
 import Principles from '~/components/sections/Principles.astro';
-import Signature from '~/components/sections/Signature.astro';
-import SignDialog from '~/components/signature/SignDialog.astro';
-import DownvoteDialog from '~/components/voting/DownvoteDialog.astro';
 import TweaksPanel from '~/components/tweaks/TweaksPanel.astro';
 import ClientApp from '~/components/ClientApp.astro';
 ---
 <Page>
   <a href="#main" class="skip-link">Skip to content</a>
   <span id="top"></span>
-  <FloatingChrome />
   <main id="main">
     <Cover />
     <div class="wrap">
       <Preamble />
       <Values />
       <Principles />
-      <Signature />
       <Footer />
     </div>
   </main>
   <TweaksPanel />
-  <SignDialog />
-  <DownvoteDialog />
   <ClientApp />
 </Page>

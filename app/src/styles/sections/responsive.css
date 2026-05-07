@@ -1,4 +1,6 @@
 /* ============ RESPONSIVE ============ */
+
+/* ---- Tablet & narrow desktop (≤ 900px) ---- */
 @media (max-width: 900px){
   .preamble{grid-template-columns: 1fr; gap: 16px}
   .chapter-open{grid-template-columns: 1fr; gap: 16px}
@@ -15,5 +17,153 @@
     padding-right: 0 !important; padding-left: 0 !important;
     grid-template-columns: 48px 1fr;
   }
-  .signature{grid-template-columns: 1fr}
+}
+
+/* ---- Phone (≤ 560px) — tighter rhythm, no horizontal escapes ---- */
+@media (max-width: 560px){
+  /* Symmetric, generous-enough side margins. --gutter is the single source
+     of truth so child sections can either honor it or break out of it
+     (full-bleed) without guessing. */
+  :root{ --gutter: 20px; }
+  .wrap{ padding: 0 var(--gutter); }
+
+  /* Cover — calmer monument: smaller floor, gentler indents, contained watermark */
+  .cover{
+    padding: 24px var(--gutter);
+    grid-template-rows: 40px 1fr 40px;
+    overflow: hidden;
+  }
+  .cover-rule-top{ top: 40px; }
+  .cover-rule-bottom{ bottom: 40px; }
+  .cover-title{
+    font-size: clamp(44px, 13vw, 64px);
+    letter-spacing: -0.03em;
+    line-height: 0.92;
+    max-width: 100%;
+  }
+  .cover-title .line-2{ margin-left: 8vw; }
+  .cover-title .line-3{ margin-left: 0; }
+  .cover-title .line-4{ margin-left: 12vw; }
+  .cover-watermark{
+    width: min(96vmin, 460px);
+    height: min(96vmin, 460px);
+    transform: translate(-50%, calc(-50% + 2vh));
+    color: oklch(from var(--accent) l c h / 0.05);
+    filter: none;
+  }
+
+  /* Chapter opener — smaller drop cap so it doesn't crush the line */
+  .drop{ font-size: 84px; }
+  h2{ font-size: clamp(28px, 7.5vw, 36px); line-height: 1.1; }
+
+  /* Plate (values) — single column, tighter, no horizontal art bleed */
+  .plate{ gap: 32px; padding: 16px 0 32px; }
+  .plate-row{
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 28px 0 20px;
+  }
+  .plate-row .over, .plate-row .right, .plate-row .note{ grid-column: 1; }
+  .pr-folio{
+    font-size: clamp(36px, 11vw, 52px);
+    padding-top: 0;
+    line-height: 0.9;
+  }
+  .pr-text{ gap: 8px; }
+  .pr-text .pr-kicker{ font-size: 10px; letter-spacing: 0.18em; padding-left: 10px; }
+  .pr-text .left{ font-size: clamp(28px, 8.5vw, 40px); line-height: 1; }
+  .pr-text .over{ font-size: 14px; }
+  .pr-text .right{ font-size: clamp(20px, 5.5vw, 26px); }
+  .pr-text .note{ font-size: 16px; line-height: 1.45; max-width: 100%; }
+
+  /* Value-art — full-bleed terminal on mobile: escape the .wrap gutter so
+     the dark animation panel goes edge-to-edge, the way a printed plate would. */
+  .pr-art{
+    border-radius: 0;
+    margin-left: calc(var(--gutter) * -1);
+    margin-right: calc(var(--gutter) * -1);
+    box-shadow:
+      0 1px 0 oklch(0.32 0.02 60) inset,
+      0 -1px 0 oklch(0.26 0.02 60) inset;
+  }
+  .value-art{
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 22px var(--gutter);
+    font-size: 10.5px;
+    line-height: 1.65;
+    min-height: unset;
+  }
+  .va-col pre, .value-art pre{
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .va-sep{
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent 0%, oklch(0.3 0.02 60) 12%, oklch(0.3 0.02 60) 88%, transparent 100%);
+  }
+
+  /* Values footnote — stack the label */
+  .values-note{ grid-template-columns: 1fr; gap: 12px; padding: 12px 0 0; }
+  .values-note p{ font-size: 17px; line-height: 1.45; }
+  .values-epigraph p{ font-size: clamp(16px, 4.5vw, 20px); }
+
+  /* Principles — single column, comfortable padding */
+  .principles{ padding-bottom: 48px; }
+  .principle{
+    grid-template-columns: 44px 1fr;
+    gap: 16px;
+    padding-top: 28px !important;
+    padding-bottom: 28px !important;
+  }
+  .principle .p-folio{
+    font-size: clamp(56px, 18vw, 96px);
+    top: 12px;
+    right: 4px;
+    opacity: 0.07;
+  }
+  .p-num{ font-size: clamp(30px, 9vw, 40px); padding-top: 2px; }
+  .p-lead{ font-size: clamp(18px, 5.2vw, 22px); line-height: 1.28; }
+  .p-sub{ font-size: 14px; max-width: 100%; }
+}
+
+/* ---- Animation discipline on small screens ----
+   On phones the maximalist motion (CRT scanlines, watermark blur, char-by-char
+   reveals, repeating animations) is heavy and reads as jitter. We keep the
+   identity but reduce intensity. prefers-reduced-motion still wins above this. */
+@media (max-width: 560px){
+  /* Drop CRT scanlines on phones — they fight the small font */
+  .pr-art::after{ display: none; }
+
+  /* Calmer reveal on value-art: batch the chars, drop the per-line stagger */
+  .value-art .va-c{
+    transition: opacity .2s linear !important;
+    transition-delay: 0s !important;
+  }
+  .value-art .va-l{
+    transition: opacity .35s ease, transform .35s ease !important;
+    transition-delay: 0s !important;
+  }
+  .value-art[data-anim="v4"].on .va-c{
+    transition-delay: 0s !important;
+  }
+
+  /* Cursor blink kept, but no glow on small */
+  .value-art .va-key,
+  .value-art .va-accent,
+  .value-art .va-model-line.va-cur{ text-shadow: none !important; }
+
+  /* Cover: keep word-rise, but skip the watermark bar/dot animations
+     (they sit behind the title and on small screens just feel like a flicker). */
+  .cw-bar-small, .cw-dot, .cw-bar-big{
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  /* The redaction strike is the cover's signature gesture — keep, just lower glow */
+  .cover-title .ai-strike{ box-shadow: none; }
+
+  /* Smooth scroll off — momentum scroll on iOS is enough */
+  html{ scroll-behavior: auto; }
 }

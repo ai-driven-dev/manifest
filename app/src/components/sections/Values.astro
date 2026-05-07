@@ -1,7 +1,6 @@
 ---
 import { VALUES } from '~/content/values';
 import ValueArt from '~/components/values/ValueArt.astro';
-import VoteWidget from '~/components/voting/VoteWidget.astro';
 ---
 <section id="values" class="values">
   <div class="chapter-open reveal">
@@ -39,9 +38,6 @@ import VoteWidget from '~/components/voting/VoteWidget.astro';
             <svg class="strike" preserveAspectRatio="none" viewBox="0 0 400 12"><path d="M2 6 Q 100 3, 200 7 T 398 5"/></svg>
           </div>
           <div class="note" set:html={v.note} />
-          <div class="value-vote">
-            <VoteWidget targetType="value" targetId={v.id} />
-          </div>
         </div>
         <div class="pr-art">
           <ValueArt anim={v.anim} />
@@ -56,6 +52,3 @@ import VoteWidget from '~/components/voting/VoteWidget.astro';
   </div>
 </section>
 
-<style>
-.value-vote { margin-top: 10px; }
-</style>
