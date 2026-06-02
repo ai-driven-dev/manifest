@@ -13,6 +13,10 @@ jobs:
         working-directory: app
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history so the signature-date generator (prebuild) can read
+          # each signatory file's add commit.
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
