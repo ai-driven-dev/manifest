@@ -5,8 +5,11 @@
   "license": "MIT",
   "private": true,
   "scripts": {
+    "gen:signature-dates": "node scripts/gen-signature-dates.mjs",
+    "predev": "node scripts/gen-signature-dates.mjs",
     "dev": "astro dev",
     "start": "astro dev",
+    "prebuild": "node scripts/gen-signature-dates.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",

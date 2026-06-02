@@ -154,13 +154,18 @@
 .sig-card{
   position: relative;
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  gap: 10px;
   padding: 14px 14px 14px 12px;
   background: var(--paper-2);
   border: 1px solid var(--rule);
   border-radius: 10px;
   transition: transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .25s, border-color .25s;
+}
+.sig-top{
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 .sig-card:hover{
   transform: translateY(-2px);
@@ -213,6 +218,18 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.sig-statement{
+  margin: 0;
+  padding-top: 2px;
+  font-family: var(--serif);
+  font-variation-settings: "opsz" 28, "wght" 360;
+  font-style: italic;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  border-top: 1px solid oklch(from var(--rule) l c h / 0.6);
 }
 
 .sig-linkedin{

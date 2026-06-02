@@ -9,7 +9,10 @@ file. Filename collisions are impossible because GitHub handles are unique.
 - `github` — GitHub handle, e.g. `alexsoyes`. Used to fetch the avatar
   (`https://github.com/{handle}.png`) and link to the profile.
 - `name` — Display name, e.g. `Alexandre Soyer`.
-- `signed_on` — ISO date the file was signed, e.g. `2026-05-08`.
+
+> There is **no** `signed_on` field. The signature date is derived from the git
+> commit that added your file (committer date), so it cannot be backdated.
+> See `app/scripts/gen-signature-dates.mjs`.
 
 ## Optional fields
 
@@ -24,7 +27,6 @@ github: alexsoyes
 name: Alexandre Soyer
 linkedin: https://www.linkedin.com/in/alexandre-soyer/
 affiliation: AI-Driven Dev
-signed_on: 2026-05-08
 statement: >
   This is how I already build software with AI, and how I
   want the trade to mature.

@@ -10,11 +10,9 @@ const signatories = defineCollection({
     name: z.string().min(1).max(120),
     linkedin: z.string().url().optional(),
     affiliation: z.string().max(120).optional(),
-    // YAML loaders auto-parse `YYYY-MM-DD` as a Date — accept both, normalize
-    // back to ISO `YYYY-MM-DD` so consumers always see a string.
-    signed_on: z
-      .union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/), z.date()])
-      .transform((v) => (v instanceof Date ? v.toISOString().slice(0, 10) : v)),
+    // No `signed_on` field: the signature date is derived from the git commit
+    // that added the file (scripts/gen-signature-dates.mjs → signature-dates.json),
+    // so it cannot be backdated by editing the YAML.
     statement: z.string().max(280).optional(),
   }),
 });

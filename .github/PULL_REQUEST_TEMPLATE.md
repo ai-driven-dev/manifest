@@ -9,8 +9,8 @@ For any other change, delete the checklist and describe the change.
 ## Signing the manifesto
 
 - [ ] My YAML file lives at `app/src/content/signatories/{my-github-handle}.yml`
-- [ ] The `github` field matches my handle and the filename
-- [ ] `name` and `signed_on` (YYYY-MM-DD) are filled
+- [ ] The `github` field matches my handle
+- [ ] `name` is filled (the signature date comes from the commit — nothing to set)
 - [ ] Optional `linkedin` is a full URL, `statement` is ≤ 280 chars
 - [ ] By signing, I state that the manifesto reflects how I already work,
       or how I mean to. I am not signing for my employer.

@@ -2,6 +2,9 @@
 dist/
 .astro/
 
+# generated: signature dates derived from git history (scripts/gen-signature-dates.mjs)
+src/content/signature-dates.json
+
 # deps
 node_modules/
 
