@@ -30,9 +30,12 @@
   margin-bottom: 16px;
 }
 .si-mark{
+  display: inline-flex; align-items: center; gap: 9px;
   font-family: var(--display); font-weight: 800;
   font-size: 18px; letter-spacing: -0.03em; color: var(--ink);
 }
+.si-logo{ width: 20px; height: 20px; color: var(--ink); flex: none; }
+.si-word{ line-height: 1; }
 .si-ver{
   font-family: var(--sans); font-size: 11px;
   letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3);
@@ -54,6 +57,21 @@
 .si-link:hover{ color: var(--ink); }
 .si-link.active{ color: var(--ink); border-color: var(--accent); }
 .si-link.active .si-n{ color: var(--accent); }
+
+/* Persistent sign CTA at the foot of the index */
+.si-cta{
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 20px;
+  min-height: 44px; padding: 0 14px;
+  font-family: var(--sans); font-size: 13px; font-weight: 500;
+  letter-spacing: -0.005em;
+  color: var(--accent-ink); background: var(--accent);
+  border: 1px solid var(--accent); border-radius: var(--radius-pill);
+  text-decoration: none;
+  transition: filter .2s var(--ease-out), transform .2s var(--ease-out);
+}
+.si-cta:hover{ filter: brightness(1.08); transform: translateY(-1px); }
+.si-cta:active{ transform: translateY(0); }
 
 @media (max-width: 900px){
   .doc-layout{ grid-template-columns: minmax(0, 1fr); gap: 0; }

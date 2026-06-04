@@ -110,8 +110,8 @@
   background: linear-gradient(
     to bottom,
     transparent 0%,
-    oklch(0.3 0.05 270) 10%,
-    oklch(0.3 0.05 270) 90%,
+    oklch(0.46 0.045 270) 10%,
+    oklch(0.46 0.045 270) 90%,
     transparent 100%
   );
   width: 1px;
@@ -293,8 +293,8 @@
     background: linear-gradient(
       to right,
       transparent 0%,
-      oklch(0.3 0.05 270) 10%,
-      oklch(0.3 0.05 270) 90%,
+      oklch(0.46 0.045 270) 10%,
+      oklch(0.46 0.045 270) 90%,
       transparent 100%
     );
   }

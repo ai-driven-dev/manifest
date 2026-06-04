@@ -5,7 +5,7 @@
   min-height: 100dvh;
   display: flex;
   align-items: center;
-  padding: clamp(72px, 12vh, 132px) clamp(24px, 6vw, 96px);
+  padding: clamp(56px, 7vh, 88px) clamp(24px, 6vw, 96px);
   z-index: 2;
   overflow: hidden;
   isolation: isolate;
@@ -62,8 +62,9 @@
 .cover-title{
   font-family: var(--display);
   font-weight: 800;
-  font-size: clamp(48px, 12vw, 168px);
-  line-height: 0.92;
+  /* vh-aware so the hero always fits a single 100dvh fold on desktop */
+  font-size: clamp(44px, min(9vw, 13.5vh), 124px);
+  line-height: 0.9;
   letter-spacing: -0.045em;
   color: var(--ink);
   max-width: 16ch;
