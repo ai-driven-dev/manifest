@@ -26,5 +26,17 @@ jobs:
       - run: npm run build
       - run: npm test
       - run: bash tests/check-component-loc.sh
-      - run: npx playwright install --with-deps chromium
+      # Cache the browser so re-runs skip the download entirely.
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('app/package-lock.json') }}
+      # noninteractive + timeout so the apt step for system deps can never hang
+      # the job indefinitely (it was stalling builds).
+      - name: Install Playwright chromium + system deps
+        timeout-minutes: 8
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: npx playwright install --with-deps chromium
       - run: npm run test:checklist
