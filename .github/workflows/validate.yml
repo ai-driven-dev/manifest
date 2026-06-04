@@ -34,8 +34,17 @@ jobs:
           key: playwright-${{ runner.os }}-${{ hashFiles('app/package-lock.json') }}
       # Browser binary only (cached above). We drop `--with-deps`: its apt step
       # stalls indefinitely on the runner, and ubuntu-latest already ships the
-      # system libs headless chromium needs. Timeout kept as a safety net.
+      # system libs headless chromium needs. The Playwright CDN download is
+      # flaky on this runner (stalls mid-transfer), so retry with a per-attempt
+      # timeout that kills a stalled attempt and tries again.
       - name: Install Playwright chromium
-        timeout-minutes: 5
-        run: npx playwright install chromium
+        timeout-minutes: 9
+        run: |
+          for attempt in 1 2 3; do
+            echo "Playwright install attempt $attempt"
+            if timeout 150 npx playwright install chromium; then exit 0; fi
+            echo "attempt $attempt stalled/failed; retrying"
+            sleep 5
+          done
+          echo "all attempts failed"; exit 1
       - run: npm run test:checklist
