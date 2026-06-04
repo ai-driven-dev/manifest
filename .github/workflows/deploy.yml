@@ -170,7 +170,6 @@ jobs:
             "/robots.txt" \
             "/sitemap.xml" \
             "/feed.xml" \
-            "/site.webmanifest" \
             "/.well-known/security.txt" \
             "/.well-known/agent-card.json" \
             "/${INDEXNOW_KEY}.txt"; do
