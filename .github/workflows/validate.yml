@@ -32,11 +32,10 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('app/package-lock.json') }}
-      # noninteractive + timeout so the apt step for system deps can never hang
-      # the job indefinitely (it was stalling builds).
-      - name: Install Playwright chromium + system deps
-        timeout-minutes: 8
-        env:
-          DEBIAN_FRONTEND: noninteractive
-        run: npx playwright install --with-deps chromium
+      # Browser binary only (cached above). We drop `--with-deps`: its apt step
+      # stalls indefinitely on the runner, and ubuntu-latest already ships the
+      # system libs headless chromium needs. Timeout kept as a safety net.
+      - name: Install Playwright chromium
+        timeout-minutes: 5
+        run: npx playwright install chromium
       - run: npm run test:checklist
