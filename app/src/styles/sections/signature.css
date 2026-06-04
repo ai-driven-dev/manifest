@@ -54,9 +54,11 @@
 
 /* ---- Sign button — accent-blue fill pill, the one strong CTA ---- */
 .sign-btn{
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 14px;
+  min-height: 52px;
   padding: 10px 20px 10px 10px;
   border-radius: var(--radius-pill);
   background: var(--accent);
@@ -319,4 +321,35 @@
   .sig-grid{
     grid-template-columns: 1fr;
   }
+}
+
+/* ---- Handwritten signature inside the button — sits under the label and
+   draws itself in as the button scrolls into view (re-signs on hover). ---- */
+.sign-btn-sig{
+  display: block;
+  width: min(186px, 76vw);
+  height: 22px;
+  margin-top: 5px;
+  overflow: visible;
+  color: var(--accent-ink);
+}
+.sign-btn-sig path{
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  /* Draws itself once shortly after load, then stays signed (works in every
+     browser, visible regardless of scroll position). Re-signs on hover. */
+  animation: sig-draw 1.3s var(--ease-out) 0.5s forwards;
+}
+@keyframes sig-draw{ to{ stroke-dashoffset: 0; } }
+.sign-btn:hover .sign-btn-sig path,
+.sign-btn:focus-visible .sign-btn-sig path{
+  animation: sig-draw 1s var(--ease-out) both;
+}
+@media (prefers-reduced-motion: reduce){
+  .sign-btn-sig path{ animation: none; stroke-dashoffset: 0; }
 }

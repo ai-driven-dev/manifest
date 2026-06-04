@@ -59,10 +59,10 @@
   color: var(--mint);
 }
 
-/* Body — the scrollable code lines */
+/* Body — the code lines. No forced min-height: the panel hugs its content
+   (lines reserve their space at opacity 0, so there is no layout shift). */
 .term .body{
-  padding: clamp(10px, 1.4vw, 14px) clamp(18px, 2.2vw, 24px) clamp(16px, 2vw, 22px);
-  min-height: 130px;
+  padding: clamp(10px, 1.4vw, 14px) clamp(18px, 2.2vw, 24px) clamp(16px, 2vw, 20px);
   position: relative;
   z-index: 2;
 }

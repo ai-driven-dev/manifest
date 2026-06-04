@@ -1,56 +1,45 @@
 /* ============ PRINCIPLES — twelve commitments, citable reference grid ============ */
 .principles{ padding: 0 0 clamp(16px, 2.5vh, 28px); }
 
-/* ---- Grid ---- */
+/* ---- List: one commitment per full-width row, stacked vertically ---- */
 .p-grid{
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
+  grid-template-columns: 1fr;
   gap: 0;
   border-top: 1px solid var(--rule);
 }
 
-/* ---- Card ---- */
+/* ---- Row: number · statement · code panel, side by side ---- */
 .principle{
-  grid-column: span 6;
-  padding: clamp(32px, 4.5vh, 52px) clamp(28px, 3.2vw, 52px);
-  border-bottom: 1px solid var(--rule);
   position: relative;
   display: grid;
-  grid-template-columns: 64px 1fr;
-  gap: 22px;
+  grid-template-columns: clamp(48px, 5vw, 64px) minmax(0, 1fr) minmax(300px, 460px);
+  gap: clamp(20px, 3vw, 56px);
   align-items: start;
+  padding: clamp(28px, 4vh, 48px) 0;
+  border-bottom: 1px solid var(--rule);
   overflow: hidden;
   background: var(--paper);
   transition: background var(--dur-short) var(--ease-out);
   /* preserve JS hooks */
   --value-hue: var(--p-hue, 270);
 }
-.principle:nth-child(odd){
-  border-right: 1px solid var(--rule);
-}
 .principle:hover{
   background: var(--paper-2);
 }
-
-/* Ghost folio watermark — faint ink numeral, large, top-right */
-.principle .p-folio{
-  position: absolute;
-  top: clamp(16px, 2.2vh, 26px);
-  right: clamp(18px, 2.2vw, 32px);
-  font-family: var(--display);
-  font-style: normal;
-  font-weight: 800;
-  font-size: clamp(80px, 10vw, 150px);
-  line-height: 0.8;
-  color: var(--ink);
-  opacity: 0.04;
-  letter-spacing: -0.05em;
-  user-select: none;
-  pointer-events: none;
-  z-index: 0;
-  transition: opacity var(--dur-med) var(--ease-out);
+/* Code panel sits in the third column, aligned with the statement (not full-width) */
+.principle .term{
+  grid-column: 3;
+  margin-top: 4px;
+  align-self: start;
 }
-.principle:hover .p-folio{ opacity: 0.07; }
+/* Number + statement live in the first two columns */
+.principle .p-num{ grid-column: 1; }
+.principle .p-body{ grid-column: 2; }
+
+/* Ghost folio numeral removed in the row layout (the code panel occupies the
+   right column; the .p-num in column 1 is the citable number). */
+.principle .p-folio{ display: none; }
 .principle > *{ position: relative; z-index: 1; }
 
 /* ---- Number ---- */
@@ -149,18 +138,26 @@
   font-size: 11px;
 }
 
-/* Ensure last odd card keeps its right rule */
-.principle:last-child:nth-child(odd){ border-right: 1px solid var(--rule); }
-
-/* ---- Mobile ---- */
-@media (max-width: 720px){
+/* ---- Tablet: drop the side code panel under the statement ---- */
+@media (max-width: 1024px){
   .principle{
-    grid-column: span 12;
-    border-right: none !important;
-    grid-template-columns: 48px 1fr;
-    gap: 16px;
-    padding: clamp(24px, 5vw, 36px) clamp(20px, 5vw, 32px);
+    grid-template-columns: clamp(48px, 6vw, 60px) minmax(0, 1fr);
+    gap: clamp(16px, 3vw, 28px) clamp(20px, 4vw, 40px);
+  }
+  .principle .term{
+    grid-column: 1 / -1;
+    margin-top: clamp(14px, 2vh, 20px);
+  }
+}
+
+/* ---- Mobile: number over statement, panel below ---- */
+@media (max-width: 560px){
+  .principle{
+    grid-template-columns: 44px 1fr;
+    gap: 14px;
+    padding: clamp(24px, 6vw, 36px) 0;
   }
   .p-num{ font-size: clamp(32px, 8vw, 44px); }
   .p-lead{ font-size: clamp(18px, 4.5vw, 22px); }
+  .principle .term{ grid-column: 1 / -1; }
 }
