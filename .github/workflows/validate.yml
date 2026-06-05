@@ -44,6 +44,10 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+      # The container runs as root while the checkout is owned by another uid,
+      # so git refuses the repo ("dubious ownership"). The webServer prebuild
+      # (gen-signature-dates.mjs) needs git, so mark the workspace as safe.
+      - run: git config --global --add safe.directory '*'
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
