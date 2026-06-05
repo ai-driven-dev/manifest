@@ -1,2 +1,10 @@
-# Default ownership for the public manifesto repository.
-* @ai-driven-dev/core-team
+# Security gate: only the `habilitated` maintainers (approve/merge, guard the
+# standard) own the code-execution vectors. A PR touching any of these paths
+# requires a habilitated review before merge. Signatory `.yml` files have no
+# owner here on purpose, so the high-volume signing flow is not gated.
+/.github/                 @ai-driven-dev/habilitated
+/app/scripts/             @ai-driven-dev/habilitated
+/app/package.json         @ai-driven-dev/habilitated
+/app/package-lock.json    @ai-driven-dev/habilitated
+/app/*.config.*           @ai-driven-dev/habilitated
+Dockerfile                @ai-driven-dev/habilitated

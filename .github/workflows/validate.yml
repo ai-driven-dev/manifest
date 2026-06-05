@@ -28,12 +28,15 @@ jobs:
       - run: npm test
       - run: bash tests/check-component-loc.sh
 
-  # Separate, non-blocking job: the Playwright e2e checklist. The runner's
-  # egress to the Playwright CDN (and apt) stalls, so browser install is
-  # unreliable here; keeping e2e out of the required `build` check stops a
-  # runner/network issue from blocking merges. Run locally before pushing.
+  # Separate, non-blocking job: the Playwright e2e checklist. Downloading the
+  # browser on a bare runner stalls after 100% (the install never resolves),
+  # so we run inside the official Playwright image which ships the browsers
+  # pre-installed (PLAYWRIGHT_BROWSERS_PATH=/ms-playwright). No download, no
+  # stall. Tag must match the playwright version in app/package-lock.json.
   e2e:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.59.1-noble
     defaults:
       run:
         working-directory: app
@@ -41,25 +44,14 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+      # The container runs as root while the checkout is owned by another uid,
+      # so git refuses the repo ("dubious ownership"). The webServer prebuild
+      # (gen-signature-dates.mjs) needs git, so mark the workspace as safe.
+      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
           cache: 'npm'
           cache-dependency-path: app/package-lock.json
       - run: npm ci
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('app/package-lock.json') }}
-      - name: Install Playwright chromium
-        timeout-minutes: 9
-        run: |
-          for attempt in 1 2 3; do
-            echo "Playwright install attempt $attempt"
-            if timeout 150 npx playwright install chromium; then exit 0; fi
-            echo "attempt $attempt stalled/failed; retrying"
-            sleep 5
-          done
-          echo "all attempts failed"; exit 1
       - run: npm run test:checklist
