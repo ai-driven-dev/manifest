@@ -311,13 +311,8 @@
   .sig-card{ border-color: var(--rule); box-shadow: none; }
 }
 
-/* ---- Mobile ---- */
-@media (max-width: 560px){
-  .sig-grid{
-    grid-template-columns: 1fr 1fr;
-  }
-}
-@media (max-width: 400px){
+/* ---- Mobile: stack signatories one under another (full-width cards) ---- */
+@media (max-width: 640px){
   .sig-grid{
     grid-template-columns: 1fr;
   }
