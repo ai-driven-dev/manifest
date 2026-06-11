@@ -53,18 +53,13 @@ npm run build
 
 ## Review And Merge
 
-Anyone may open a pull request. External contributors fork the repo and open the
-PR from their fork, so no repository access is needed to contribute.
+Anyone may open a PR. Everyone contributes from a fork — Core Team members
+included. `main` is protected: only the **Habilitated** maintainer team can
+push branches and merge.
 
-`main` is protected by a ruleset. Every PR needs one approval, a passing `build`
-check, and a code-owner review for changes that execute code (workflows,
-scripts, dependency manifests, build config, Dockerfile). Force-pushes and
-branch deletion are blocked.
-
-The **Habilitated** maintainer team merges. The **Core Team** reviews
-contributions and preserves the canonical text. Admins keep a pull-request-only
-bypass for emergencies. Minor fixes can be merged quickly; manifesto changes
-need discussion and clear agreement.
+The **Habilitated** team merges; the **Core Team** reviews contributions and
+preserves the canonical text. Minor fixes can be merged quickly. Manifesto
+changes need discussion and clear agreement.
 
 ## Conduct
 

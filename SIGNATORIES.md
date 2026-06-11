@@ -7,10 +7,13 @@ request.
 
 ## The fast path (recommended)
 
-Click the link below. It opens GitHub's web editor with the file already
-pre-filled.
+Go to **[ai-driven-development.org](https://ai-driven-development.org)** and
+click **Sign the manifesto**. It opens GitHub's web editor with the file
+already pre-filled — same link as
+[this one](https://github.com/ai-driven-dev/manifest/new/main/app/src/content/signatories?filename=YOUR-HANDLE.yml&value=github%3A%20your-handle%0Aname%3A%20Your%20Full%20Name%0Alinkedin%3A%20%23%20optional%20-%20https%3A%2F%2Fwww.linkedin.com%2Fin%2F...%0Aaffiliation%3A%20%23%20optional%20-%20title%20or%20company%0Asigned_on%3A%202026-05-08%0Astatement%3A%20%23%20optional%20-%20one-line%20public%20statement%20%28max%20280%20chars%29%0A).
 
-→ **[Open the prefilled editor](https://github.com/ai-driven-dev/manifest/new/main/app/src/content/signatories?filename=YOUR-HANDLE.yml&value=github%3A%20your-handle%0Aname%3A%20Your%20Full%20Name%0Alinkedin%3A%20%23%20optional%20-%20https%3A%2F%2Fwww.linkedin.com%2Fin%2F...%0Aaffiliation%3A%20%23%20optional%20-%20title%20or%20company%0Asigned_on%3A%202026-05-08%0Astatement%3A%20%23%20optional%20-%20one-line%20public%20statement%20%28max%20280%20chars%29%0A)**
+This flow is for **everyone — Core Team members included**. Nobody has push
+access to this repository; GitHub forks it for you automatically.
 
 What happens:
 
@@ -29,8 +32,12 @@ next deploy.
 
 ## The slow path (if you prefer your terminal)
 
+You need a fork — pushing branches to `ai-driven-dev/manifest` directly is
+rejected (403) unless you are a maintainer. With the [GitHub CLI](https://cli.github.com)
+the fork is one command:
+
 ```bash
-git clone https://github.com/ai-driven-dev/manifest.git
+gh repo fork ai-driven-dev/manifest --clone
 cd manifest
 cp app/src/content/signatories/_SCHEMA.md app/src/content/signatories/your-handle.yml
 # edit your-handle.yml, fill the fields
@@ -38,6 +45,15 @@ git checkout -b sign/your-handle
 git add app/src/content/signatories/your-handle.yml
 git commit -m "sign: Your Name"
 git push origin sign/your-handle
+gh pr create --fill
+```
+
+Already cloned the upstream repo and got a 403 on push? Fix it from inside
+your clone — `gh repo fork` forks it and adds a remote, then push there:
+
+```bash
+gh repo fork --remote --remote-name fork
+git push fork sign/your-handle
 gh pr create --fill
 ```
 

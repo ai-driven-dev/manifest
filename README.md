@@ -22,7 +22,10 @@ for practitioners.
 
 Signing is public and Git-based: one YAML file, one pull request, no backend.
 
-[Open the prefilled GitHub editor](https://github.com/ai-driven-dev/manifest/new/main/app/src/content/signatories?filename=YOUR-HANDLE.yml&value=github%3A%20your-handle%0Aname%3A%20Your%20Full%20Name%0Alinkedin%3A%20%23%20optional%20-%20https%3A%2F%2Fwww.linkedin.com%2Fin%2F...%0Aaffiliation%3A%20%23%20optional%20-%20title%20or%20company%0Asigned_on%3A%202026-05-08%0Astatement%3A%20%23%20optional%20-%20one-line%20public%20statement%20%28max%20280%20chars%29%0A)
+Go to **[ai-driven-development.org](https://ai-driven-development.org)** and
+click **Sign the manifesto**. GitHub forks the repo for you (nobody pushes
+branches to this repository directly — Core Team members included), opens a
+prefilled editor, and turns your file into a pull request automatically.
 
 Guide: [SIGNATORIES.md](./SIGNATORIES.md)  
 Schema: [app/src/content/signatories/_SCHEMA.md](./app/src/content/signatories/_SCHEMA.md)
