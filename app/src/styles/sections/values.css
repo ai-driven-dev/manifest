@@ -16,8 +16,30 @@
   gap: clamp(14px, 2vh, 22px) clamp(32px, 5vw, 72px);
   align-items: start;
   position: relative;
-  padding: clamp(30px, 5vh, 52px) 0 clamp(24px, 4vh, 40px);
+  padding: clamp(44px, 7vh, 80px) 0 clamp(40px, 6vh, 64px);
+  scroll-margin-top: clamp(20px, 8vh, 80px);
 }
+/* Spotlight highlight — soft card panel fades + lifts in when the row is centred
+   in the viewport (`.lit`) or hovered. ::before is the hairline rule, so the
+   panel lives on ::after (was unused). */
+.plate-row::after{
+  display: block;
+  content: "";
+  position: absolute;
+  inset: clamp(16px, 2vh, 26px) calc(-1 * clamp(14px, 1.6vw, 26px));
+  border-radius: var(--radius-card);
+  border: 1px solid var(--accent-soft);
+  background: var(--paper-2);
+  box-shadow: var(--shadow-card);
+  opacity: 0;
+  transform: translateY(10px) scale(0.992);
+  transition: opacity 0.55s var(--ease-out), transform 0.55s var(--ease-out);
+  z-index: 0;
+  pointer-events: none;
+}
+.plate-row.lit::after,
+.plate-row:hover::after{ opacity: 1; transform: none; }
+.plate-row > *{ position: relative; z-index: 1; }
 /* The code panel runs full-width as a single long strip under the value. */
 .plate-row .pr-art{
   grid-column: 1 / -1;
@@ -34,14 +56,27 @@
   pointer-events: none;
 }
 
-/* No fleuron — dropped in favour of clean rule */
-.plate-row::after{ display: none; }
-
 .plate-row:last-child{ margin-bottom: 8px; }
 
 
-/* ---- Folio numeral — citable, authoritative ---- */
+/* ---- Editorial figure plate — top-right of the row, electric-blue brackets ---- */
+.plate-row .pr-icon{
+  position: absolute;
+  top: clamp(20px, 4vh, 42px);
+  right: 0;
+  width: clamp(60px, 5.8vw, 80px);
+  height: clamp(60px, 5.8vw, 80px);
+  padding: clamp(15px, 1.5vw, 21px);
+  --plate-mark: var(--accent);
+  --plate-glyph: var(--ink);
+  --tick: clamp(13px, 1.5vw, 18px);
+  pointer-events: none;
+}
+
+/* ---- Folio numeral — a self-permalink (ghost by default, lifts on hover) ---- */
 .pr-folio{
+  display: block;
+  width: fit-content;
   font-family: var(--display);
   font-weight: 800;
   font-style: normal;                    /* no italic — design rule */
@@ -53,7 +88,13 @@
   padding-top: clamp(6px, 1vh, 14px);
   letter-spacing: -0.05em;
   user-select: none;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity var(--dur-med) var(--ease-out), color var(--dur-short) var(--ease-out);
 }
+.pr-folio:hover,
+.pr-folio:focus-visible{ opacity: 0.32; color: var(--accent); }
+.pr-folio:focus-visible{ outline: 2px solid var(--focus); outline-offset: 4px; border-radius: 2px; opacity: 0.5; }
 
 /* ---- Text column ---- */
 .pr-text{
@@ -61,32 +102,6 @@
   flex-direction: column;
   align-items: flex-start;
   gap: clamp(6px, 1vh, 10px);
-}
-
-/* Kicker: "VALUE 01 · 04" — tracked uppercase, accent pip */
-.pr-text .pr-kicker{
-  font-family: var(--sans);
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: clamp(4px, 0.6vh, 8px);
-  padding: 4px 0;
-}
-/* Accent pip before kicker text */
-.pr-text .pr-kicker::before{
-  content: "";
-  display: inline-block;
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
-  flex: none;
-}
-.pr-text .pr-kicker .pr-kicker-sep{
-  opacity: 0.5;
 }
 
 /* Left term: the kept value — large, heavy, confident */
@@ -199,40 +214,6 @@
   stroke-dashoffset: 0;
 }
 
-/* ---- Footnote strip at the bottom of the plate ---- */
-.values-note{
-  display: grid;
-  grid-template-columns: 160px 1fr;
-  gap: 40px;
-  padding: 20px 0 0;
-  border-top: 1px solid var(--rule);
-  margin-top: 8px;
-}
-.values-note .lbl{
-  font-family: var(--sans);
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.values-note .lbl::before{
-  content: "";
-  width: 14px; height: 1px;
-  background: var(--ink-3);
-}
-.values-note p{
-  font-family: var(--sans);
-  font-weight: 400;
-  font-style: normal;
-  font-size: clamp(15px, 1.4vw, 18px);
-  line-height: 1.6;
-  color: var(--ink-2);
-  max-width: 60ch;
-}
-
 /* ---- Mobile: single column ---- */
 @media (max-width: 820px){
   .plate-row{
@@ -248,8 +229,11 @@
   .pr-text .left{
     font-size: clamp(32px, 8vw, 48px);
   }
-  .values-note{
-    grid-template-columns: 1fr;
-    gap: 16px;
+  .plate-row .pr-icon{
+    top: clamp(0px, 1vh, 6px);
+    width: clamp(50px, 13vw, 60px);
+    height: clamp(50px, 13vw, 60px);
+    padding: clamp(12px, 3.2vw, 15px);
+    --tick: clamp(11px, 3vw, 14px);
   }
 }

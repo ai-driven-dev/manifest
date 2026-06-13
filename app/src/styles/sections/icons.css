@@ -1,0 +1,90 @@
+/* Hallmark · component: editorial figure-plate icons · genre: modern-minimal
+ * register: Vercel B&W "Standard" · pre-emit critique: P5 H5 E5 S5 R5 V5 */
+
+/* ============ FIGURE-PLATE ICONS — values & principles ============ */
+/* Each value / principle is a "figure" in the Standard: a hand-drawn line glyph
+   cropped by four corner registration brackets — the print-proof mark, not a
+   soft badge. Flat by design: no fill wash, no drop shadow, one accent. The
+   bracket colour (--plate-mark) and glyph colour (--plate-glyph) are set per
+   section; size / position / bracket length come from .pr-icon · .qc-icon ·
+   .p-icon. The brackets are painted as eight gradient slivers (two arms per
+   corner) so no extra markup is needed. */
+
+.icon-plate{
+  --tick-w: 1.5px;                 /* bracket hairline thickness */
+  --tick: 12px;                    /* bracket arm length (overridden per section) */
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  position: relative;
+  color: var(--plate-glyph, var(--ink));
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-image:
+    linear-gradient(var(--plate-mark), var(--plate-mark)),
+    linear-gradient(var(--plate-mark), var(--plate-mark)),
+    linear-gradient(var(--plate-mark), var(--plate-mark)),
+    linear-gradient(var(--plate-mark), var(--plate-mark)),
+    linear-gradient(var(--plate-mark), var(--plate-mark)),
+    linear-gradient(var(--plate-mark), var(--plate-mark)),
+    linear-gradient(var(--plate-mark), var(--plate-mark)),
+    linear-gradient(var(--plate-mark), var(--plate-mark));
+  background-position:
+    0 0, 0 0,                       /* top-left   — horizontal + vertical arm */
+    100% 0, 100% 0,                 /* top-right  */
+    0 100%, 0 100%,                 /* bottom-left */
+    100% 100%, 100% 100%;           /* bottom-right */
+  background-size:
+    var(--tick) var(--tick-w), var(--tick-w) var(--tick),
+    var(--tick) var(--tick-w), var(--tick-w) var(--tick),
+    var(--tick) var(--tick-w), var(--tick-w) var(--tick),
+    var(--tick) var(--tick-w), var(--tick-w) var(--tick);
+  transition:
+    opacity 0.5s var(--ease-out) 0.05s,
+    transform 0.55s var(--ease-out) 0.05s,
+    background-color var(--dur-med) var(--ease-out),
+    background-size var(--dur-med) var(--ease-out),
+    color var(--dur-med) var(--ease-out);
+}
+
+/* The glyph fills the padded plate; pathLength="100" keeps the draw-in uniform. */
+.icon-glyph{
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.icon-glyph path,
+.icon-glyph circle{
+  stroke-dasharray: 100;
+  stroke-dashoffset: 0;            /* drawn by default → SSR / no-JS / reduced-motion */
+}
+.icon-glyph path{
+  transition: stroke-dashoffset 0.9s cubic-bezier(0.7, 0.1, 0.2, 1) 0.4s;
+}
+
+/* ---- Pending (reveal container not yet `.seen`) → plate collapsed + undrawn ---- */
+.plate-row:not(.seen) .pr-icon,
+.quad:not(.seen) .qc-icon,
+.principle:not(.seen) .p-icon{
+  opacity: 0;
+  transform: scale(0.7);
+}
+.plate-row:not(.seen) .pr-icon .icon-glyph path,
+.quad:not(.seen) .qc-icon .icon-glyph path,
+.principle:not(.seen) .p-icon .icon-glyph path{
+  stroke-dashoffset: 100;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .pr-icon, .qc-icon, .p-icon{
+    opacity: 1 !important;
+    transform: none !important;
+    transition: background-color var(--dur-med) var(--ease-out), color var(--dur-med) var(--ease-out);
+  }
+  .icon-glyph path,
+  .icon-glyph circle{
+    stroke-dashoffset: 0 !important;
+    transition: none;
+  }
+}

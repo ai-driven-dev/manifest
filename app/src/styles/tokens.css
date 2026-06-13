@@ -43,4 +43,13 @@
   --radius-card: 8px;
   --radius-pill: 999px;
   --radius-input: 6px;
+
+  /* Elevation — the accent shadow is reserved for the single CTA (the sign
+     button); every other surface uses a neutral ink shadow so the page keeps
+     one colour moment. Derived from --accent / --ink so they track the tweaks. */
+  --shadow-cta: 0 1px 0 0 oklch(1 0 0 / 0.12) inset, 0 8px 24px -8px oklch(from var(--accent) l c h / 0.45);
+  --shadow-cta-hover: 0 1px 0 0 oklch(1 0 0 / 0.15) inset, 0 14px 32px -8px oklch(from var(--accent) l c h / 0.55);
+  --shadow-card: 0 12px 32px -18px oklch(from var(--ink) l c h / 0.22);
+  --shadow-modal: 0 24px 64px -24px oklch(from var(--ink) l c h / 0.45);
+  --scrim: oklch(from var(--ink) l c h / 0.45);
 }

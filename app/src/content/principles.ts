@@ -9,16 +9,14 @@ export interface Principle {
   lead: string;
   /** HTML sub paragraph */
   sub: string;
-  /** Optional footnote */
-  foot?: { id: string; note: string };
   /** Long-form essay paragraphs (HTML), shown in focus overlay (optional) */
   essay?: string[];
 }
 
 export const PRINCIPLES: Principle[] = [
-  { n: "01", r: "1", hue: 28, lead: 'We deliver working software to production, faster and <span class="hl">without debt.</span>', sub: 'Speed and quality are not in conflict. They are the same discipline, practiced twice.', foot: { id: "a", note: "See: Fowler, 'Technical Debt Quadrant'" } },
+  { n: "01", r: "1", hue: 28, lead: 'We deliver working software to production, faster and <span class="hl">without debt.</span>', sub: 'Speed and quality are not in conflict. They are the same discipline, practiced twice.' },
   { n: "02", r: "2", hue: 50, lead: 'Planning is our <span class="hl">first act of collaboration</span> with AI.', sub: 'The quality of our plan determines the quality of our output. Everything downstream inherits it.' },
-  { n: "03", r: "3", hue: 80, lead: 'We break complexity down until it can be <span class="hl">delegated cleanly.</span>', sub: 'Clarity of scope is clarity of output. Ambiguity compounds; decomposition dissolves it.', foot: { id: "b", note: "Compare: Parnas, 'On the Criteria to Be Used…', 1972" } },
+  { n: "03", r: "3", hue: 80, lead: 'We break complexity down until it can be <span class="hl">delegated cleanly.</span>', sub: 'Clarity of scope is clarity of output. Ambiguity compounds; decomposition dissolves it.' },
   { n: "04", r: "4", hue: 120, lead: 'Context is our <span class="hl">primary asset.</span>', sub: 'We invest in it, maintain it, and protect it from noise. A polluted context produces polluted code.' },
   { n: "05", r: "5", hue: 160, lead: 'We apply the same standards to AI-generated code as to <span class="hl">any code we write by hand.</span>', sub: 'There is no lower bar for generated work. Review, test, reject — the same rituals apply.' },
   { n: "06", r: "6", hue: 200, lead: 'We are <span class="hl">the architects.</span> Every line that ships is our line — regardless of what produced it.', sub: 'Authorship is not about the keystroke. It is about the judgment that sent the keystroke.' },

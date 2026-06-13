@@ -1,0 +1,25 @@
+---
+import { ICONS, type IconKey } from '~/content/icons';
+
+interface Props {
+  name: IconKey;
+  class?: string;
+}
+const { name, class: cls } = Astro.props;
+const icon = ICONS[name];
+---
+{icon && (
+  <span class:list={['icon-plate', cls]} aria-hidden="true">
+    <svg
+      class="icon-glyph"
+      viewBox="0 0 32 32"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      focusable="false"
+      set:html={icon.paths}
+    />
+  </span>
+)}

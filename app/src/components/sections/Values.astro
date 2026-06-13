@@ -1,14 +1,10 @@
 ---
 import { VALUES } from '~/content/values';
 import ValueArt from '~/components/values/ValueArt.astro';
+import Icon from '~/components/Icon.astro';
 ---
 <section id="values" class="values">
   <div class="chapter-open reveal">
-    <div class="chapter-mark">
-      <div class="folio">Folio 1</div>
-      <span class="drop">1</span>
-      <div class="roman">Chapter 1</div>
-    </div>
     <div class="chapter-body">
       <div class="chapter-eyebrow"><span class="pip"></span> <span>The Values — four tensions</span></div>
       <h2>Through this work, <em>we have come</em> to value <span class="amp">&amp;</span> to weigh.</h2>
@@ -29,9 +25,9 @@ import ValueArt from '~/components/values/ValueArt.astro';
   <div class="plate">
     {VALUES.map((v) => (
       <div id={v.id} class="plate-row reveal">
-        <div class="pr-folio">{v.n}</div>
+        <Icon name={v.id as 'V-1' | 'V-2' | 'V-3' | 'V-4'} class="pr-icon" />
+        <a class="pr-folio" href={`#${v.id}`} aria-label={`Link to value ${v.n}: ${v.left}`}>{v.n}</a>
         <div class="pr-text">
-          <div class="pr-kicker">Value 0{v.n} <span class="pr-kicker-sep">·</span> 04</div>
           <div class="left serif">{v.left}</div>
           <div class="over">over</div>
           <div class="right serif">{v.right}
@@ -46,8 +42,4 @@ import ValueArt from '~/components/values/ValueArt.astro';
     ))}
   </div>
 
-  <div class="values-note">
-    <div class="lbl">Note</div>
-    <p>That is, while there is value in the items on the right, we value the items on the left more.</p>
-  </div>
 </section>

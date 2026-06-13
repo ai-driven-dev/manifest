@@ -9,36 +9,6 @@
   background: var(--ink);
 }
 
-/* Index strip — §N · folio · chapter, one tracked line above the heading. */
-.chapter-mark{
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: clamp(12px, 1.6vw, 22px);
-  margin-bottom: clamp(20px, 3vh, 32px);
-  font-family: var(--sans);
-}
-.chapter-mark .folio{
-  order: 1;
-  font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
-  color: var(--ink-3);
-}
-.chapter-mark .drop{
-  order: 2;
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: clamp(30px, 4vw, 54px);
-  line-height: 1;
-  letter-spacing: -0.03em;
-  color: var(--ink);
-}
-.chapter-mark .drop::before{ content: "§"; color: var(--accent); margin-right: .08em; font-weight: 600; }
-.chapter-mark .roman{
-  order: 3;
-  font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
-  color: var(--ink-3);
-}
-
 .chapter-body{ max-width: 900px; }
 .chapter-eyebrow{
   font-family: var(--sans);

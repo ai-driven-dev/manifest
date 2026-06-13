@@ -1,0 +1,14 @@
+---
+import { VALUES } from '~/content/values';
+import Icon from '~/components/Icon.astro';
+---
+<div class="quad reveal" role="list" aria-label="The four values as a 2×2 quadrant — the new shape of a developer's value">
+  {VALUES.map((v, i) => (
+    <a class="quad-cell" role="listitem" href={`#${v.id}`} style={`--i:${i}`}>
+      <span class="qc-n">0{v.n}</span>
+      <Icon name={v.id as 'V-1' | 'V-2' | 'V-3' | 'V-4'} class="qc-icon" />
+      <span class="qc-quad">{v.quad}</span>
+      <span class="qc-pair"><span class="qc-left">{v.left}</span> <span class="qc-over">over</span> <span class="qc-right">{v.right}</span></span>
+    </a>
+  ))}
+</div>

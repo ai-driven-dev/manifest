@@ -65,9 +65,7 @@
   color: var(--accent-ink);
   text-decoration: none;
   border: 1px solid transparent;
-  box-shadow:
-    0 1px 0 0 oklch(1 0 0 / 0.12) inset,
-    0 8px 24px -8px oklch(0.54 0.246 275 / 0.45);
+  box-shadow: var(--shadow-cta);
   transition:
     transform var(--dur-short) var(--ease-out),
     box-shadow var(--dur-short) var(--ease-out),
@@ -77,14 +75,56 @@
 .sign-btn:hover{
   transform: translateY(-2px);
   filter: brightness(1.08);
-  box-shadow:
-    0 1px 0 0 oklch(1 0 0 / 0.15) inset,
-    0 14px 32px -8px oklch(0.54 0.246 275 / 0.58);
+  box-shadow: var(--shadow-cta-hover);
 }
 .sign-btn:active{ transform: translateY(-1px); }
 .sign-btn:focus-visible{
   outline: 2px solid var(--focus);
   outline-offset: 4px;
+}
+
+/* Sidebar variant — plain text link (no pill, no logo), keeping the drawn
+   signature underneath. Narrow column. */
+.sign-btn--sidebar{
+  display: flex;
+  width: 100%;
+  min-height: 0;
+  gap: 0;
+  padding: 0;
+  margin-top: clamp(10px, 1.8vh, 16px);
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: var(--ink);
+}
+.sign-btn--sidebar:hover{
+  transform: none;
+  filter: none;
+  box-shadow: none;
+  color: var(--accent);
+}
+.sign-btn--sidebar .sign-btn-icon,
+.sign-btn--sidebar .sign-btn-chev{ display: none; }
+.sign-btn--sidebar .sign-btn-label{
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 3px;
+  transition: color var(--dur-short) var(--ease-out),
+              text-decoration-color var(--dur-short) var(--ease-out);
+}
+.sign-btn--sidebar:hover .sign-btn-label{
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+.sign-btn--sidebar .sign-btn-sig{
+  width: 100%;
+  height: 16px;
+  margin-top: 4px;
+  color: var(--accent);   /* the scribble reads as ink-signed */
 }
 
 /* Icon chip — white on accent */
@@ -99,6 +139,44 @@
   flex: none;
 }
 .sign-btn-icon svg{ width: 17px; height: 17px; }
+
+/* Animated AIDD logo inside the chip — bars draw in on load (and re-draw on
+   hover / focus), the accent dot breathes gently. */
+.sign-btn-icon .sign-logo{ width: 21px; height: 21px; overflow: visible; }
+.sign-logo .sl-bar-small,
+.sign-logo .sl-bar-big{
+  stroke-dasharray: 100;
+  stroke-dashoffset: 0;
+  animation: logo-draw 0.9s var(--ease-out) 0.3s both;
+}
+.sign-logo .sl-bar-big{ animation-delay: 0.42s; }
+.sign-logo .sl-dot{
+  transform-box: fill-box;
+  transform-origin: center;
+  /* Breathes a few times on load, then settles (no perpetual motion). */
+  animation: logo-breathe 3s var(--ease-in-out) 1.4s 3 both;
+}
+/* Re-breathe on hover/focus so the mark still feels alive on interaction. */
+.sign-btn:hover .sign-logo .sl-dot,
+.sign-btn:focus-visible .sign-logo .sl-dot{
+  animation: logo-breathe 2.4s var(--ease-in-out) 1 both;
+}
+@keyframes logo-draw{ from{ stroke-dashoffset: 100; } to{ stroke-dashoffset: 0; } }
+@keyframes logo-breathe{
+  0%, 100%{ transform: scale(1); opacity: 0.88; }
+  50%{ transform: scale(1.16); opacity: 1; }
+}
+.sign-btn:hover .sign-logo .sl-bar-small,
+.sign-btn:hover .sign-logo .sl-bar-big,
+.sign-btn:focus-visible .sign-logo .sl-bar-small,
+.sign-btn:focus-visible .sign-logo .sl-bar-big{
+  animation: logo-draw 0.8s var(--ease-out) both;
+}
+@media (prefers-reduced-motion: reduce){
+  .sign-logo .sl-bar-small,
+  .sign-logo .sl-bar-big{ animation: none; stroke-dashoffset: 0; }
+  .sign-logo .sl-dot{ animation: none; }
+}
 
 /* Label area */
 .sign-btn-body{
@@ -121,14 +199,14 @@
   font-size: 10px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: oklch(from var(--accent-ink) l c h / 0.70);
+  color: var(--accent-ink);
 }
 
 /* Chevron */
 .sign-btn-chev{
   font-family: var(--sans);
   font-size: 18px;
-  color: oklch(from var(--accent-ink) l c h / 0.80);
+  color: var(--accent-ink);
   transition:
     transform var(--dur-short) var(--ease-out),
     color var(--dur-short) var(--ease-out);
@@ -205,7 +283,7 @@
   transform: translateY(-2px);
   background: var(--paper-3);
   border-color: var(--accent-soft);
-  box-shadow: 0 8px 24px -12px oklch(0.54 0.246 275 / 0.18);
+  box-shadow: var(--shadow-card);
 }
 
 .sig-top{

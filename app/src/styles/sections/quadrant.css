@@ -1,0 +1,165 @@
+/* ============ QUADRANT (2×2 — the new shape of a developer's value) ============ */
+.quad{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin: clamp(28px, 5vh, 56px) 0 clamp(10px, 2vh, 22px);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  position: relative;
+}
+/* Neutralize base .reveal on the container — cells animate individually. */
+.quad.reveal{ opacity: 1; transform: none; transition: none; }
+
+/* ---- Cells ---- */
+.quad-cell{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1.4vh, 14px);
+  padding: clamp(22px, 3vw, 40px) clamp(20px, 2.6vw, 36px);
+  min-height: clamp(150px, 20vh, 220px);
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--paper);
+  border-top: 1px solid var(--rule);
+  border-left: 1px solid var(--rule);
+  overflow: hidden;
+  transition: background var(--dur-short) var(--ease-out);
+}
+/* Outer frame provides the containing border — suppress redundant edges. */
+.quad-cell:nth-child(1),
+.quad-cell:nth-child(2){ border-top: none; }
+.quad-cell:nth-child(odd){ border-left: none; }
+
+/* ---- Accent number ---- */
+.qc-n{
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* ---- Editorial figure plate — top-right of the cell, mirrors qc-n ---- */
+.qc-icon{
+  position: absolute;
+  top: clamp(16px, 2.2vw, 28px);
+  right: clamp(16px, 2.2vw, 30px);
+  width: clamp(46px, 4.2vw, 58px);
+  height: clamp(46px, 4.2vw, 58px);
+  padding: clamp(12px, 1.2vw, 16px);
+  --plate-mark: var(--accent);
+  --plate-glyph: var(--ink-2);
+  --tick: clamp(11px, 1.1vw, 14px);
+}
+/* Plate pop + line draw ride the cell stagger (var(--i) set inline per cell). */
+.quad-cell .qc-icon{
+  transition-delay: calc(var(--i) * 280ms + 0.2s);
+}
+.quad-cell .qc-icon .icon-glyph path{
+  transition-delay: calc(var(--i) * 280ms + 0.5s);
+}
+/* Hover (the cell is a link) → the figure presses into an inked accent stamp:
+   filled square, brackets + glyph knock out to paper, brackets extend. */
+.quad-cell:hover .qc-icon{
+  background-color: var(--accent);
+  --plate-mark: var(--accent-ink);
+  --plate-glyph: var(--accent-ink);
+  --tick: clamp(14px, 1.4vw, 18px);
+  transition-delay: 0s;
+}
+
+/* ---- Quadrant label — display type, bold ---- */
+.qc-quad{
+  font-family: var(--display);
+  font-weight: 700;
+  font-style: normal;
+  font-size: clamp(24px, 3.2vw, 42px);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  transition: color var(--dur-med) var(--ease-out);
+}
+
+/* ---- Pair: "left over right" — Inter Tight, small ---- */
+.qc-pair{
+  font-family: var(--sans);
+  font-size: clamp(11px, 1vw, 13px);
+  letter-spacing: 0.02em;
+  color: var(--ink-3);
+  margin-top: auto;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.qc-left{
+  color: var(--ink);
+  font-weight: 500;
+}
+.qc-over{
+  font-style: normal;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  opacity: 0.8;
+  padding: 0 2px;
+}
+.qc-right{
+  color: var(--ink-3);
+  text-decoration: line-through;
+  text-decoration-color: var(--rule);
+}
+
+/* ---- Subtle hover wash — accent tint on --paper-2 ---- */
+.quad-cell::before{
+  content: "";
+  position: absolute; inset: 0;
+  background: var(--accent-soft);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-med) var(--ease-out);
+}
+.quad-cell:hover{ background: var(--paper-2); }
+.quad-cell:hover .qc-quad{ color: var(--accent); }
+.quad-cell:hover::before{ opacity: 1; }
+
+/* ---- Staggered cell reveal — JS adds .seen on .quad ---- */
+.quad-cell{
+  opacity: 0;
+  transform: translateY(14px);
+}
+.quad.seen .quad-cell{
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.55s var(--ease-out) calc(var(--i) * 280ms),
+    transform 0.55s var(--ease-out) calc(var(--i) * 280ms);
+}
+.quad.seen .quad-cell::before{
+  /* wash fades in slightly after the cell itself */
+  transition: opacity 0.6s var(--ease-out) calc(var(--i) * 280ms + 0.2s);
+}
+
+@media (prefers-reduced-motion: reduce){
+  .quad-cell{ opacity: 1; transform: none; }
+  .quad-cell::before{ opacity: 0; }
+  .quad.seen .quad-cell,
+  .quad.seen .quad-cell::before{ transition: none; }
+}
+
+/* ---- Mobile: stack single column ---- */
+@media (max-width: 600px){
+  .quad{
+    grid-template-columns: 1fr;
+  }
+  .quad-cell:nth-child(2){ border-top: 1px solid var(--rule); }
+  .quad-cell:nth-child(odd){ border-left: none; }
+  .quad-cell:nth-child(even){ border-left: none; }
+  .quad-cell{ border-top: 1px solid var(--rule); }
+  .quad-cell:nth-child(1){ border-top: none; }
+}

@@ -2,6 +2,8 @@
 import type { Principle } from '~/content/principles';
 import TerminalAnim from '~/components/terminal/TerminalAnim.astro';
 import type { Term } from '~/content/terms';
+import Icon from '~/components/Icon.astro';
+import type { PrincipleIconKey } from '~/content/icons';
 
 interface Props {
   principle: Principle;
@@ -12,13 +14,10 @@ const { principle: p, index: i, term } = Astro.props;
 ---
 <article id={`P-${p.n}`} class="principle reveal" data-idx={i} style={`--p-hue: ${p.hue}`}>
   <span class="p-folio" aria-hidden="true">{p.r}</span>
-  <div class="p-num">{p.n}</div>
+  <a class="p-num" href={`#P-${p.n}`} aria-label={`Link to principle ${p.r}`}>{p.n}<Icon name={p.n as PrincipleIconKey} class="p-icon" /></a>
   <div class="p-body">
     <p class="p-lead" set:html={p.lead} />
     <p class="p-sub">{p.sub}</p>
-    {p.foot && (
-      <div class="p-footnote"><sup>{p.foot.id}</sup>{p.foot.note}</div>
-    )}
   </div>
   {term && <TerminalAnim term={term} index={i} />}
 </article>

@@ -22,6 +22,9 @@
   top: 24px;
   align-self: start;
   padding-top: clamp(40px, 6vh, 80px);
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 48px);
 }
 .si-head{
   display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
@@ -58,20 +61,70 @@
 .si-link.active{ color: var(--ink); border-color: var(--accent); }
 .si-link.active .si-n{ color: var(--accent); }
 
-/* Persistent sign CTA at the foot of the index */
-.si-cta{
-  display: flex; align-items: center; justify-content: center;
-  margin-top: 20px;
-  min-height: 44px; padding: 0 14px;
-  font-family: var(--sans); font-size: 13px; font-weight: 500;
-  letter-spacing: -0.005em;
-  color: var(--accent-ink); background: var(--accent);
-  border: 1px solid var(--accent); border-radius: var(--radius-pill);
-  text-decoration: none;
-  transition: filter .2s var(--ease-out), transform .2s var(--ease-out);
+/* Persistent sign CTA at the foot of the index — phrase · button · count */
+.si-sign{
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  margin-top: clamp(20px, 3vh, 28px);
+  padding-top: clamp(18px, 2.5vh, 24px);
+  border-top: 1px solid var(--rule);
 }
-.si-cta:hover{ filter: brightness(1.08); transform: translateY(-1px); }
-.si-cta:active{ transform: translateY(0); }
+.si-sign-phrase{
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1.45;
+  color: var(--ink-3);
+}
+.si-sign-count{
+  font-family: var(--sans);
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+.si-sign-count strong{
+  font-family: var(--display);
+  font-style: normal;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--accent);
+  letter-spacing: -0.01em;
+  margin-right: 3px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Persistent contact affordances at the very foot of the index — Discord + email */
+.si-contact{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: clamp(18px, 3vh, 26px);
+  border-top: 1px solid var(--rule);
+}
+.si-contact-phrase{
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1.45;
+  color: var(--ink-3);
+}
+.si-contact-links{ display: flex; gap: 8px; }
+.si-contact-link{
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px;
+  color: var(--ink-2);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  transition: color .2s var(--ease-out), border-color .2s var(--ease-out);
+}
+.si-contact-link svg{ width: 16px; height: 16px; }
+.si-contact-link:hover{ color: var(--accent); border-color: var(--accent-soft); }
+.si-contact-link:focus-visible{ outline: 2px solid var(--focus); outline-offset: 2px; }
 
 @media (max-width: 900px){
   .doc-layout{ grid-template-columns: minmax(0, 1fr); gap: 0; }

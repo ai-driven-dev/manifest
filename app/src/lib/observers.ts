@@ -87,6 +87,22 @@ export function observeValueArt(): void {
 }
 
 /**
+ * Focus band — toggles `.lit` while an element overlaps a reading band near the
+ * top-centre of the viewport (the "waterline"). Used to brighten the principle
+ * / value currently being read while the others sit slightly dimmed.
+ */
+export function observeFocusBand(selector = '.principle, .plate-row'): void {
+  const els = document.querySelectorAll(selector);
+  if (!els.length) return;
+  const io = new IntersectionObserver((entries) => {
+    for (const en of entries) {
+      en.target.classList.toggle('lit', en.isIntersecting);
+    }
+  }, { rootMargin: '-38% 0px -38% 0px', threshold: 0 });
+  els.forEach((el) => io.observe(el));
+}
+
+/**
  * Spec index scroll-spy — highlights the sticky table-of-contents link for the
  * section currently in view. No-op if the index isn't present (mobile / absent).
  */

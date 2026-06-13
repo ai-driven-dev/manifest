@@ -16,17 +16,37 @@
   grid-template-columns: clamp(48px, 5vw, 64px) minmax(0, 1fr) minmax(300px, 460px);
   gap: clamp(20px, 3vw, 56px);
   align-items: start;
-  padding: clamp(28px, 4vh, 48px) 0;
+  /* Generous breathing room — rows were too cramped. */
+  padding: clamp(40px, 6.5vh, 78px) 0;
+  scroll-margin-top: clamp(20px, 8vh, 80px);
   border-bottom: 1px solid var(--rule);
-  overflow: hidden;
   background: var(--paper);
-  transition: background var(--dur-short) var(--ease-out);
-  /* preserve JS hooks */
-  --value-hue: var(--p-hue, 270);
+  /* Single accent — the per-principle hue ("rainbow" tweak) only kicks in when
+     that tweak is on; by default the section is monochromatic. */
+  --value-hue: 275;
 }
-.principle:hover{
+/* ---- Spotlight highlight — a soft card panel fades + lifts in when the row
+   is centred in the viewport (`.lit` from observers.ts) or hovered. Bleeds a
+   little into the gutter so it reads as a raised card. ---- */
+.principle::before{
+  content: "";
+  position: absolute;
+  inset: clamp(12px, 2vh, 22px) calc(-1 * clamp(14px, 1.6vw, 26px));
+  border-radius: var(--radius-card);
+  border: 1px solid var(--accent-soft);
   background: var(--paper-2);
+  box-shadow: var(--shadow-card);
+  opacity: 0;
+  transform: translateY(10px) scale(0.992);
+  transition: opacity 0.55s var(--ease-out), transform 0.55s var(--ease-out);
+  z-index: 0;
+  pointer-events: none;
 }
+/* The spotlight panel is the sole scroll emphasis — the centred (or hovered)
+   row gets the raised card; no card is ever dimmed, so body copy stays at full
+   contrast and the page settles. */
+.principle.lit::before,
+.principle:hover::before{ opacity: 1; transform: none; }
 /* Code panel sits in the third column, aligned with the statement (not full-width) */
 .principle .term{
   grid-column: 3;
@@ -42,7 +62,7 @@
 .principle .p-folio{ display: none; }
 .principle > *{ position: relative; z-index: 1; }
 
-/* ---- Number ---- */
+/* ---- Number — a self-permalink (jumps to this principle's anchor) ---- */
 .p-num{
   font-family: var(--display);
   font-style: normal;
@@ -52,22 +72,39 @@
   color: var(--ink);
   letter-spacing: -0.03em;
   padding-top: 6px;
+  /* Keep the two-digit number on one line — the narrow column can otherwise
+     wrap "02"/"03"… onto a second line, which throws off the plate offset. */
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  width: fit-content;            /* clickable area hugs the digits, not the column */
+  transition: color var(--dur-short) var(--ease-out), opacity 0.6s var(--ease-out);
   /* Anchor cite affordance */
   position: relative;
 }
-/* Optional hover cite marker — §N */
-.p-num::after{
-  content: " §";
-  font-size: 0.38em;
-  font-weight: 400;
-  letter-spacing: 0.06em;
-  color: var(--accent);
-  vertical-align: super;
-  opacity: 0;
-  transition: opacity var(--dur-short) var(--ease-out);
-}
-.principle:hover .p-num::after{ opacity: 1; }
+.p-num:hover,
+.p-num:focus-visible{ color: var(--accent); }
+.p-num:focus-visible{ outline: 2px solid var(--focus); outline-offset: 4px; border-radius: 2px; }
 
+/* ---- Editorial figure plate — sits just below the number, registration
+   brackets + glyph keyed to the card hue. Absolute (offset from the number's
+   own height) so it never disturbs the inline number + hover "§" marker. ---- */
+.p-num .p-icon{
+  position: absolute;
+  /* Offset from the number's own height (line-box = font-size) + a small gap,
+     rather than 100% — the number's line-box can render taller than expected. */
+  top: calc(clamp(38px, 4vw, 56px) + 18px);
+  left: 0;
+  width: clamp(50px, 4.8vw, 62px);
+  height: clamp(50px, 4.8vw, 62px);
+  padding: clamp(13px, 1.3vw, 16px);
+  /* Single accent by default; --p-color is only set when the "rainbow" tweak
+     is on (see ClientApp). No per-principle gradient otherwise. */
+  --plate-mark: var(--p-color, var(--accent));
+  --plate-glyph: var(--p-color, var(--ink));
+  --tick: clamp(11px, 1.1vw, 14px);
+  pointer-events: none;
+}
 /* ---- Body ---- */
 .p-body{ padding-top: 8px; }
 
@@ -121,23 +158,6 @@
   max-width: 48ch;
 }
 
-/* ---- Footnote ---- */
-.p-footnote{
-  margin-top: 12px;
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-}
-.p-footnote sup{
-  color: var(--accent);
-  margin-right: 4px;
-  font-family: var(--sans);
-  font-style: normal;
-  font-size: 11px;
-}
-
 /* ---- Tablet: drop the side code panel under the statement ---- */
 @media (max-width: 1024px){
   .principle{
@@ -158,6 +178,11 @@
     padding: clamp(24px, 6vw, 36px) 0;
   }
   .p-num{ font-size: clamp(32px, 8vw, 44px); }
+  .p-num .p-icon{
+    width: 42px; height: 42px; padding: 11px;
+    top: calc(clamp(32px, 8vw, 44px) + 12px);
+    --tick: 10px;
+  }
   .p-lead{ font-size: clamp(18px, 4.5vw, 22px); }
   .principle .term{ grid-column: 1 / -1; }
 }
