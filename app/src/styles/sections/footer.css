@@ -4,7 +4,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: clamp(20px, 3vh, 36px) 0 clamp(28px, 4vh, 48px);
+  margin-top: clamp(40px, 8vh, 96px);
+  padding: clamp(28px, 4vh, 48px) 0 clamp(28px, 4vh, 48px);
   border-top: 1px solid var(--rule);
   font-family: var(--sans);
   font-size: 10.5px;

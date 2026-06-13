@@ -83,18 +83,49 @@
   outline-offset: 4px;
 }
 
-/* Sidebar variant — full-width, compact, no chevron (narrow column). */
+/* Sidebar variant — plain text link (no pill, no logo), keeping the drawn
+   signature underneath. Narrow column. */
 .sign-btn--sidebar{
   display: flex;
   width: 100%;
-  min-height: 46px;
-  gap: 10px;
-  padding: 8px 12px 8px 8px;
+  min-height: 0;
+  gap: 0;
+  padding: 0;
+  margin-top: clamp(10px, 1.8vh, 16px);
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: var(--ink);
 }
-.sign-btn--sidebar .sign-btn-icon{ width: 28px; height: 28px; }
-.sign-btn--sidebar .sign-btn-label{ font-size: 14px; }
-.sign-btn--sidebar .sign-btn-sig{ width: 100%; height: 15px; margin-top: 3px; }
+.sign-btn--sidebar:hover{
+  transform: none;
+  filter: none;
+  box-shadow: none;
+  color: var(--accent);
+}
+.sign-btn--sidebar .sign-btn-icon,
 .sign-btn--sidebar .sign-btn-chev{ display: none; }
+.sign-btn--sidebar .sign-btn-label{
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 3px;
+  transition: color var(--dur-short) var(--ease-out),
+              text-decoration-color var(--dur-short) var(--ease-out);
+}
+.sign-btn--sidebar:hover .sign-btn-label{
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+.sign-btn--sidebar .sign-btn-sig{
+  width: 100%;
+  height: 16px;
+  margin-top: 4px;
+  color: var(--accent);   /* the scribble reads as ink-signed */
+}
 
 /* Icon chip — white on accent */
 .sign-btn-icon{
@@ -350,87 +381,6 @@
   background: var(--accent-soft);
 }
 .sig-linkedin svg{ width: 14px; height: 14px; }
-
-/* ---- Post-sign share dialog — LinkedIn / X announcement ---- */
-.share-dialog{
-  border: none;
-  padding: 0;
-  background: transparent;
-  max-width: min(460px, calc(100vw - 32px));
-  margin: auto;   /* recentre — the global margin reset kills the UA default */
-}
-.share-dialog::backdrop{
-  background: var(--scrim);
-  backdrop-filter: blur(2px);
-}
-.share-card{
-  position: relative;
-  background: var(--paper);
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-card);
-  padding: clamp(24px, 4vw, 32px);
-  box-shadow: var(--shadow-modal);
-}
-.share-close{
-  position: absolute;
-  top: 10px; right: 12px;
-  width: 32px; height: 32px;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--ink-3);
-  font-size: 22px;
-  line-height: 1;
-  cursor: pointer;
-  transition: color var(--dur-short) var(--ease-out), background var(--dur-short) var(--ease-out);
-}
-.share-close:hover{ color: var(--ink); background: var(--paper-3); }
-.share-close:focus-visible{ outline: 2px solid var(--focus); outline-offset: 2px; }
-.share-title{
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: clamp(20px, 2vw, 26px);
-  letter-spacing: -0.02em;
-  color: var(--ink);
-  margin-bottom: 10px;
-}
-.share-sub{
-  font-family: var(--sans);
-  font-size: 14.5px;
-  line-height: 1.6;
-  color: var(--ink-2);
-  margin-bottom: 20px;
-}
-.share-actions{
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.share-btn{
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  min-height: 42px;
-  padding: 8px 16px;
-  border-radius: var(--radius-pill);
-  background: var(--accent);
-  color: var(--accent-ink);
-  text-decoration: none;
-  font-family: var(--sans);
-  font-weight: 600;
-  font-size: 14px;
-  transition: transform var(--dur-short) var(--ease-out), filter var(--dur-short) var(--ease-out);
-}
-.share-btn:hover{ transform: translateY(-1px); filter: brightness(1.08); }
-.share-btn:focus-visible{ outline: 2px solid var(--focus); outline-offset: 3px; }
-.share-btn svg{ width: 15px; height: 15px; flex: none; }
-/* Secondary action — one filled (LinkedIn), one ghost (X). */
-.share-btn--ghost{
-  background: transparent;
-  color: var(--ink-2);
-  border: 1px solid var(--rule);
-}
-.share-btn--ghost:hover{ filter: none; color: var(--accent); border-color: var(--accent-soft); }
 
 /* ---- Print ---- */
 @media print{
