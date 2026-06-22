@@ -1,0 +1,76 @@
+---
+// Two schematics for AIDD vs vibe coding — a picture over prose.
+// 1) Method: the disciplined track with a review gate vs prompt-to-prod.
+// 2) Over time: durable value trajectory. Strokes use oklch tokens via CSS.
+---
+<div class="vsch-grid">
+
+  <!-- 1 — METHOD -->
+  <figure class="vsch">
+    <figcaption class="vsch-cap">Method</figcaption>
+    <svg class="vsch-svg" viewBox="0 0 300 196" role="img"
+      aria-label="AIDD moves plan, build, review gate, prod and loops back to iterate; vibe coding jumps prompt straight to prod, then regenerates.">
+      <defs>
+        <marker id="m1a" markerWidth="8" markerHeight="8" refX="5.5" refY="3" orient="auto"><path d="M0 .5 L6 3 L0 5.5" class="ah-a"/></marker>
+        <marker id="m1m" markerWidth="8" markerHeight="8" refX="5.5" refY="3" orient="auto"><path d="M0 .5 L6 3 L0 5.5" class="ah-m"/></marker>
+      </defs>
+
+      <!-- AIDD track -->
+      <text x="20" y="32" class="tag tag--a">AIDD</text>
+      <path d="M44 66 H110" class="seg" marker-end="url(#m1m)"/>
+      <path d="M130 66 H182" class="seg" marker-end="url(#m1m)"/>
+      <path d="M210 66 H252" class="seg" marker-end="url(#m1m)"/>
+      <path d="M196 50 C 178 30, 138 30, 122 50" class="arc-a" marker-end="url(#m1a)"/>
+      <text x="159" y="28" class="micro micro--a">iterate</text>
+      <circle cx="44" cy="66" r="4.5" class="stn"/>
+      <circle cx="120" cy="66" r="4.5" class="stn"/>
+      <circle cx="196" cy="66" r="17" class="gate-halo"/>
+      <circle cx="196" cy="66" r="10.5" class="gate"/>
+      <path d="M191 66 l3.5 4 l6.5 -8" class="chk"/>
+      <circle cx="258" cy="66" r="4.5" class="stn"/>
+      <text x="44" y="88" class="lbl">plan</text>
+      <text x="120" y="88" class="lbl">build</text>
+      <text x="196" y="92" class="lbl lbl--a">review</text>
+      <text x="258" y="88" class="lbl">prod</text>
+
+      <line x1="16" y1="112" x2="284" y2="112" class="rule-faint"/>
+
+      <!-- Vibe track -->
+      <text x="20" y="132" class="tag tag--m">VIBE CODING</text>
+      <path d="M76 150 H224" class="seg" marker-end="url(#m1m)"/>
+      <circle cx="70" cy="150" r="4.5" class="stn-m"/>
+      <circle cx="230" cy="150" r="4.5" class="stn-m"/>
+      <text x="70" y="144" class="lbl">prompt</text>
+      <text x="230" y="144" class="lbl">prod</text>
+    </svg>
+    <p class="vsch-note">Do not care about code quality.</p>
+  </figure>
+
+  <!-- 2 — OVER TIME -->
+  <figure class="vsch">
+    <figcaption class="vsch-cap">Over time</figcaption>
+    <svg class="vsch-svg" viewBox="0 0 300 196" role="img"
+      aria-label="Vibe coding spikes early then decays into debt; AIDD starts steadier and accelerates, compounding into durable value.">
+      <defs>
+        <linearGradient id="areaA" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" class="g0"/>
+          <stop offset="1" class="g1"/>
+        </linearGradient>
+      </defs>
+      <line x1="44" y1="22" x2="44" y2="166" class="axis-ln"/>
+      <line x1="44" y1="166" x2="284" y2="166" class="axis-ln"/>
+      <text x="40" y="20" class="ax end">value</text>
+      <text x="282" y="184" class="ax end">time</text>
+
+      <path d="M50 156 C 124 150, 182 92, 278 28 L278 166 L50 166 Z" class="area"/>
+      <path d="M50 156 C 74 60, 106 52, 136 84 C 174 116, 232 140, 278 150" class="curve-m"/>
+      <path d="M50 156 C 124 150, 182 92, 278 28" class="curve-a"/>
+      <circle cx="278" cy="150" r="3.6" class="dot-m"/>
+      <circle cx="278" cy="28" r="4.2" class="dot-a"/>
+      <text x="272" y="24" class="end-lbl end-lbl--a end">compounds</text>
+      <text x="274" y="164" class="end-lbl end-lbl--m end">spikes, then debt</text>
+    </svg>
+    <p class="vsch-note">High quality legacy code output.</p>
+  </figure>
+
+</div>

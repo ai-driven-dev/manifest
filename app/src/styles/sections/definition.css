@@ -1,0 +1,212 @@
+/* ============ DEFINITION — dictionary entry, synonyms, AIDD vs vibe ============ */
+.definition{ display: block; }
+
+/* Shared little tag used across the blocks. */
+.lex-tag{
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ---- Section opener — top rule + eyebrow only (no headline) ---- */
+.def-head{
+  position: relative;
+  padding: clamp(48px, 7vh, 84px) 0 clamp(20px, 3vh, 32px);
+}
+.def-head::before{
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 2px;
+  background: var(--ink);
+}
+.def-head .chapter-eyebrow{ margin-bottom: 0; }
+
+/* ---- Dictionary entry plate ---- */
+.lex{
+  position: relative;
+  padding: clamp(28px, 4vw, 52px);
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+/* Top accent edge — echoes the chapter openers' top rule, not a side tab. */
+.lex::before{
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: var(--accent);
+}
+.lex-head{
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.lex-word{
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(32px, 5.5vw, 64px);
+  line-height: 1.0;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+  margin: 0;
+  text-wrap: balance;
+}
+.lex-abbr{
+  font-family: var(--mono);
+  font-size: clamp(12px, 1.3vw, 15px);
+  letter-spacing: .22em;
+  color: var(--accent);
+  padding: 6px 12px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+.lex-meta{
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 16px 0 0;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--rule);
+}
+.lex-pron{ font-family: var(--mono); font-size: 14px; color: var(--ink-2); }
+.lex-pos{ font-family: var(--display); font-style: italic; font-size: 16px; color: var(--ink-3); }
+
+/* The single definition — the centrepiece, set large like a dictionary gloss. */
+.lex-def{
+  margin: 24px 0 0;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(19px, 2.2vw, 28px);
+  line-height: 1.42;
+  color: var(--ink);
+  text-wrap: pretty;
+  max-width: 38ch;
+}
+.lex-def em{ font-style: normal; color: var(--accent); font-weight: 500; }
+
+/* Synonyms — a single inline, comma-separated line. */
+.lex-syn{
+  margin: 26px 0 0;
+  padding-top: 22px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--sans);
+  font-size: clamp(14px, 1.4vw, 16px);
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+.lex-syn .lex-tag{ margin-right: 12px; }
+
+/* ---- AIDD vs vibe coding ---- */
+.lex-vs{ margin-top: clamp(40px, 6vh, 72px); }
+.lex-vs-intro{ margin-bottom: 24px; }
+.lex-vs-intro .lex-tag{ display: block; margin-bottom: 8px; }
+.lex-vs-intro h3{
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(28px, 4vw, 48px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  margin: 0;
+}
+.lex-vs-x{ font-style: italic; font-weight: 400; color: var(--ink-3); padding: 0 .12em; }
+
+/* ---- Three schematics — a picture over prose ---- */
+.vsch-grid{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(12px, 1.6vw, 18px);
+}
+.vsch{
+  margin: 0;
+  padding: clamp(16px, 1.8vw, 22px);
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-card);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.vsch-cap{
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 600;
+}
+.vsch-svg{ width: 100%; height: auto; display: block; }
+.vsch-note{
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(15px, 1.5vw, 18px);
+  line-height: 1.35;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+.vsch-note em{ font-style: normal; color: var(--accent); font-weight: 600; }
+
+/* SVG primitives — strokes/fills from oklch tokens, theming-safe. */
+.vsch-svg text{ font-family: var(--sans); }
+/* connective track + segments */
+.vsch-svg .seg{ stroke: var(--ink-3); stroke-width: 1.6; fill: none; stroke-linecap: round; }
+.vsch-svg .arc-a{ stroke: var(--accent); stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-dasharray: 3 3.5; }
+.vsch-svg .arc-m{ stroke: var(--ink-3); stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-dasharray: 3 3.5; }
+.vsch-svg .rule-faint{ stroke: var(--rule); stroke-width: 1; }
+.vsch-svg .ah-a{ fill: none; stroke: var(--accent); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.vsch-svg .ah-m{ fill: none; stroke: var(--ink-3); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+/* stations + the review gate */
+.vsch-svg .stn{ fill: var(--ink-2); }
+.vsch-svg .stn-m{ fill: var(--ink-3); }
+.vsch-svg .gate-halo{ fill: var(--accent-soft); }
+.vsch-svg .gate{ fill: var(--accent); }
+.vsch-svg .chk{ stroke: var(--accent-ink); stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+/* labels */
+.vsch-svg .lbl{ font-size: 11px; fill: var(--ink-3); text-anchor: middle; }
+.vsch-svg .lbl--a{ fill: var(--accent); font-weight: 600; }
+.vsch-svg .micro{ font-size: 9px; letter-spacing: .04em; text-anchor: middle; }
+.vsch-svg .micro--a{ fill: var(--accent); font-weight: 600; }
+.vsch-svg .micro--m{ fill: var(--ink-3); font-style: italic; }
+.vsch-svg .tag{ font-size: 10px; letter-spacing: .14em; font-weight: 700; }
+.vsch-svg .tag--a{ fill: var(--accent); }
+.vsch-svg .tag--m{ fill: var(--ink-3); }
+.vsch-svg .end{ text-anchor: end; }
+/* over-time chart */
+.vsch-svg .axis-ln{ stroke: var(--rule); stroke-width: 1; }
+.vsch-svg .area{ fill: url(#areaA); stroke: none; }
+.vsch-svg .g0{ stop-color: var(--accent); stop-opacity: .15; }
+.vsch-svg .g1{ stop-color: var(--accent); stop-opacity: 0; }
+.vsch-svg .curve-a{ stroke: var(--accent); stroke-width: 2.6; fill: none; stroke-linecap: round; }
+.vsch-svg .curve-m{ stroke: var(--ink-3); stroke-width: 2; fill: none; stroke-linecap: round; stroke-dasharray: 4 4; }
+.vsch-svg .dot-a{ fill: var(--accent); }
+.vsch-svg .dot-m{ fill: var(--ink-3); }
+.vsch-svg .ax{ font-size: 9px; letter-spacing: .1em; text-transform: uppercase; fill: var(--ink-3); }
+.vsch-svg .end-lbl{ font-size: 10.5px; font-weight: 600; }
+.vsch-svg .end-lbl--a{ fill: var(--accent); }
+.vsch-svg .end-lbl--m{ fill: var(--ink-3); font-weight: 500; }
+
+.lex-vs-note{
+  margin: 20px 0 0;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink-3);
+  max-width: 64ch;
+}
+.lex-vs-note em{ font-style: normal; color: var(--ink-2); font-weight: 500; }
+
+/* ---- Mobile: stack the three schematics ---- */
+@media (max-width: 760px){
+  .vsch-grid{ grid-template-columns: 1fr; gap: 14px; }
+  .vsch-svg{ max-width: 420px; }
+}
