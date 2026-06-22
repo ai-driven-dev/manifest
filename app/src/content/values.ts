@@ -9,7 +9,7 @@ export interface ValueEntry {
   /** 1-based folio */
   n: number;
   /** Anim id used by the ASCII art (`v1` … `v4`) */
-  anim: 'v1' | 'v2' | 'v3' | 'v4';
+  anim: "v1" | "v2" | "v3" | "v4";
   /** Left (preferred) noun */
   left: string;
   /** Right (devalued) noun */
@@ -27,42 +27,42 @@ export interface ValueEntry {
 export const VALUES: ValueEntry[] = [
   {
     n: 1,
-    anim: 'v1',
-    id: 'V-1',
-    left: 'Method',
-    right: 'Model',
-    quad: 'Method',
+    anim: "v1",
+    id: "V-1",
+    left: "Method",
+    right: "Model",
+    quad: "Method",
     note: 'The method <em class="emph">endures<svg class="und" aria-hidden="true" viewBox="0 0 100 7" preserveAspectRatio="none"><path d="M2 4 Q 30 2, 55 5 T 98 3"/></svg></em>. The model <em class="emph">fades<svg class="und" aria-hidden="true" viewBox="0 0 100 7" preserveAspectRatio="none"><path d="M2 5 Q 30 3, 52 6 T 98 4"/></svg></em>.',
-    body: 'Bet on the method, not the model — every LLM release will fade. Your method endures and standardizes your team’s practices across models, vendors, and versions.',
+    body: "<strong>Bet on the method, not the model — every LLM release will fade</strong>.<br> Your method endures and standardizes your team’s practices across models, vendors, and versions.",
   },
   {
     n: 2,
-    anim: 'v2',
-    id: 'V-2',
-    left: 'Ownership',
-    right: 'Delegation',
-    quad: 'Ownership',
+    anim: "v2",
+    id: "V-2",
+    left: "Ownership",
+    right: "Delegation",
+    quad: "Ownership",
     note: 'You <em class="emph">own<svg class="und" aria-hidden="true" viewBox="0 0 100 7" preserveAspectRatio="none"><path d="M2 4 Q 32 2, 56 5 T 98 4"/></svg></em> it. You don’t just <em class="emph">delegate<svg class="und" aria-hidden="true" viewBox="0 0 100 7" preserveAspectRatio="none"><path d="M2 5 Q 30 3, 54 6 T 98 3"/></svg></em> it.',
-    body: 'You own what you ship — even what the AI wrote. Every commit is signed by a human; the AI accelerates, you decide.',
+    body: "<strong>You own what you ship — even what the AI wrote</strong>.<br>Every commit is signed by a human; the AI accelerates, you decide.",
   },
   {
     n: 3,
-    anim: 'v3',
-    id: 'V-3',
-    left: 'Understanding',
-    right: 'Acceptance',
-    quad: 'Understanding',
+    anim: "v3",
+    id: "V-3",
+    left: "Understanding",
+    right: "Acceptance",
+    quad: "Understanding",
     note: 'You <em class="emph">understand<svg class="und" aria-hidden="true" viewBox="0 0 100 7" preserveAspectRatio="none"><path d="M2 4 Q 30 2, 55 5 T 98 3"/></svg></em> before you <em class="emph">accept<svg class="und" aria-hidden="true" viewBox="0 0 100 7" preserveAspectRatio="none"><path d="M2 5 Q 30 3, 52 6 T 98 4"/></svg></em>.',
-    body: 'Don’t accept what you don’t understand. The AI is your collaborator — not your replacement.',
+    body: "<strong>Don’t accept what you don’t understand</strong>.<br>The AI is your collaborator — not your replacement.",
   },
   {
     n: 4,
-    anim: 'v4',
-    id: 'V-4',
-    left: 'Outcome',
-    right: 'Output',
-    quad: 'Impact',
+    anim: "v4",
+    id: "V-4",
+    left: "Outcome",
+    right: "Output",
+    quad: "Impact",
     note: 'Ship <em class="emph">impact<svg class="und" aria-hidden="true" viewBox="0 0 100 7" preserveAspectRatio="none"><path d="M2 4 Q 32 2, 56 5 T 98 4"/></svg></em>. Not <em class="emph">output<svg class="und" aria-hidden="true" viewBox="0 0 100 7" preserveAspectRatio="none"><path d="M2 5 Q 30 3, 54 6 T 98 3"/></svg></em>.',
-    body: 'Writing code is easy. Building product is not. Ship small, iterate fast, short feedback loops — avoid vanity metrics. The only number that serves is the business.',
+    body: "<strong>Writing code is easy. Building product is not</strong>.<br>Ship small, iterate fast, short feedback loops — avoid vanity metrics. The only number that serves is the business.",
   },
 ];

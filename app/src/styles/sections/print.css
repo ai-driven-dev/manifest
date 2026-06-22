@@ -1,23 +1,76 @@
 /* ============ PRINT ============ */
-@media print{
-  @page{ size: A3 portrait; margin: 18mm }
-  html, body{ background: white; color: black; }
-  body::before, body::after{ display:none }
-  .cover{ height: auto; min-height: 0; padding: 0 0 20mm; page-break-after: always; }
-  .cover-scroll{ color: oklch(0.55 0 0) }
-  .cover-title{ color: oklch(0.18 0 0) }
-  .cover-title .word{ opacity:1; transform:none; animation:none }
-  .cover-title .ai::after{ transform: scaleX(1); animation: none; background: oklch(0.62 0 0) }
-  .preamble, .chapter-open, .values, .principles{
-    page-break-inside: avoid; break-inside: avoid;
-    border-color: oklch(0.78 0 0);
-  }
-  .reveal{ opacity:1; transform: none }
-  .plate-row.seen .right svg.strike path, .plate-row .right svg.strike path{ stroke-dashoffset: 0 }
-  .p-grid{ border-color: oklch(0.78 0 0) }
-  .principle{ border-color: oklch(0.78 0 0) !important; cursor: default }
-  .principle:hover{ background: transparent }
-  #tweaks, .cover-scroll{ display:none !important }
-  a{ color: oklch(0.18 0 0); text-decoration:none }
-  footer.doc-footer{ border-color: oklch(0.78 0 0) }
+@media print {
+    @page {
+        size: A3 portrait;
+        margin: 18mm;
+    }
+    html,
+    body {
+        background: white;
+        color: black;
+    }
+    body::before,
+    body::after {
+        display: none;
+    }
+    .cover {
+        height: auto;
+        min-height: 0;
+        padding: 0 0 20mm;
+        page-break-after: always;
+    }
+    .cover-scroll {
+        color: oklch(0.55 0 0);
+    }
+    .cover-title {
+        color: oklch(0.18 0 0);
+    }
+    .cover-title .word {
+        opacity: 1;
+        transform: none;
+        animation: none;
+    }
+    .cover-title .ai::after {
+        transform: scaleX(1);
+        animation: none;
+        background: oklch(0.62 0 0);
+    }
+    .preamble,
+    .chapter-open,
+    .values,
+    .principles {
+        page-break-inside: avoid;
+        break-inside: avoid;
+        border-color: oklch(0.78 0 0);
+    }
+    .reveal {
+        text-align: center;
+        opacity: 1;
+        transform: none;
+    }
+    .plate-row.seen .right svg.strike path,
+    .plate-row .right svg.strike path {
+        stroke-dashoffset: 0;
+    }
+    .p-grid {
+        border-color: oklch(0.78 0 0);
+    }
+    .principle {
+        border-color: oklch(0.78 0 0) !important;
+        cursor: default;
+    }
+    .principle:hover {
+        background: transparent;
+    }
+    #tweaks,
+    .cover-scroll {
+        display: none !important;
+    }
+    a {
+        color: oklch(0.18 0 0);
+        text-decoration: none;
+    }
+    footer.doc-footer {
+        border-color: oklch(0.78 0 0);
+    }
 }

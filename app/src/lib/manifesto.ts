@@ -1,5 +1,6 @@
 import { PRINCIPLES } from '~/content/principles';
 import { VALUES } from '~/content/values';
+import { ENTRY, SYNONYMS, VERSUS } from '~/content/lexicon';
 import { absoluteUrl, SITE, stripHtml } from '~/lib/site';
 
 export function getManifestoMarkdown(): string {
@@ -13,6 +14,10 @@ export function getManifestoMarkdown(): string {
       `## Principle ${principle.n}\n\n${stripHtml(principle.lead)}\n\n${principle.sub}`
   ).join('\n\n');
 
+  const versus = VERSUS.map(
+    (row) => `| ${row.axis} | ${row.aidd} | ${row.vibe} |`
+  ).join('\n');
+
   return `# ${SITE.name}
 
 ${SITE.description}
@@ -20,6 +25,20 @@ ${SITE.description}
 ## Preamble
 
 As AI-Driven Developers, we are discovering better ways of building software by working with AI as a deliberate partner, and helping others do the same.
+
+## Definition
+
+**${ENTRY.headword}** (${ENTRY.abbr}), ${ENTRY.pos} ${ENTRY.pron}
+
+${stripHtml(ENTRY.def)}
+
+Also known as: ${SYNONYMS.join(', ')}.
+
+### AIDD vs vibe coding
+
+| Axis | AIDD | Vibe coding |
+| --- | --- | --- |
+${versus}
 
 # Values
 
@@ -129,6 +148,20 @@ export function getHomeJsonLd() {
           position: principle.number,
         })),
       ],
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'DefinedTerm',
+      '@id': `${absoluteUrl('/')}#aidd`,
+      name: ENTRY.headword,
+      alternateName: [ENTRY.abbr, ...SYNONYMS],
+      description: stripHtml(ENTRY.def),
+      url: `${absoluteUrl('/')}#definition`,
+      inDefinedTermSet: {
+        '@type': 'DefinedTermSet',
+        name: `${SITE.shortName} Lexicon`,
+        url: `${absoluteUrl('/')}#definition`,
+      },
     },
     {
       '@context': 'https://schema.org',

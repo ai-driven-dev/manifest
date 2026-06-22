@@ -247,40 +247,6 @@
   transition: opacity 0.18s linear calc(2.4s + var(--i, 0) * 35ms);
 }
 
-/* ---- Epigraph — before the four values ---- */
-.values-epigraph{
-  text-align: center;
-  max-width: 54ch;
-  margin: clamp(24px, 5vh, 56px) auto clamp(16px, 3vh, 32px);
-  padding: 0 clamp(16px, 3vw, 24px);
-  position: relative;
-}
-/* Flanking hairlines */
-.values-epigraph::before,
-.values-epigraph::after{
-  content: "";
-  display: block;
-  width: 40px; height: 1px;
-  background: var(--rule);
-  margin: 14px auto;
-}
-.values-epigraph p{
-  font-family: var(--sans);
-  font-weight: 400;
-  font-style: normal;                   /* no italic */
-  font-size: clamp(18px, 2vw, 26px);
-  line-height: 1.45;
-  color: var(--ink-2);
-  letter-spacing: -0.01em;
-  text-wrap: balance;
-}
-/* em inside epigraph — emphasize via ink, weight, not italic */
-.values-epigraph p em{
-  font-style: normal;
-  color: var(--ink);
-  font-weight: 500;
-}
-
 /* ---- Responsive: stack columns on narrow viewports ---- */
 @media (max-width: 960px){
   .value-art{
