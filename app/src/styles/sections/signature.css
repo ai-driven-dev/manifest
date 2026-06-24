@@ -3,6 +3,149 @@
 .signature{
   padding: 0 0 clamp(56px, 9vh, 100px);
 }
+
+.signature-open{
+  min-height: clamp(300px, 34vh, 410px);
+  padding: clamp(52px, 8vh, 88px) 0 clamp(38px, 6vh, 62px);
+  isolation: isolate;
+  overflow: hidden;
+}
+.signature-open::before{
+  height: 3px;
+  background: var(--ink);
+}
+.signature-open::after{
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--rule);
+}
+
+.signature-open-mark{
+  position: absolute;
+  right: clamp(-72px, -4vw, -28px);
+  top: 50%;
+  width: clamp(240px, 30vw, 390px);
+  height: clamp(240px, 30vw, 390px);
+  color: oklch(from var(--accent) l c h / 0.12);
+  transform: translateY(-50%) rotate(-8deg);
+  z-index: -1;
+  pointer-events: none;
+}
+.signature-open-mark line,
+.signature-open-mark circle{
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.signature-open:hover .som-bar-small,
+.signature-open:hover .som-bar-big{
+  animation: signature-mark-draw .9s var(--ease-out) both;
+}
+.signature-open:hover .som-dot{
+  animation: signature-mark-pulse .9s var(--ease-out) both;
+}
+@keyframes signature-mark-draw{
+  from{ opacity: .35; transform: translateY(10px) scale(.96); }
+  to{ opacity: 1; transform: none; }
+}
+@keyframes signature-mark-pulse{
+  0%, 100%{ transform: scale(1); }
+  50%{ transform: scale(1.14); }
+}
+
+.signature-open-body{
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(124px, 174px);
+  gap: clamp(24px, 5vw, 72px);
+  align-items: end;
+  max-width: 100%;
+  z-index: 1;
+}
+.signature-open-copy{
+  min-width: 0;
+  max-width: 780px;
+}
+.signature-kicker{
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: clamp(18px, 2.5vh, 28px);
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.signature-kicker::before{
+  content: "";
+  width: clamp(56px, 8vw, 104px);
+  height: 2px;
+  background: var(--accent);
+}
+.signature-open .chapter-lede{
+  max-width: 720px;
+}
+.signature-open .chapter-lede p{
+  color: var(--ink);
+}
+
+.signature-seal{
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: clamp(16px, 2vw, 22px);
+  border: 2px solid oklch(from var(--ink) l c h / 0.22);
+  border-radius: 50%;
+  color: var(--ink);
+  background: oklch(from var(--paper) l c h / 0.72);
+  transform: rotate(-6deg);
+}
+.signature-seal::before,
+.signature-seal::after{
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 1px solid oklch(from var(--accent) l c h / 0.34);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.signature-seal::after{
+  inset: 18px;
+  border-color: var(--rule);
+}
+.signature-seal-label,
+.signature-seal-caption{
+  position: relative;
+  z-index: 1;
+  font-family: var(--sans);
+  font-size: clamp(9px, .9vw, 11px);
+  font-weight: 700;
+  letter-spacing: .16em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  text-align: center;
+}
+.signature-seal strong{
+  position: relative;
+  z-index: 1;
+  font-family: var(--display);
+  font-size: clamp(44px, 6vw, 76px);
+  font-weight: 800;
+  line-height: .9;
+  letter-spacing: -0.035em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
 /* Contribute links under the CTA — organisation, then repository. */
 .sign-contribute{
   margin-top: 14px;
@@ -173,6 +316,11 @@
   animation: logo-draw 0.8s var(--ease-out) both;
 }
 @media (prefers-reduced-motion: reduce){
+  .signature-open:hover .som-bar-small,
+  .signature-open:hover .som-bar-big,
+  .signature-open:hover .som-dot{
+    animation: none;
+  }
   .sign-logo .sl-bar-small,
   .sign-logo .sl-bar-big{ animation: none; stroke-dashoffset: 0; }
   .sign-logo .sl-dot{ animation: none; }
@@ -487,6 +635,37 @@
 
 /* ---- Mobile: stack signatories one under another (full-width cards) ---- */
 @media (max-width: 640px){
+  .signature-open{
+    min-height: 0;
+    padding: clamp(56px, 9vh, 80px) 0 clamp(36px, 7vh, 56px);
+  }
+  .signature-open-mark{
+    right: -126px;
+    top: auto;
+    bottom: -132px;
+    width: 310px;
+    height: 310px;
+    transform: rotate(-8deg);
+    color: oklch(from var(--accent) l c h / 0.09);
+  }
+  .signature-open-body{
+    grid-template-columns: minmax(0, 1fr);
+    gap: 26px;
+  }
+  .signature-kicker{
+    margin-bottom: 18px;
+    font-size: 10px;
+    letter-spacing: .14em;
+  }
+  .signature-kicker::before{ width: 52px; }
+  .signature-seal{
+    justify-self: start;
+    width: 128px;
+    transform: rotate(-4deg);
+  }
+  .signature-seal strong{
+    font-size: 44px;
+  }
   .sig-grid{
     grid-template-columns: minmax(0, 1fr);
   }

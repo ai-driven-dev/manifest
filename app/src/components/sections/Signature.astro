@@ -1,20 +1,39 @@
 ---
+import { getCollection } from 'astro:content';
 import SignButton from '~/components/signature/SignButton.astro';
 import SignatureWall from '~/components/signature/SignatureWall.astro';
+
+const count = (await getCollection('signatories')).length;
+const registryCount = String(count).padStart(3, '0');
 ---
 <section id="sign" class="signature">
-  <div class="chapter-open reveal">
-    <div class="chapter-body">
-      <h2>Be part of the movement!</h2>
-      <div class="chapter-lede">
-        <svg class="fleuron" width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
-          <path d="M22 4 C 28 14, 40 14, 40 22 C 40 30, 28 30, 22 40 C 16 30, 4 30, 4 22 C 4 14, 16 14, 22 4 Z" stroke="currentColor" stroke-width="1" fill="none"/>
-          <circle cx="22" cy="22" r="2" fill="currentColor"/>
-        </svg>
-        <p>
-        Be among the first to sign the <strong>AI-Driven Development Manifesto</strong> and help shape the future of software development.
-        </p>
+  <div class="chapter-open signature-open reveal">
+    <svg class="signature-open-mark" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+      <line class="som-bar-small" x1="8" y1="92" x2="28" y2="62" stroke="currentColor" stroke-width="14" stroke-linecap="round" />
+      <circle class="som-dot" cx="42" cy="41" r="10" fill="currentColor" />
+      <line class="som-bar-big" x1="60" y1="8" x2="92" y2="92" stroke="currentColor" stroke-width="22" stroke-linecap="round" />
+    </svg>
+
+    <div class="chapter-body signature-open-body">
+      <div class="signature-open-copy">
+        <p class="signature-kicker">Public signature registry</p>
+        <h2>Be part of the movement!</h2>
+        <div class="chapter-lede">
+          <svg class="fleuron" width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+            <path d="M22 4 C 28 14, 40 14, 40 22 C 40 30, 28 30, 22 40 C 16 30, 4 30, 4 22 C 4 14, 16 14, 22 4 Z" stroke="currentColor" stroke-width="1" fill="none"/>
+            <circle cx="22" cy="22" r="2" fill="currentColor"/>
+          </svg>
+          <p>
+          Be among the first to sign the <strong>AI-Driven Development Manifesto</strong> and help shape the future of software development.
+          </p>
+        </div>
       </div>
+
+      <aside class="signature-seal" aria-label={`${count} manifesto signatories`}>
+        <span class="signature-seal-label">AIDD registry</span>
+        <strong>{registryCount}</strong>
+        <span class="signature-seal-caption">{count === 1 ? 'signatory' : 'signatories'}</span>
+      </aside>
     </div>
   </div>
 
