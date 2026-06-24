@@ -79,6 +79,7 @@ export function getManifestoJson() {
       number: principle.n,
       statement: stripHtml(principle.lead),
       summary: principle.sub,
+      frameworkTrace: principle.proof,
     })),
   };
 }

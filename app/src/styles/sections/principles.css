@@ -1,5 +1,14 @@
 /* ============ PRINCIPLES — twelve commitments, citable reference grid ============ */
 .principles{ padding: 0 0 clamp(16px, 2.5vh, 28px); }
+.principles .chapter-open{
+  padding: clamp(48px, 7vh, 76px) 0 clamp(24px, 4vh, 40px);
+}
+.principles .chapter-body h2{
+  max-width: 780px;
+  font-size: clamp(28px, 4vw, 52px);
+  line-height: 1.02;
+  margin-bottom: 0;
+}
 
 /* ---- List: one commitment per full-width row, stacked vertically ---- */
 .p-grid{
@@ -14,12 +23,11 @@
   --row-inset: clamp(18px, 2.2vw, 28px);
   position: relative;
   display: grid;
-  grid-template-columns: clamp(48px, 5vw, 64px) minmax(0, 1fr) minmax(280px, 420px);
-  gap: clamp(18px, 2vw, 28px);
+  grid-template-columns: clamp(44px, 4.6vw, 58px) minmax(320px, 1fr) minmax(280px, 380px);
+  gap: clamp(18px, 1.9vw, 28px);
   align-items: start;
   min-width: 0;
-  /* Generous breathing room — rows were too cramped. */
-  padding: clamp(40px, 6.5vh, 78px) var(--row-inset);
+  padding: clamp(26px, 4.3vh, 46px) var(--row-inset);
   scroll-margin-top: clamp(20px, 8vh, 80px);
   border-bottom: 1px solid var(--rule);
   background: var(--paper);
@@ -76,7 +84,7 @@
   font-family: var(--display);
   font-style: normal;
   font-weight: 700;
-  font-size: clamp(38px, 4vw, 56px);
+  font-size: clamp(32px, 3.4vw, 46px);
   line-height: 1;
   color: var(--ink);
   letter-spacing: -0.03em;
@@ -102,11 +110,11 @@
   position: absolute;
   /* Offset from the number's own height (line-box = font-size) + a small gap,
      rather than 100% — the number's line-box can render taller than expected. */
-  top: calc(clamp(38px, 4vw, 56px) + 18px);
+  top: calc(clamp(32px, 3.4vw, 46px) + 16px);
   left: 0;
-  width: clamp(50px, 4.8vw, 62px);
-  height: clamp(50px, 4.8vw, 62px);
-  padding: clamp(13px, 1.3vw, 16px);
+  width: clamp(44px, 4.3vw, 54px);
+  height: clamp(44px, 4.3vw, 54px);
+  padding: clamp(11px, 1.15vw, 14px);
   /* Single accent by default; --p-color is only set when the "rainbow" tweak
      is on (see ClientApp). No per-principle gradient otherwise. */
   --plate-mark: var(--p-color, var(--accent));
@@ -121,11 +129,11 @@
   font-family: var(--display);
   font-style: normal;
   font-weight: 600;
-  font-size: clamp(20px, 1.9vw, 26px);
-  line-height: 1.25;
+  font-size: clamp(18px, 1.55vw, 22px);
+  line-height: 1.22;
   letter-spacing: -0.015em;
   color: var(--ink);
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   text-wrap: pretty;
 }
 
@@ -161,10 +169,10 @@
 .p-sub{
   font-family: var(--sans);
   font-style: normal;
-  font-size: 14.5px;
-  line-height: 1.6;
+  font-size: 13.5px;
+  line-height: 1.55;
   color: var(--ink-2);
-  max-width: 48ch;
+  max-width: 44ch;
 }
 
 /* ---- Tablet: drop the side code panel under the statement ---- */
