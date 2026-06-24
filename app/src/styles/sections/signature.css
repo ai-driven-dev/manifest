@@ -88,7 +88,7 @@
 .sign-btn--sidebar{
   display: flex;
   width: 100%;
-  min-height: 0;
+  min-height: 44px;
   gap: 0;
   padding: 0;
   margin-top: clamp(10px, 1.8vh, 16px);
@@ -259,8 +259,9 @@
   list-style: none;
   margin: 0; padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
   gap: clamp(10px, 1.4vw, 18px);
+  min-width: 0;
 }
 
 /* ---- Signature card — light panel, hairline border ---- */
@@ -269,27 +270,46 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  min-width: 0;
+  max-width: 100%;
   padding: 14px 14px 14px 12px;
   background: var(--paper-2);
   border: 1px solid var(--rule);
   border-radius: var(--radius-card);
+  overflow: hidden;
   transition:
     transform var(--dur-short) var(--ease-out),
     box-shadow var(--dur-short) var(--ease-out),
     border-color var(--dur-short) var(--ease-out),
     background var(--dur-short) var(--ease-out);
 }
-.sig-card:hover{
+.sig-card::before{
+  content: "";
+  position: absolute;
+  inset: 0 12px auto;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-med) var(--ease-out);
+}
+.sig-card:hover,
+.sig-card:focus-within{
   transform: translateY(-2px);
   background: var(--paper-3);
   border-color: var(--accent-soft);
   box-shadow: var(--shadow-card);
+}
+.sig-card:hover::before,
+.sig-card:focus-within::before{
+  transform: scaleX(1);
 }
 
 .sig-top{
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
 }
 
 .sig-link{
@@ -310,6 +330,16 @@
   background: var(--paper);
   border: 1px solid var(--rule);
   object-fit: cover;
+  transition:
+    transform var(--dur-med) var(--ease-out),
+    border-color var(--dur-med) var(--ease-out),
+    filter var(--dur-med) var(--ease-out);
+}
+.sig-card:hover .sig-avatar,
+.sig-card:focus-within .sig-avatar{
+  transform: scale(1.04);
+  border-color: oklch(from var(--accent) l c h / 0.42);
+  filter: saturate(1.08);
 }
 
 .sig-meta{
@@ -329,6 +359,11 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: color var(--dur-short) var(--ease-out);
+}
+.sig-card:hover .sig-name,
+.sig-card:focus-within .sig-name{
+  color: var(--accent);
 }
 .sig-affil{
   font-family: var(--sans);
@@ -351,6 +386,7 @@
   line-height: 1.55;
   color: var(--ink-2);
   border-top: 1px solid var(--rule);
+  overflow-wrap: anywhere;
 }
 
 /* Date stamp */
@@ -362,25 +398,85 @@
   color: var(--ink-3);
 }
 
+.sig-card-foot{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  min-width: 0;
+}
+.sig-entry{
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 8px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-input);
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+  background: var(--paper);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  transform: rotate(0deg);
+  transition:
+    transform var(--dur-med) var(--ease-out),
+    border-color var(--dur-med) var(--ease-out),
+    color var(--dur-med) var(--ease-out),
+    background var(--dur-med) var(--ease-out);
+}
+.sig-card:hover .sig-entry,
+.sig-card:focus-within .sig-entry{
+  transform: rotate(-2deg) translateY(-1px);
+  border-color: oklch(from var(--accent) l c h / 0.42);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
 /* LinkedIn icon — subtle, no fill */
 .sig-linkedin{
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px; height: 30px;
+  width: 44px; height: 44px;
   border-radius: 6px;
   color: var(--ink-3);
   background: transparent;
   flex: none;
   transition:
     color var(--dur-short) var(--ease-out),
-    background var(--dur-short) var(--ease-out);
+    background var(--dur-short) var(--ease-out),
+    transform var(--dur-short) var(--ease-out);
 }
 .sig-linkedin:hover{
   color: var(--accent);
   background: var(--accent-soft);
+  transform: translateY(-1px);
 }
 .sig-linkedin svg{ width: 14px; height: 14px; }
+
+@media (prefers-reduced-motion: reduce){
+  .sig-card,
+  .sig-card::before,
+  .sig-avatar,
+  .sig-name,
+  .sig-entry,
+  .sig-linkedin{
+    transition: none;
+  }
+  .sig-card:hover,
+  .sig-card:focus-within,
+  .sig-card:hover .sig-avatar,
+  .sig-card:focus-within .sig-avatar,
+  .sig-card:hover .sig-entry,
+  .sig-card:focus-within .sig-entry,
+  .sig-linkedin:hover{
+    transform: none;
+  }
+}
 
 /* ---- Print ---- */
 @media print{
@@ -392,7 +488,7 @@
 /* ---- Mobile: stack signatories one under another (full-width cards) ---- */
 @media (max-width: 640px){
   .sig-grid{
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

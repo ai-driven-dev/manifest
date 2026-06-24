@@ -85,6 +85,9 @@ summary:focus-visible{
 /* Skip link — visible only on focus */
 .skip-link{
   position: absolute; left: 12px; top: -100px; z-index: 100;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   padding: 10px 16px; background: var(--accent); color: var(--accent-ink);
   font-family: var(--sans); font-size: 12px; letter-spacing: 0.04em;
   text-decoration: none; border-radius: 4px;

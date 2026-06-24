@@ -12,6 +12,8 @@
   align-self: stretch;
   position: relative;
   overflow: hidden;
+  min-width: 0;
+  max-width: 100%;
   /* Hairline outline only — no heavy shadow */
   box-shadow: 0 0 0 1px oklch(0.181 0.117 266 / 0.6);
 }
@@ -47,6 +49,8 @@
   position: relative;
   z-index: 1;
   min-height: clamp(260px, 32vh, 340px);
+  min-width: 0;
+  max-width: 100%;
 }
 
 /* ---- Column layout ---- */
@@ -95,6 +99,7 @@
   font-family: var(--mono);
   white-space: pre;
   overflow-x: auto;
+  max-width: 100%;
   margin: 0;
   font-size: inherit;
   line-height: inherit;
@@ -157,6 +162,7 @@
   margin: 0;
   white-space: pre;
   overflow-x: auto;
+  max-width: 100%;
   color: inherit;
   font-family: var(--mono);
   font-size: inherit;

@@ -47,7 +47,7 @@
 .si-nav{ display: flex; flex-direction: column; }
 .si-link{
   display: flex; align-items: baseline; gap: 10px;
-  min-height: 40px; padding: 9px 0 9px 12px; margin-left: -14px;
+  min-height: 44px; padding: 11px 0 11px 12px; margin-left: -14px;
   font-family: var(--sans); font-size: 14px;
   color: var(--ink-3); text-decoration: none;
   border-left: 2px solid transparent;
@@ -116,7 +116,7 @@
 .si-contact-links{ display: flex; gap: 8px; }
 .si-contact-link{
   display: inline-flex; align-items: center; justify-content: center;
-  width: 34px; height: 34px;
+  width: 44px; height: 44px;
   color: var(--ink-2);
   border: 1px solid var(--rule);
   border-radius: 8px;
