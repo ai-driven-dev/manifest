@@ -18,7 +18,7 @@
   border-top: 1px solid var(--rule);
 }
 
-/* ---- Row: number · statement · code panel, side by side ---- */
+/* ---- Row: number · statement · visual proof, side by side ---- */
 .principle{
   --row-inset: clamp(18px, 2.2vw, 28px);
   position: relative;
@@ -57,8 +57,8 @@
    contrast and the page settles. */
 .principle.lit::before,
 .principle:hover::before{ opacity: 1; transform: none; }
-/* Code panel sits in the third column, aligned with the statement (not full-width) */
-.principle .term{
+/* Visual scene sits in the third column, aligned with the statement. */
+.principle .p-demo{
   grid-column: 3;
   margin-top: 4px;
   align-self: start;
@@ -69,7 +69,7 @@
 .principle .p-num{ grid-column: 1; }
 .principle .p-body{ grid-column: 2; }
 
-/* Ghost folio numeral removed in the row layout (the code panel occupies the
+/* Ghost folio numeral removed in the row layout (the visual scene occupies the
    right column; the .p-num in column 1 is the citable number). */
 .principle .p-folio{ display: none; }
 .principle > *{ position: relative; z-index: 1; }
@@ -118,9 +118,16 @@
   /* Single accent by default; --p-color is only set when the "rainbow" tweak
      is on (see ClientApp). No per-principle gradient otherwise. */
   --plate-mark: var(--p-color, var(--accent));
-  --plate-glyph: var(--p-color, var(--ink));
+  --plate-glyph: var(--p-color, var(--accent));
   --tick: clamp(11px, 1.1vw, 14px);
+  background-image: none;
+  background-color: oklch(1 0 0 / 0.64);
+  border: 1px solid oklch(0.54 0.246 275 / 0.20);
+  border-radius: var(--radius-card);
   pointer-events: none;
+}
+.p-num .p-icon .icon-glyph{
+  stroke-width: 1.85;
 }
 /* ---- Body ---- */
 .p-body{ padding-top: 8px; }
@@ -175,13 +182,13 @@
   max-width: 44ch;
 }
 
-/* ---- Tablet: drop the side code panel under the statement ---- */
+/* ---- Tablet: drop the side visual panel under the statement ---- */
 @media (max-width: 1024px){
   .principle{
     grid-template-columns: clamp(48px, 6vw, 60px) minmax(0, 1fr);
     gap: clamp(16px, 3vw, 28px) clamp(20px, 4vw, 40px);
   }
-  .principle .term{
+  .principle .p-demo{
     grid-column: 1 / -1;
     margin-top: clamp(14px, 2vh, 20px);
   }
@@ -202,5 +209,5 @@
     --tick: 10px;
   }
   .p-lead{ font-size: clamp(18px, 4.5vw, 22px); }
-  .principle .term{ grid-column: 1 / -1; }
+  .principle .p-demo{ grid-column: 1 / -1; }
 }

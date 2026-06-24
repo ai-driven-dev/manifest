@@ -98,9 +98,9 @@ export const ICONS: Record<IconKey, IconDef> = {
       <circle pathLength="100" cx="6.5" cy="24" r="1.4" fill="currentColor" stroke="none"/>
       <circle pathLength="100" cx="27" cy="9" r="1.4" fill="currentColor" stroke="none"/>`,
   },
-  // 04 Decompose until delegable — one square splitting into four.
+  // 04 Decompose until delegable — one square splitting into leaves.
   '04': {
-    label: 'A task decomposing into smaller delegable parts',
+    label: 'A task decomposing into smaller delegable leaves',
     paths: `
       <path pathLength="100" d="M6 6 L 13 6 L 13 13 L 6 13 Z" fill="none"/>
       <path pathLength="100" d="M19 19 L 26 19 L 26 26 L 19 26 Z" fill="none"/>
