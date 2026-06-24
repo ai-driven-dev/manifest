@@ -11,13 +11,15 @@
 
 /* ---- Row: number · statement · code panel, side by side ---- */
 .principle{
+  --row-inset: clamp(18px, 2.2vw, 28px);
   position: relative;
   display: grid;
-  grid-template-columns: clamp(48px, 5vw, 64px) minmax(0, 1fr) minmax(300px, 460px);
-  gap: clamp(20px, 3vw, 56px);
+  grid-template-columns: clamp(48px, 5vw, 64px) minmax(0, 1fr) minmax(280px, 420px);
+  gap: clamp(18px, 2vw, 28px);
   align-items: start;
+  min-width: 0;
   /* Generous breathing room — rows were too cramped. */
-  padding: clamp(40px, 6.5vh, 78px) 0;
+  padding: clamp(40px, 6.5vh, 78px) var(--row-inset);
   scroll-margin-top: clamp(20px, 8vh, 80px);
   border-bottom: 1px solid var(--rule);
   background: var(--paper);
@@ -31,7 +33,7 @@
 .principle::before{
   content: "";
   position: absolute;
-  inset: clamp(12px, 2vh, 22px) calc(-1 * clamp(14px, 1.6vw, 26px));
+  inset: clamp(12px, 2vh, 22px) 0;
   border-radius: var(--radius-card);
   border: 1px solid var(--accent-soft);
   background: var(--paper-2);
@@ -52,6 +54,8 @@
   grid-column: 3;
   margin-top: 4px;
   align-self: start;
+  min-width: 0;
+  max-width: 100%;
 }
 /* Number + statement live in the first two columns */
 .principle .p-num{ grid-column: 1; }
@@ -64,6 +68,11 @@
 
 /* ---- Number — a self-permalink (jumps to this principle's anchor) ---- */
 .p-num{
+  display: inline-flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  min-width: 44px;
+  min-height: 44px;
   font-family: var(--display);
   font-style: normal;
   font-weight: 700;
@@ -173,9 +182,10 @@
 /* ---- Mobile: number over statement, panel below ---- */
 @media (max-width: 560px){
   .principle{
+    --row-inset: clamp(18px, 5vw, 22px);
     grid-template-columns: 44px 1fr;
     gap: 14px;
-    padding: clamp(24px, 6vw, 36px) 0;
+    padding: clamp(24px, 6vw, 36px) var(--row-inset);
   }
   .p-num{ font-size: clamp(32px, 8vw, 44px); }
   .p-num .p-icon{

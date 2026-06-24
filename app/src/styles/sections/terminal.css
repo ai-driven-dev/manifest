@@ -17,9 +17,13 @@
   line-height: 1.65;
   overflow: hidden;
   position: relative;
+  min-width: 0;
+  max-width: 100%;
   box-shadow:
+    0 0 0 10px oklch(1 0 0 / 0.58),
     0 0 0 1px oklch(0.28 0.06 272),
-    0 12px 32px -20px oklch(0.10 0.08 268 / 0.45);
+    0 0 38px -10px oklch(1 0 0 / 0.95),
+    0 18px 42px -24px oklch(0.10 0.08 268 / 0.48);
 }
 
 /* No traffic-light tbar */
@@ -65,6 +69,7 @@
   padding: clamp(10px, 1.4vw, 14px) clamp(18px, 2.2vw, 24px) clamp(16px, 2vw, 20px);
   position: relative;
   z-index: 2;
+  overflow-x: auto;
 }
 
 /* ---- Line reveal animation ---- */

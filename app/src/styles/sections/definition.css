@@ -129,13 +129,13 @@
 }
 .vsch{
   margin: 0;
-  padding: clamp(16px, 1.8vw, 22px);
+  padding: clamp(20px, 2.2vw, 28px);
   background: var(--paper-2);
   border: 1px solid var(--rule);
   border-radius: var(--radius-card);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: clamp(16px, 2vw, 22px);
 }
 .vsch-cap{
   font-family: var(--sans);
@@ -145,7 +145,12 @@
   color: var(--ink-3);
   font-weight: 600;
 }
-.vsch-svg{ width: 100%; height: auto; display: block; }
+.vsch-svg{
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 2px 0 4px;
+}
 .vsch-note{
   margin: 0;
   font-family: var(--display);
