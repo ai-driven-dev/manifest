@@ -1,0 +1,36 @@
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+      - skip-changelog
+    authors:
+      - dependabot
+      - dependabot[bot]
+  categories:
+    - title: "🚀 New Features"
+      labels:
+        - feature
+        - enhancement
+        - feat
+    - title: "🎨 Manifesto & UI"
+      labels:
+        - design
+        - ui
+        - manifesto
+        - content
+    - title: "🧹 Maintenance"
+      labels:
+        - chore
+        - refactor
+        - maintenance
+    - title: "🐛 Bug Fixes"
+      labels:
+        - bug
+        - fix
+    - title: "📚 Documentation"
+      labels:
+        - documentation
+        - docs
+    - title: "📦 Other Changes"
+      labels:
+        - "*"

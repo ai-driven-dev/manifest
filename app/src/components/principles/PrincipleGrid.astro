@@ -1,10 +1,9 @@
 ---
 import { PRINCIPLES } from '~/content/principles';
-import { TERMS } from '~/content/terms';
 import PrincipleCard from '~/components/principles/PrincipleCard.astro';
 ---
 <div class="p-grid" id="pGrid">
   {PRINCIPLES.map((p, i) => (
-    <PrincipleCard principle={p} index={i} term={TERMS[i]} />
+    <PrincipleCard principle={p} index={i} />
   ))}
 </div>

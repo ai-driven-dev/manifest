@@ -1,0 +1,79 @@
+---
+interface Props {
+  index: number;
+}
+
+const { index } = Astro.props;
+const number = String(index + 1).padStart(2, '0');
+const verifiedCells = Array.from({ length: 24 }, (_, i) => {
+  const phase = i * 84;
+  return `<span class="micro-cell" style="--phase:${phase}ms" aria-hidden="true"></span>`;
+}).join('');
+const factoryDemo = `<div class="scene-factory micro-table" role="img" aria-label="One table row of tiny cells turning green from left to right">${verifiedCells}</div>`;
+const asciiSpecLines = [
+  '+-- spec.md --------+',
+  '| goal: clear build |',
+  '| input: intent     |',
+  '| steps:            |',
+  '| [ ] scope         |',
+  '| [ ] acceptance    |',
+  '| [ ] review        |',
+  '+-------------------+',
+].map((line, i) => `<span class="ascii-line" style="--delay:${i * 280}ms">${line}</span>`).join('');
+const specDemo = `<div class="scene-ascii-doc" role="img" aria-label="An ASCII specification document writing itself"><pre aria-hidden="true">${asciiSpecLines}<span class="ascii-cursor"></span></pre></div>`;
+const planSignals = [
+  '<span class="handoff-token" style="--from-x:-56px;--mid-x:-20px;--delay:220ms"></span>',
+  '<span class="handoff-token" style="--from-x:56px;--mid-x:20px;--delay:330ms"></span>',
+].join('');
+const reqLines = Array.from({ length: 3 }, (_, i) => `<span class="req-line" style="--delay:${360 + i * 80}ms"></span>`).join('');
+const codeTiles = Array.from({ length: 9 }, (_, i) => `<span class="code-tile" style="--delay:${420 + i * 45}ms"></span>`).join('');
+const mapRows = Array.from({ length: 3 }, (_, i) => `<span class="map-row" style="--delay:${520 + i * 80}ms"><i></i><em></em><i></i></span>`)
+  .join('');
+const planDemo = `<div class="scene-plan-v2" role="img" aria-label="Developer and project manager discuss the need, then an AI planning agent indexes the codebase, writes requirements, and maps functional intent to technical structure"><div class="human-dialog"><span class="plan-person plan-dev">DEV</span><span class="plan-talk plan-talk-dev"><i></i><i></i><i></i></span><span class="plan-talk plan-talk-pm"><i></i><i></i><i></i></span><span class="plan-person plan-pm">PM</span></div><div class="agent-zone">${planSignals}<span class="agent-core">AI PLAN</span></div><div class="planning-artifacts"><div class="plan-artifact req-artifact"><span class="artifact-label">REQ</span>${reqLines}</div><div class="plan-artifact code-artifact"><span class="artifact-label">CODE</span><span class="code-grid">${codeTiles}</span></div><div class="plan-artifact map-artifact"><span class="map-labels"><b>FUNC</b><b>TECH</b></span>${mapRows}</div></div></div>`;
+const d04Chips = Array.from({ length: 16 }, (_, i) => {
+  const col = i % 4;
+  const row = Math.floor(i / 4);
+  const endCol = i % 8;
+  const endRow = Math.floor(i / 8);
+  return `<span class="d04-chip" style="--sx:${col * 12}px;--sy:${row * 12}px;--ex:${100 + endCol * 10}px;--ey:${35 + endRow * 34}px;--delay:${i * 34}ms"></span>`;
+}).join('');
+const d04Packets = Array.from({ length: 4 }, (_, i) => (
+  `<span class="d04-packet" style="--i:${i}"><i></i><i></i><i></i><b></b></span>`
+)).join('');
+const delegableDemo = `<div class="d04-fracture" role="img" aria-label="Large work fractures into tiny delegable increments that finish independently"><div class="d04-work" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="d04-chip-field">${d04Chips}</div><div class="d04-packet-row">${d04Packets}</div></div>`;
+const d05CodeLines = Array.from({ length: 5 }, (_, i) => `<i style="--i:${i}"></i>`).join('');
+const d05MdLines = Array.from({ length: 5 }, (_, i) => `<i style="--i:${i}"></i>`).join('');
+const contextCareDemo = `<div class="d05-atelier" role="img" aria-label="Code and markdown pass through the same quality scanner"><div class="d05-sheet d05-code"><b>code</b>${d05CodeLines}</div><span class="d05-beam" aria-hidden="true"></span><div class="d05-sheet d05-md"><b>md</b>${d05MdLines}</div><div class="d05-quality-bar" aria-hidden="true"><i></i><i></i><i></i></div></div>`;
+const d06Reusable = Array.from({ length: 4 }, (_, i) => `<span style="--i:${i}"></span>`).join('');
+const learningDemo = `<div class="d06-capture" role="img" aria-label="A chat produces a lesson that either gets lost or is captured into reusable project memory"><div class="d06-chat-source"><b>chat</b><i></i><i></i></div><span class="d06-lesson" aria-hidden="true"></span><span class="d06-lost" aria-hidden="true"></span><div class="d06-bin" aria-hidden="true"><i></i></div><div class="d06-memory" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="d06-reuse">${d06Reusable}</div></div>`;
+const ownershipDemo = `<div class="d07-ownership" role="img" aria-label="An AI draft is reviewed by a developer before becoming an owned shipped change"><div class="d07-draft"><b>AI</b><i></i><i></i><i></i></div><span class="d07-handoff" aria-hidden="true"></span><div class="d07-dev"><b>DEV</b><span></span><i></i></div><div class="d07-ledger"><i></i><i></i><i></i><span></span></div></div>`;
+const d08Checks = ['READ', 'TEST'].map((label, i) => `<span style="--i:${i}"><b>${label}</b><i></i></span>`).join('');
+const evaluationDemo = `<div class="d08-eval-lab" role="img" aria-label="A developer reads and tests AI output before delegation is unlocked"><div class="d08-output"><b>AI</b><i></i><i></i><i></i></div><span class="d08-token" aria-hidden="true"></span><div class="d08-dev-panel"><b>DEV</b>${d08Checks}</div><div class="d08-delegate"><b>DELEGATE</b><i></i></div></div>`;
+const d09Pins = ['Plan', 'Implement', 'Review', 'Test'].map((label, i) => `<span style="--i:${i}">${label}</span>`).join('');
+const systemDemo = `<div class="d09-system-lab" role="img" aria-label="The implementation system is tightened through Plan, Implement, Review, and Test before asking the model harder"><div class="d09-noise"><i></i><i></i><i></i></div><div class="d09-frame"><b>model</b>${d09Pins}</div><div class="d09-clean"><i></i><i></i><i></i></div></div>`;
+const contextRebuildDemo = `<div class="d10-context-rebuild" role="img" aria-label="An old chat is compacted into context, then a new chat starts from that prior context"><div class="d10-chat d10-old"><b>chat</b><i></i><i></i><i></i></div><span class="d10-compact">compact</span><div class="d10-capsule"><i></i><i></i><i></i></div><div class="d10-chat d10-new"><b>new chat</b><i></i><i></i><i></i></div></div>`;
+const d11Checks = ['scope', 'context', 'assumptions', 'tests']
+  .map((label, i) => `<span class="${label === 'context' ? 'is-hit' : ''}" style="--i:${i}"><b>${label}</b><i></i></span>`)
+  .join('');
+const failureSignalDemo = `<div class="d11-diagnostic" role="img" aria-label="A stalled AI response is inspected through scope, context, assumptions, and tests until the failure reveals a context gap signal"><div class="d11-stuck"><b>AI stuck</b><i></i><i></i><em></em></div><span class="d11-pulse" aria-hidden="true"></span><div class="d11-inspect"><b>inspect</b>${d11Checks}</div><div class="d11-signal"><b>context</b><span>gap</span><i></i></div></div>`;
+const d12Inputs = ['DEV', 'OPS', 'AI'].map((label, i) => `<span style="--i:${i}">${label}</span>`).join('');
+const d12Files = ['memory.md', 'rules.md', 'skills.md']
+  .map((label, i) => `<span style="--i:${i}"><b>${label}</b><i></i><i></i><em></em></span>`)
+  .join('');
+const transferableDemo = `<div class="d12-transfer-prism" role="img" aria-label="Developers, operators, and AI agents pass through the same method and write it into reusable memory files"><div class="d12-inputs">${d12Inputs}</div><div class="d12-method"><em>method</em><i></i><i></i><i></i><b></b></div><span class="d12-write" aria-hidden="true"></span><div class="d12-files">${d12Files}</div></div>`;
+const demos = [
+  factoryDemo,
+  specDemo,
+  planDemo,
+  delegableDemo,
+  contextCareDemo,
+  learningDemo,
+  ownershipDemo,
+  evaluationDemo,
+  systemDemo,
+  contextRebuildDemo,
+  failureSignalDemo,
+  transferableDemo,
+];
+---
+<div class={`p-demo demo-${number}`} aria-label={`Visual demonstration for commitment ${number}`} set:html={demos[index] ?? demos[0]} />

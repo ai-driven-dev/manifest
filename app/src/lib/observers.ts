@@ -15,31 +15,6 @@ export function observeReveals(selector = '.reveal, .plate-row'): void {
 }
 
 /**
- * Terminal observer — replays line animations when a `.term` re-enters viewport.
- */
-export function observeTerminals(selector = '.term'): void {
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach((en) => {
-      const body = en.target.querySelector('.body');
-      if (!body) return;
-      if (en.isIntersecting) {
-        // .play unpauses the CSS line animations (.term .ln defaults to paused);
-        // re-setting the animation restarts the type-in on each entry.
-        en.target.classList.add('play');
-        body.querySelectorAll<HTMLElement>('.ln').forEach((ln) => {
-          ln.style.animation = 'none';
-          // force reflow
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          ln.offsetHeight;
-          ln.style.animation = '';
-        });
-      }
-    });
-  }, { threshold: 0.3 });
-  document.querySelectorAll(selector).forEach((t) => io.observe(t));
-}
-
-/**
  * Value-art observer — toggles `.on` for CSS reveal, manages v2 cursor cycle.
  */
 export function observeValueArt(): void {
