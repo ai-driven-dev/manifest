@@ -1,0 +1,124 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Semver version without v, for example 1.1.0"
+        required: true
+        type: string
+      target:
+        description: "Commit, tag, or branch to release"
+        required: true
+        default: main
+        type: string
+      draft:
+        description: "Create the GitHub release as a draft"
+        required: true
+        default: true
+        type: boolean
+      prerelease:
+        description: "Mark the GitHub release as a prerelease"
+        required: true
+        default: false
+        type: boolean
+      notes:
+        description: "Optional release notes override. Leave empty to use GitHub generated notes."
+        required: false
+        type: string
+
+concurrency:
+  group: release-${{ inputs.version }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create GitHub release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Guard release branch
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "Releases must be started from the main branch workflow."
+          echo "Current ref: ${GITHUB_REF}"
+          exit 1
+
+      - name: Checkout target
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.target }}
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install dependencies
+        working-directory: app
+        run: npm ci
+
+      - name: Build
+        working-directory: app
+        run: npm run build
+
+      - name: Test
+        working-directory: app
+        run: npm test
+
+      - name: Check component LOC budget
+        working-directory: app
+        run: bash tests/check-component-loc.sh
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ inputs.version }}
+          DRAFT: ${{ inputs.draft }}
+          PRERELEASE: ${{ inputs.prerelease }}
+          NOTES: ${{ inputs.notes }}
+        run: |
+          set -euo pipefail
+
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Version must be strict semver without a leading v, for example 1.1.0."
+            exit 1
+          fi
+
+          tag="v${VERSION}"
+          target_sha="$(git rev-parse HEAD)"
+
+          if git ls-remote --exit-code --tags origin "refs/tags/${tag}" >/dev/null 2>&1; then
+            echo "Tag ${tag} already exists on origin."
+            exit 1
+          fi
+
+          args=(
+            "$tag"
+            --target "$target_sha"
+            --title "AIDD Manifesto ${tag}"
+          )
+
+          if [[ "$DRAFT" == "true" ]]; then
+            args+=(--draft)
+          fi
+
+          if [[ "$PRERELEASE" == "true" ]]; then
+            args+=(--prerelease)
+          fi
+
+          if [[ -n "$NOTES" ]]; then
+            notes_file="$(mktemp)"
+            printf '%s\n' "$NOTES" > "$notes_file"
+            gh release create "${args[@]}" --notes-file "$notes_file"
+          else
+            gh release create "${args[@]}" --generate-notes
+          fi
+
+          echo "Created GitHub release ${tag} for ${target_sha}."
