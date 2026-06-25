@@ -67,13 +67,13 @@
 .plate-row:not(.seen) .pr-icon,
 .quad:not(.seen) .qc-icon,
 .principle:not(.seen) .p-icon{
-  opacity: 0;
-  transform: scale(0.7);
+  opacity: 0.72;
+  transform: scale(0.96);
 }
 .plate-row:not(.seen) .pr-icon .icon-glyph path,
 .quad:not(.seen) .qc-icon .icon-glyph path,
 .principle:not(.seen) .p-icon .icon-glyph path{
-  stroke-dashoffset: 100;
+  stroke-dashoffset: 34;
 }
 
 @media (prefers-reduced-motion: reduce){
