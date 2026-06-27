@@ -11,6 +11,211 @@
   observeSpecIndex();
   observeFocusBand();
 
+  // Share popup — confetti rains across the viewport on sign, the user's
+  // rank is stamped, an identity statement follows, the share phrase lives
+  // in a quotation block (with a clickable link to ai-driven-development.org),
+  // then a countdown announces the GitHub PR opening. The Copy pill sits in
+  // the action row beside X and LinkedIn. Message language tracks
+  // navigator.language.
+  const SHARE_URL = 'https://ai-driven-development.org/';
+  const URL_LABEL = 'ai-driven-development.org';
+  const URL_TOKEN = '\u0001URL\u0001';
+  let shareCountdownInterval: ReturnType<typeof setInterval> | null = null;
+
+  function isFrench(lang: string) { return lang.toLowerCase().startsWith('fr'); }
+
+  function ordinal(n: number, fr: boolean): string {
+    if (fr) return n === 1 ? '1er' : `${n}ème`;
+    const j = n % 10, k = n % 100;
+    if (j === 1 && k !== 11) return `${n}st`;
+    if (j === 2 && k !== 12) return `${n}nd`;
+    if (j === 3 && k !== 13) return `${n}rd`;
+    return `${n}th`;
+  }
+
+  function buildStatement(rank: number, lang: string): string {
+    const fr = isFrench(lang);
+    const ord = ordinal(rank, fr);
+    return fr ? `Vous êtes le ${ord} AI-Driven Developer` : `You are the ${ord} AI-Driven Developer`;
+  }
+
+  function buildMessagePlain(rank: number, lang: string): string {
+    const fr = isFrench(lang);
+    const line1 = fr
+      ? `Je viens de signer le Manifeste du AI-Driven Development en tant que signataire n°${rank}.`
+      : `I just signed the AI-Driven Development Manifesto as signatory #${rank}.`;
+    const line2 = fr ? `Rejoignez-moi → ${URL_TOKEN}` : `Join me → ${URL_TOKEN}`;
+    return `${line1}\n${line2}`.replaceAll(URL_TOKEN, SHARE_URL);
+  }
+
+  function buildMessageHTML(rank: number, lang: string): string {
+    const fr = isFrench(lang);
+    const line1 = fr
+      ? `Je viens de signer le Manifeste du AI-Driven Development en tant que signataire n°${rank}.`
+      : `I just signed the AI-Driven Development Manifesto as signatory #${rank}.`;
+    const line2 = fr ? `Rejoignez-moi → ${URL_TOKEN}` : `Join me → ${URL_TOKEN}`;
+    const anchor = `<a class="share-popup-link" href="${SHARE_URL}" target="_blank" rel="noopener noreferrer">${URL_LABEL}</a>`;
+    return `${line1}<br>${line2}`.replaceAll(URL_TOKEN, anchor);
+  }
+
+  function resetShareButtons(ready: boolean) {
+    const buttons = document.querySelector('.share-popup-buttons');
+    if (!buttons) return;
+    buttons.setAttribute('data-ready', String(ready));
+    document.querySelectorAll<HTMLElement>('.share-popup-btn').forEach((b) => {
+      if (b.tagName === 'A') {
+        b.setAttribute('aria-disabled', String(!ready));
+      } else {
+        (b as HTMLButtonElement).disabled = !ready;
+      }
+    });
+  }
+
+  function renderCountdown(el: HTMLElement, n: number, lang: string) {
+    const fr = isFrench(lang);
+    const label = fr ? 'Ouverture de votre contribution sur GitHub dans' : 'Opening your contribution on GitHub in';
+    el.innerHTML = `${label} <strong>${n}</strong>`;
+  }
+
+  // Confetti emojis — rain across the whole viewport on sign, so the burst
+  // is visible even with the dialog open (they layer above the scrim).
+  const CONFETTI_EMOJIS = ['🎉', '✨', '🚀', '💻', '🌟', '💙', '⭐', '🎊', '🔥', '✅'];
+  function launchConfetti() {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const count = 64;
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement('span');
+      el.className = 'confetti-emoji';
+      el.textContent = CONFETTI_EMOJIS[i % CONFETTI_EMOJIS.length];
+      // Origin spread across the full top band + a few from each side.
+      const fromTop = i % 3 !== 2;
+      const startX = fromTop ? Math.random() * vw : (i % 4 === 0 ? -20 : vw + 20);
+      const startY = fromTop ? -20 - Math.random() * 40 : Math.random() * vh * 0.6;
+      // Drift downward and outward; long flight so the celebration lingers.
+      const drift = 60 + Math.random() * 180;
+      const dx = (Math.random() - 0.5) * 220;
+      const dy = fromTop ? vh * 0.5 + drift : drift * 0.6;
+      el.style.left = `${startX}px`;
+      el.style.top = `${startY}px`;
+      el.style.setProperty('--dx', `${dx}px`);
+      el.style.setProperty('--dy', `${dy}px`);
+      el.style.setProperty('--rot', `${Math.random() * 900 - 450}deg`);
+      el.style.setProperty('--delay', `${Math.random() * 0.35}s`);
+      // Vary size slightly for depth.
+      el.style.fontSize = `${28 + Math.random() * 16}px`;
+      document.body.appendChild(el);
+      el.addEventListener('animationend', () => el.remove(), { once: true });
+    }
+  }
+
+  function startShareCountdown(githubUrl: string) {
+    const popup = document.getElementById('share-popup') as HTMLDialogElement | null;
+    const countdownEl = document.getElementById('share-countdown');
+    const rankEl = document.getElementById('share-popup-rank');
+    const statementEl = document.getElementById('share-popup-statement');
+    const textEl = document.getElementById('share-popup-title');
+    const copyFeedback = document.getElementById('share-copy-feedback');
+
+    if (!popup || !countdownEl) return;
+
+    if (shareCountdownInterval) {
+      clearInterval(shareCountdownInterval);
+      shareCountdownInterval = null;
+    }
+
+    const rank = Number(popup.dataset.signatoryRank) || 1;
+    const lang = navigator.language || 'en';
+    const plain = buildMessagePlain(rank, lang);
+    const html = buildMessageHTML(rank, lang);
+
+    if (rankEl) rankEl.textContent = `#${rank}`;
+    if (statementEl) statementEl.textContent = buildStatement(rank, lang);
+    if (textEl) textEl.innerHTML = html;
+    if (copyFeedback) copyFeedback.hidden = true;
+
+    const xHref = `https://twitter.com/intent/tweet?text=${encodeURIComponent(plain)}`;
+    const inHref = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(SHARE_URL)}`;
+    document.getElementById('share-btn-x')?.setAttribute('href', xHref);
+    document.getElementById('share-btn-linkedin')?.setAttribute('href', inHref);
+
+    resetShareButtons(false);
+
+    let countdown = 3;
+    renderCountdown(countdownEl, countdown, lang);
+    countdownEl.hidden = false;
+
+    popup.showModal();
+    launchConfetti();
+
+    shareCountdownInterval = setInterval(() => {
+      countdown--;
+      if (countdown > 0) {
+        renderCountdown(countdownEl, countdown, lang);
+      } else {
+        cleanupShareCountdown();
+        window.open(githubUrl, '_blank', 'noopener,noreferrer');
+        countdownEl.hidden = true;
+        resetShareButtons(true);
+      }
+    }, 1000);
+  }
+
+  function cleanupShareCountdown() {
+    if (shareCountdownInterval) {
+      clearInterval(shareCountdownInterval);
+      shareCountdownInterval = null;
+    }
+  }
+
+  // Wire copy-to-clipboard with inline feedback (the Copy pill in the row).
+  document.getElementById('share-btn-copy')?.addEventListener('click', async () => {
+    const popup = document.getElementById('share-popup') as HTMLDialogElement | null;
+    if (!popup) return;
+    const rank = Number(popup.dataset.signatoryRank) || 1;
+    const lang = navigator.language || 'en';
+    const plain = buildMessagePlain(rank, lang);
+    const feedback = document.getElementById('share-copy-feedback');
+    const fr = isFrench(lang);
+    try {
+      await navigator.clipboard.writeText(plain);
+      if (feedback) {
+        feedback.textContent = fr ? 'Message copié' : 'Message copied';
+        feedback.hidden = false;
+        setTimeout(() => { feedback.hidden = true; }, 1500);
+      }
+    } catch {
+      if (feedback) {
+        feedback.textContent = fr ? 'Presse-papier indisponible' : 'Clipboard unavailable';
+        feedback.hidden = false;
+        setTimeout(() => { feedback.hidden = true; }, 1500);
+      }
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    const signBtn = (e.target as HTMLElement).closest('#sign-manifesto-btn');
+    if (signBtn) {
+      e.preventDefault();
+      const githubUrl = (signBtn as HTMLElement).dataset.githubUrl || '';
+      startShareCountdown(githubUrl);
+    }
+  });
+
+  const sharePopup = document.getElementById('share-popup') as HTMLDialogElement | null;
+  if (sharePopup) {
+    sharePopup.addEventListener('close', cleanupShareCountdown);
+  }
+
+  const sharePopupClose = document.getElementById('share-popup-close');
+  if (sharePopupClose) {
+    sharePopupClose.addEventListener('click', () => {
+      sharePopup?.close();
+      cleanupShareCountdown();
+    });
+  }
+
   // Reliable in-page anchor scrolling (TOC links + value/principle permalinks).
   // Native hash / CSS smooth scrolling lands short on this long, animated
   // document, so we drive the scroll ourselves (rAF) and land exactly on the

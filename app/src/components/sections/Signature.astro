@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import SignButton from '~/components/signature/SignButton.astro';
 import SignatureWall from '~/components/signature/SignatureWall.astro';
+import SharePopup from '~/components/signature/SharePopup.astro';
 
 const count = (await getCollection('signatories')).length;
 const registryCount = String(count).padStart(3, '0');
@@ -42,4 +43,6 @@ const registryCount = String(count).padStart(3, '0');
   </div>
 
   <SignatureWall />
+  
+  <SharePopup rank={count + 1} />
 </section>
