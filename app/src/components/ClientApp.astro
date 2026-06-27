@@ -229,16 +229,60 @@
       startShareCountdown(githubUrl);
       return;
     }
-    // Open X / LinkedIn share links in a compact popup (750x600) instead of a
-    // background tab. react-share uses this size; the LinkedIn shareArticle
-    // endpoint's `mini=true` hints at the same intent but only fires when the
-    // window is actually sized like a popup, not a full browser tab.
-    const shareLink = (e.target as HTMLElement).closest<HTMLAnchorElement>('#share-btn-x, #share-btn-linkedin');
-    if (shareLink && shareLink.getAttribute('aria-disabled') !== 'true') {
+    // X button — opens in a sized popup, Twitter reliably pre-fills the
+    // composer body from the `text=` query param.
+    const xLink = (e.target as HTMLElement).closest<HTMLAnchorElement>('#share-btn-x');
+    if (xLink && xLink.getAttribute('aria-disabled') !== 'true') {
       e.preventDefault();
-      const href = shareLink.getAttribute('href') || '#';
-      const features = 'noopener,noreferrer,width=750,height=620,scrollbars=yes';
-      window.open(href, 'aidd-share', features);
+      window.open(xLink.getAttribute('href') || '#', 'aidd-share-x', 'noopener,noreferrer,width=750,height=620,scrollbars=yes');
+      return;
+    }
+    // LinkedIn button — LinkedIn has deprecated pre-filling the composer body
+    // via URL params. `shareArticle?summary=...` is silently ignored in the
+    // current composer (SO q/56373068 etc., confirmed: the official IN/Share
+    // plugin exposes only `data-url`). Strategy:
+    //   1. Web Share API (mobile + Chrome/Edge desktop) → opens the OS share
+    //      sheet, which DOES pre-fill LinkedIn's composer `text` reliably
+    //      (the OS share target contract carries `text` + `url`).
+    //   2. Fallback → copy the message to clipboard, open the LinkedIn popup
+    //      with `url` only, and surface a "paste it in LinkedIn" hint next to
+    //      the button so the user knows the body is already in their
+    //      clipboard.
+    const liLink = (e.target as HTMLElement).closest<HTMLAnchorElement>('#share-btn-linkedin');
+    if (liLink && liLink.getAttribute('aria-disabled') !== 'true') {
+      e.preventDefault();
+      const href = liLink.getAttribute('href') || '#';
+      const popup = document.getElementById('share-popup') as HTMLDialogElement | null;
+      const rank = popup ? Number(popup.dataset.signatoryRank) || 1 : 1;
+      const lang = navigator.language || 'en';
+      const fr = isFrench(lang);
+      const message = buildMessagePlain(rank, lang);
+      const title = fr ? 'Le Manifeste du AI-Driven Development' : 'The Manifesto for AI-Driven Development';
+      const nav = navigator as Navigator & { share?: (d: unknown) => Promise<void>; canShare?: (d: unknown) => boolean };
+      if (typeof nav.share === 'function' && (typeof nav.canShare !== 'function' || nav.canShare({ text: message, url: SHARE_URL }))) {
+        nav.share({ text: message, url: SHARE_URL, title }).catch(() => {
+          // User dismissed or denied — fall back to popup.
+          window.open(href, 'aidd-share-li', 'noopener,noreferrer,width=750,height=620,scrollbars=yes');
+        });
+        return;
+      }
+      // Fallback — silently copy to clipboard, then open the popup, then
+      // show a hint. Wrap clipboard call in try/catch so the popup opens
+      // regardless of clipboard permission.
+      (async () => {
+        let copied = false;
+        try { await navigator.clipboard.writeText(message); copied = true; } catch {}
+        const features = 'noopener,noreferrer,width=750,height=620,scrollbars=yes';
+        window.open(href, 'aidd-share-li', features);
+        if (copied) {
+          const hint = document.getElementById('share-linkedin-hint');
+          if (hint) {
+            hint.textContent = fr ? 'Message copié — collez-le sur LinkedIn' : 'Message copied — paste it on LinkedIn';
+            hint.hidden = false;
+            setTimeout(() => { hint.hidden = true; }, 4000);
+          }
+        }
+      })();
     }
   });
 

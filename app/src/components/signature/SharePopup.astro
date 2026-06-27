@@ -91,6 +91,7 @@ const { rank } = Astro.props;
     </div>
 
     <p id="share-copy-feedback" class="share-popup-feedback" aria-live="polite" hidden></p>
+    <p id="share-linkedin-hint" class="share-popup-feedback share-popup-linkedin-hint" aria-live="polite" hidden></p>
   </div>
 </dialog>
 
@@ -341,6 +342,22 @@ const { rank } = Astro.props;
     font-weight: 600;
     letter-spacing: 0.04em;
     color: var(--accent);
+  }
+
+  /* LinkedIn "paste here" hint — distinct from the copy-confirm feedback:
+     this is an action-guidance message, so it gets the LinkedIn blue and
+     sits alongside the buttons to encourage the paste action. */
+  .share-popup-linkedin-hint {
+    color: var(--linkedin-brand);
+    border: 1px solid oklch(from var(--linkedin-brand) l c h / 0.32);
+    background: oklch(from var(--linkedin-brand) l c h / 0.08);
+    border-radius: var(--radius-pill);
+    padding: 8px 14px;
+    margin: 10px auto 0;
+    max-width: min(90%, 380px);
+    line-height: 1.4;
+    font-weight: 600;
+    animation: share-popup-in var(--dur-med) var(--ease-out);
   }
 
   @keyframes share-popup-in {
