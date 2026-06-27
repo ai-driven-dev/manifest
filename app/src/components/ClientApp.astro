@@ -14,9 +14,13 @@
   // Share popup — confetti rains across the viewport on sign, the user's
   // rank is stamped, an identity statement follows, the share phrase lives
   // in a quotation block (with a clickable link to ai-driven-development.org),
-  // then a countdown announces the GitHub PR opening. The Copy pill sits in
-  // the action row beside X and LinkedIn. Message language tracks
-  // navigator.language.
+  // then a countdown announces the GitHub PR opening. The action row carries
+  // X (opens a sized popup), Copy (clipboard), and the LinkedIn button — but
+  // LinkedIn is shown only when the native browser share API is available
+  // (`navigator.share`); it's the only path that pre-fills the LinkedIn
+  // composer body in 2025, and no URL-only fallback is reliable. When
+  // unsupported, the LinkedIn button is hidden so the row degrades cleanly
+  // to X + Copy. Message language tracks navigator.language.
   const SHARE_URL = 'https://www.ai-driven-development.org/';
   const URL_LABEL = 'ai-driven-development.org';
   const URL_TOKEN = '\u0001URL\u0001';
@@ -46,20 +50,6 @@
       : `I just signed the AI-Driven Development Manifesto as signatory #${rank}.`;
     const line2 = fr ? `Rejoignez-moi → ${URL_TOKEN}` : `Join me → ${URL_TOKEN}`;
     return `${line1}\n${line2}`.replaceAll(URL_TOKEN, SHARE_URL);
-  }
-
-  // Single-line variant for LinkedIn shareArticle summary — LinkedIn's composer
-  // historically renders `%0A` (newline) inconsistently (SO q/56373068,
-  // q/51189486) and may silently drop the summary entirely when it contains
-  // one. Use a dash separator on a single line so LinkedIn reliably pre-fills
-  // the post body.
-  function buildMessageFlat(rank: number, lang: string): string {
-    const fr = isFrench(lang);
-    const line1 = fr
-      ? `Je viens de signer le Manifeste du AI-Driven Development en tant que signataire n°${rank}.`
-      : `I just signed the AI-Driven Development Manifesto as signatory #${rank}.`;
-    const line2 = fr ? `Rejoignez-moi → ${URL_TOKEN}` : `Join me → ${URL_TOKEN}`;
-    return `${line1} — ${line2}`.replaceAll(URL_TOKEN, SHARE_URL);
   }
 
   function buildMessageHTML(rank: number, lang: string): string {
@@ -150,22 +140,15 @@
     if (copyFeedback) copyFeedback.hidden = true;
 
     const xHref = `https://twitter.com/intent/tweet?text=${encodeURIComponent(plain)}`;
-    // shareArticle (not share-offsite) preserves the title/summary/source
-    // params through the login redirect — share-offsite strips everything
-    // except url. Summary MUST be a single line: LinkedIn's composer has
-    // historically rendered `%0A` inconsistently and can silently drop the
-    // entire summary when it contains a newline (SO q/56373068, q/51189486).
-    // We use a flat variant with a dash separator for that reason.
-    // Title mirrors og:title; source is the bare domain.
-    const fr = isFrench(lang);
-    const inTitle = encodeURIComponent(
-      fr ? 'Le Manifeste du AI-Driven Development' : 'The Manifesto for AI-Driven Development'
-    );
-    const inSummary = encodeURIComponent(buildMessageFlat(rank, lang));
-    const inSource = encodeURIComponent(URL_LABEL);
-    const inHref = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(SHARE_URL)}&title=${inTitle}&summary=${inSummary}&source=${inSource}`;
     document.getElementById('share-btn-x')?.setAttribute('href', xHref);
-    document.getElementById('share-btn-linkedin')?.setAttribute('href', inHref);
+    // LinkedIn: no `href` is set on the link — clicking it always routes
+    // through `navigator.share()` in the click handler, which is the only
+    // path that pre-fills the composer body in 2025. If Web Share isn't
+    // available, hide the LinkedIn button entirely on this popup open so
+    // the row degrades cleanly to X + Copy.
+    const liLink = document.getElementById('share-btn-linkedin');
+    const nav = navigator as Navigator & { share?: (d: unknown) => Promise<void> };
+    if (liLink) liLink.hidden = typeof nav.share !== 'function';
 
     resetShareButtons(false);
 
@@ -238,51 +221,27 @@
       return;
     }
     // LinkedIn button — LinkedIn has deprecated pre-filling the composer body
-    // via URL params. `shareArticle?summary=...` is silently ignored in the
-    // current composer (SO q/56373068 etc., confirmed: the official IN/Share
-    // plugin exposes only `data-url`). Strategy:
-    //   1. Web Share API (mobile + Chrome/Edge desktop) → opens the OS share
-    //      sheet, which DOES pre-fill LinkedIn's composer `text` reliably
-    //      (the OS share target contract carries `text` + `url`).
-    //   2. Fallback → copy the message to clipboard, open the LinkedIn popup
-    //      with `url` only, and surface a "paste it in LinkedIn" hint next to
-    //      the button so the user knows the body is already in their
-    //      clipboard.
-    const liLink = (e.target as HTMLElement).closest<HTMLAnchorElement>('#share-btn-linkedin');
-    if (liLink && liLink.getAttribute('aria-disabled') !== 'true') {
+    // via URL params (`shareArticle?summary=...` is silently ignored; the
+    // official IN/Share plugin exposes only `data-url`). The only path that
+    // still reliably pre-fills LinkedIn's composer body in 2025 is the native
+    // Web Share API: the OS share sheet carries `text` + `url`, and LinkedIn's
+    // share target honors both. We use it exclusively — no clipboard gymnastics,
+    // no popup fallback. If `navigator.share` is unavailable (older browsers),
+    // the LinkedIn button is hidden on popup open (see `startShareCountdown`)
+    // so the row degrades cleanly to X + Copy.
+    const liLink = (e.target as HTMLElement).closest<HTMLButtonElement>('#share-btn-linkedin');
+    if (liLink && !liLink.disabled) {
       e.preventDefault();
-      const href = liLink.getAttribute('href') || '#';
       const popup = document.getElementById('share-popup') as HTMLDialogElement | null;
       const rank = popup ? Number(popup.dataset.signatoryRank) || 1 : 1;
       const lang = navigator.language || 'en';
       const fr = isFrench(lang);
       const message = buildMessagePlain(rank, lang);
       const title = fr ? 'Le Manifeste du AI-Driven Development' : 'The Manifesto for AI-Driven Development';
-      const nav = navigator as Navigator & { share?: (d: unknown) => Promise<void>; canShare?: (d: unknown) => boolean };
-      if (typeof nav.share === 'function' && (typeof nav.canShare !== 'function' || nav.canShare({ text: message, url: SHARE_URL }))) {
-        nav.share({ text: message, url: SHARE_URL, title }).catch(() => {
-          // User dismissed or denied — fall back to popup.
-          window.open(href, 'aidd-share-li', 'noopener,noreferrer,width=750,height=620,scrollbars=yes');
-        });
-        return;
+      const nav = navigator as Navigator & { share?: (d: unknown) => Promise<void> };
+      if (typeof nav.share === 'function') {
+        nav.share({ text: message, url: SHARE_URL, title }).catch(() => { /* user dismissed */ });
       }
-      // Fallback — silently copy to clipboard, then open the popup, then
-      // show a hint. Wrap clipboard call in try/catch so the popup opens
-      // regardless of clipboard permission.
-      (async () => {
-        let copied = false;
-        try { await navigator.clipboard.writeText(message); copied = true; } catch {}
-        const features = 'noopener,noreferrer,width=750,height=620,scrollbars=yes';
-        window.open(href, 'aidd-share-li', features);
-        if (copied) {
-          const hint = document.getElementById('share-linkedin-hint');
-          if (hint) {
-            hint.textContent = fr ? 'Message copié — collez-le sur LinkedIn' : 'Message copied — paste it on LinkedIn';
-            hint.hidden = false;
-            setTimeout(() => { hint.hidden = true; }, 4000);
-          }
-        }
-      })();
     }
   });
 
