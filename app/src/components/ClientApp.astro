@@ -17,7 +17,7 @@
   // then a countdown announces the GitHub PR opening. The Copy pill sits in
   // the action row beside X and LinkedIn. Message language tracks
   // navigator.language.
-  const SHARE_URL = 'https://ai-driven-development.org/';
+  const SHARE_URL = 'https://www.ai-driven-development.org/';
   const URL_LABEL = 'ai-driven-development.org';
   const URL_TOKEN = '\u0001URL\u0001';
   let shareCountdownInterval: ReturnType<typeof setInterval> | null = null;
@@ -136,7 +136,17 @@
     if (copyFeedback) copyFeedback.hidden = true;
 
     const xHref = `https://twitter.com/intent/tweet?text=${encodeURIComponent(plain)}`;
-    const inHref = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(SHARE_URL)}`;
+    // shareArticle (not share-offsite) so the popup is compact (mini=true) and
+    // the post text is pre-filled via the summary param — share-offsite strips
+    // everything but url and shows a bare link. Title mirrors og:title; source
+    // is the bare domain. All values URL-encoded.
+    const fr = isFrench(lang);
+    const inTitle = encodeURIComponent(
+      fr ? 'Le Manifeste du AI-Driven Development' : 'The Manifesto for AI-Driven Development'
+    );
+    const inSummary = encodeURIComponent(plain);
+    const inSource = encodeURIComponent(URL_LABEL);
+    const inHref = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(SHARE_URL)}&title=${inTitle}&summary=${inSummary}&source=${inSource}`;
     document.getElementById('share-btn-x')?.setAttribute('href', xHref);
     document.getElementById('share-btn-linkedin')?.setAttribute('href', inHref);
 
