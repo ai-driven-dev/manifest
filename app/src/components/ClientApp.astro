@@ -48,6 +48,20 @@
     return `${line1}\n${line2}`.replaceAll(URL_TOKEN, SHARE_URL);
   }
 
+  // Single-line variant for LinkedIn shareArticle summary — LinkedIn's composer
+  // historically renders `%0A` (newline) inconsistently (SO q/56373068,
+  // q/51189486) and may silently drop the summary entirely when it contains
+  // one. Use a dash separator on a single line so LinkedIn reliably pre-fills
+  // the post body.
+  function buildMessageFlat(rank: number, lang: string): string {
+    const fr = isFrench(lang);
+    const line1 = fr
+      ? `Je viens de signer le Manifeste du AI-Driven Development en tant que signataire n°${rank}.`
+      : `I just signed the AI-Driven Development Manifesto as signatory #${rank}.`;
+    const line2 = fr ? `Rejoignez-moi → ${URL_TOKEN}` : `Join me → ${URL_TOKEN}`;
+    return `${line1} — ${line2}`.replaceAll(URL_TOKEN, SHARE_URL);
+  }
+
   function buildMessageHTML(rank: number, lang: string): string {
     const fr = isFrench(lang);
     const line1 = fr
@@ -136,15 +150,18 @@
     if (copyFeedback) copyFeedback.hidden = true;
 
     const xHref = `https://twitter.com/intent/tweet?text=${encodeURIComponent(plain)}`;
-    // shareArticle (not share-offsite) so the popup is compact (mini=true) and
-    // the post text is pre-filled via the summary param — share-offsite strips
-    // everything but url and shows a bare link. Title mirrors og:title; source
-    // is the bare domain. All values URL-encoded.
+    // shareArticle (not share-offsite) preserves the title/summary/source
+    // params through the login redirect — share-offsite strips everything
+    // except url. Summary MUST be a single line: LinkedIn's composer has
+    // historically rendered `%0A` inconsistently and can silently drop the
+    // entire summary when it contains a newline (SO q/56373068, q/51189486).
+    // We use a flat variant with a dash separator for that reason.
+    // Title mirrors og:title; source is the bare domain.
     const fr = isFrench(lang);
     const inTitle = encodeURIComponent(
       fr ? 'Le Manifeste du AI-Driven Development' : 'The Manifesto for AI-Driven Development'
     );
-    const inSummary = encodeURIComponent(plain);
+    const inSummary = encodeURIComponent(buildMessageFlat(rank, lang));
     const inSource = encodeURIComponent(URL_LABEL);
     const inHref = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(SHARE_URL)}&title=${inTitle}&summary=${inSummary}&source=${inSource}`;
     document.getElementById('share-btn-x')?.setAttribute('href', xHref);
@@ -210,6 +227,18 @@
       e.preventDefault();
       const githubUrl = (signBtn as HTMLElement).dataset.githubUrl || '';
       startShareCountdown(githubUrl);
+      return;
+    }
+    // Open X / LinkedIn share links in a compact popup (750x600) instead of a
+    // background tab. react-share uses this size; the LinkedIn shareArticle
+    // endpoint's `mini=true` hints at the same intent but only fires when the
+    // window is actually sized like a popup, not a full browser tab.
+    const shareLink = (e.target as HTMLElement).closest<HTMLAnchorElement>('#share-btn-x, #share-btn-linkedin');
+    if (shareLink && shareLink.getAttribute('aria-disabled') !== 'true') {
+      e.preventDefault();
+      const href = shareLink.getAttribute('href') || '#';
+      const features = 'noopener,noreferrer,width=750,height=620,scrollbars=yes';
+      window.open(href, 'aidd-share', features);
     }
   });
 
