@@ -46,18 +46,18 @@
   function buildMessagePlain(rank: number, lang: string): string {
     const fr = isFrench(lang);
     const line1 = fr
-      ? `Je viens de signer le Manifeste du AI-Driven Development en tant que signataire n°${rank}.`
+      ? `Je viens de signer le Manifeste de l'AI-Driven Development en tant que signataire n°${rank}.`
       : `I just signed the AI-Driven Development Manifesto as signatory #${rank}.`;
-    const line2 = fr ? `Rejoignez-moi → ${URL_TOKEN}` : `Join me → ${URL_TOKEN}`;
+    const line2 = URL_TOKEN;
     return `${line1}\n${line2}`.replaceAll(URL_TOKEN, SHARE_URL);
   }
 
   function buildMessageHTML(rank: number, lang: string): string {
     const fr = isFrench(lang);
     const line1 = fr
-      ? `Je viens de signer le Manifeste du AI-Driven Development en tant que signataire n°${rank}.`
+      ? `Je viens de signer le Manifeste de l'AI-Driven Development en tant que signataire n°${rank}.`
       : `I just signed the AI-Driven Development Manifesto as signatory #${rank}.`;
-    const line2 = fr ? `Rejoignez-moi → ${URL_TOKEN}` : `Join me → ${URL_TOKEN}`;
+    const line2 = URL_TOKEN;
     const anchor = `<a class="share-popup-link" href="${SHARE_URL}" target="_blank" rel="noopener noreferrer">${URL_LABEL}</a>`;
     return `${line1}<br>${line2}`.replaceAll(URL_TOKEN, anchor);
   }
