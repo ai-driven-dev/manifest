@@ -15,12 +15,12 @@
   // rank is stamped, an identity statement follows, the share phrase lives
   // in a quotation block (with a clickable link to ai-driven-development.org),
   // then a countdown announces the GitHub PR opening. The action row carries
-  // X (opens a sized popup), Copy (clipboard), and the LinkedIn button — but
-  // LinkedIn is shown only when the native browser share API is available
-  // (`navigator.share`); it's the only path that pre-fills the LinkedIn
-  // composer body in 2025, and no URL-only fallback is reliable. When
-  // unsupported, the LinkedIn button is hidden so the row degrades cleanly
-  // to X + Copy. Message language tracks navigator.language.
+  // X (sized popup, Twitter pre-fills via ?text=), Copy (clipboard), and
+  // LinkedIn — which is always visible. LinkedIn click uses `navigator.share()`
+  // when available (reliable pre-fill) or falls back to clipboard-copy +
+  // LinkedIn popup + a "paste here" hint (Firefox / older browsers in 2025
+  // still lack Web Share but can Copy → Cmd+V). Message language tracks
+  // navigator.language.
   const SHARE_URL = 'https://www.ai-driven-development.org/';
   const URL_LABEL = 'ai-driven-development.org';
   const URL_TOKEN = '\u0001URL\u0001';
@@ -141,15 +141,11 @@
 
     const xHref = `https://twitter.com/intent/tweet?text=${encodeURIComponent(plain)}`;
     document.getElementById('share-btn-x')?.setAttribute('href', xHref);
-    // LinkedIn: no `href` is set on the link — clicking it always routes
-    // through `navigator.share()` in the click handler, which is the only
-    // path that pre-fills the composer body in 2025. If Web Share isn't
-    // available, hide the LinkedIn button entirely on this popup open so
-    // the row degrades cleanly to X + Copy.
-    const liLink = document.getElementById('share-btn-linkedin');
-    const nav = navigator as Navigator & { share?: (d: unknown) => Promise<void> };
-    if (liLink) liLink.hidden = typeof nav.share !== 'function';
-
+    // LinkedIn is a `<button>` (no href) — the click handler decides between
+    // `navigator.share()` (pre-fills composer when Web Share is available) and
+    // a clipboard + popup fallback (Firefox / older browsers). The button is
+    // always visible: a clipboard roundtrip is one Cmd/Ctrl-V away for users
+    // whose browser lacks Web Share.
     resetShareButtons(false);
 
     let countdown = 3;
@@ -223,12 +219,16 @@
     // LinkedIn button — LinkedIn has deprecated pre-filling the composer body
     // via URL params (`shareArticle?summary=...` is silently ignored; the
     // official IN/Share plugin exposes only `data-url`). The only path that
-    // still reliably pre-fills LinkedIn's composer body in 2025 is the native
-    // Web Share API: the OS share sheet carries `text` + `url`, and LinkedIn's
-    // share target honors both. We use it exclusively — no clipboard gymnastics,
-    // no popup fallback. If `navigator.share` is unavailable (older browsers),
-    // the LinkedIn button is hidden on popup open (see `startShareCountdown`)
-    // so the row degrades cleanly to X + Copy.
+    // still reliably pre-fills LinkedIn's composer body in 2025 is the
+    // native Web Share API: the OS share sheet carries `text` + `url`, and
+    // LinkedIn's share target honors both. Strategy:
+    //   1. `navigator.share()` when available (iOS / Android / Chrome / Edge
+    //      desktop) → reliable pre-fill via the OS share sheet.
+    //   2. Clipboard + LinkedIn popup + a "paste here" hint (Firefox +
+    //      older browsers, which still lack Web Share in 2025) → one Cmd/Ctrl-V
+    //      away from the composer body being filled.
+    // The button stays visible in both cases; the hint only surfaces in the
+    // fallback branch, so the common path is unaffected.
     const liLink = (e.target as HTMLElement).closest<HTMLButtonElement>('#share-btn-linkedin');
     if (liLink && !liLink.disabled) {
       e.preventDefault();
@@ -238,10 +238,28 @@
       const fr = isFrench(lang);
       const message = buildMessagePlain(rank, lang);
       const title = fr ? 'Le Manifeste du AI-Driven Development' : 'The Manifesto for AI-Driven Development';
-      const nav = navigator as Navigator & { share?: (d: unknown) => Promise<void> };
-      if (typeof nav.share === 'function') {
-        nav.share({ text: message, url: SHARE_URL, title }).catch(() => { /* user dismissed */ });
+      const nav = navigator as Navigator & { share?: (d: unknown) => Promise<void>; canShare?: (d: unknown) => boolean };
+      if (typeof nav.share === 'function' && (typeof nav.canShare !== 'function' || nav.canShare({ text: message, url: SHARE_URL }))) {
+        nav.share({ text: message, url: SHARE_URL, title }).catch(() => { /* dismissed */ });
+        return;
       }
+      // Fallback — copy to clipboard (best-effort), open the LinkedIn popup
+      // (url-only), and surface the localized hint so the user knows the
+      // body is already in their clipboard, one paste away.
+      (async () => {
+        let copied = false;
+        try { await navigator.clipboard.writeText(message); copied = true; } catch {}
+        const features = 'noopener,noreferrer,width=750,height=620,scrollbars=yes';
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(SHARE_URL)}`, 'aidd-share-li', features);
+        if (copied) {
+          const hint = document.getElementById('share-linkedin-hint');
+          if (hint) {
+            hint.textContent = fr ? 'Message copié — collez-le sur LinkedIn' : 'Message copied — paste it on LinkedIn';
+            hint.hidden = false;
+            setTimeout(() => { hint.hidden = true; }, 4000);
+          }
+        }
+      })();
     }
   });
 
