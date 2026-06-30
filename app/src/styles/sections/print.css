@@ -1,76 +1,514 @@
 /* ============ PRINT ============ */
 @media print {
     @page {
-        size: A3 portrait;
-        margin: 18mm;
+        margin: 14mm;
     }
+
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        box-shadow: none !important;
+        filter: none !important;
+        max-height: none !important;
+        overflow: visible !important;
+        text-shadow: none !important;
+        transform: none !important;
+        transition: none !important;
+    }
+
     html,
     body {
-        background: white;
-        color: black;
+        width: auto !important;
+        min-width: 0 !important;
+        background: var(--paper) !important;
+        color: var(--ink) !important;
+        color-scheme: light;
+        overflow: visible !important;
+        scroll-behavior: auto !important;
     }
+
     body::before,
     body::after {
-        display: none;
-    }
-    .cover {
-        height: auto;
-        min-height: 0;
-        padding: 0 0 20mm;
-        page-break-after: always;
-    }
-    .cover-scroll {
-        color: oklch(0.55 0 0);
-    }
-    .cover-title {
-        color: oklch(0.18 0 0);
-    }
-    .cover-title .word {
-        opacity: 1;
-        transform: none;
-        animation: none;
-    }
-    .cover-title .ai::after {
-        transform: scaleX(1);
-        animation: none;
-        background: oklch(0.62 0 0);
-    }
-    .preamble,
-    .chapter-open,
-    .values,
-    .principles {
-        page-break-inside: avoid;
-        break-inside: avoid;
-        border-color: oklch(0.78 0 0);
-    }
-    .reveal {
-        text-align: center;
-        opacity: 1;
-        transform: none;
-    }
-    .plate-row.seen .right svg.strike path,
-    .plate-row .right svg.strike path {
-        stroke-dashoffset: 0;
-    }
-    .p-grid {
-        border-color: oklch(0.78 0 0);
-    }
-    .principle {
-        border-color: oklch(0.78 0 0) !important;
-        cursor: default;
-    }
-    .principle:hover {
-        background: transparent;
-    }
-    #tweaks,
-    .cover-scroll {
+        content: none !important;
         display: none !important;
     }
+
+    #main,
+    .wrap,
+    .doc-layout,
+    .doc {
+        display: block !important;
+        width: auto !important;
+        max-width: none !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        contain: none !important;
+        overflow: visible !important;
+    }
+
+    .spec-index,
+    .skip-link,
+    #tweaks,
+    .cover-cta,
+    .sign-cta,
+    .share-popup,
+    .confetti-emoji,
+    .sig-linkedin {
+        display: none !important;
+    }
+
+    .reveal,
+    .reveal *,
+    .reveal-word,
+    .cover-title .word,
+    .value-art *,
+    .p-demo *,
+    .signature * {
+        clip-path: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
     a {
-        color: oklch(0.18 0 0);
+        color: var(--ink) !important;
         text-decoration: none;
     }
+
+    .cover,
+    .definition,
+    .values,
+    .principles,
+    .signature,
     footer.doc-footer {
-        border-color: oklch(0.78 0 0);
+        position: static !important;
+        display: block !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        margin: 0 !important;
+        background: var(--paper) !important;
+        color: var(--ink) !important;
+        overflow: visible !important;
+        page-break-inside: auto;
+        break-inside: auto;
+    }
+
+    .cover {
+        padding: 0 0 12mm !important;
+        border: 0 !important;
+        page-break-after: always;
+        break-after: page;
+    }
+
+    .cover::before,
+    .cover::after,
+    .cover-watermark,
+    .cover-rule {
+        content: none !important;
+        display: none !important;
+    }
+
+    .cover-stage {
+        max-width: none !important;
+    }
+
+    .cover-std {
+        margin-bottom: 8mm !important;
+        color: var(--ink-3) !important;
+        font-size: 10pt !important;
+    }
+
+    .cover-title {
+        max-width: 11ch !important;
+        color: var(--ink) !important;
+        font-size: 48pt !important;
+        line-height: 0.95 !important;
+    }
+
+    .cover-title .for {
+        color: var(--ink-3) !important;
+        opacity: 1 !important;
+    }
+
+    .cover-title .ai-strike {
+        background: var(--rule) !important;
+    }
+
+    .cover-foot {
+        max-width: 54ch !important;
+        margin-top: 9mm !important;
+    }
+
+    .cover-lede {
+        color: var(--ink) !important;
+        font-size: 14pt !important;
+    }
+
+    .definition,
+    .values,
+    .principles,
+    .signature {
+        padding: 0 0 10mm !important;
+        border-top: 1px solid var(--rule);
+    }
+
+    .chapter-open,
+    .lex,
+    .lex-vs,
+    .plate,
+    .plate-row,
+    .p-grid,
+    .principle,
+    .signature-open,
+    .sig-wall,
+    .sig-card {
+        position: static !important;
+        overflow: visible !important;
+        background: var(--paper) !important;
+    }
+
+    .chapter-open {
+        min-height: 0 !important;
+        padding: 9mm 0 5mm !important;
+        break-inside: avoid-page;
+        page-break-inside: avoid;
+    }
+
+    .chapter-open::before,
+    .signature-open::before,
+    .signature-open::after,
+    .plate-row::before,
+    .p-grid,
+    .principle,
+    .sig-card,
+    footer.doc-footer {
+        border-color: var(--rule) !important;
+    }
+
+    .chapter-open::before,
+    .signature-open::before,
+    .signature-open::after,
+    .plate-row::before {
+        background: var(--rule) !important;
+    }
+
+    .chapter-body h2,
+    .lex-word,
+    .lex-vs-intro h3 {
+        color: var(--ink) !important;
+    }
+
+    .chapter-lede p,
+    .lex-meta,
+    .lex-syn,
+    .vsch-note,
+    .pr-text .note,
+    .p-sub,
+    .sig-statement,
+    .sig-date,
+    .footer-text,
+    .footer-year {
+        color: var(--ink-3) !important;
+    }
+
+    .lex,
+    .vsch,
+    .p-demo,
+    .sig-card {
+        padding: 5mm !important;
+        border: 1px solid var(--rule) !important;
+        border-radius: 0 !important;
+        break-inside: avoid-page;
+        page-break-inside: avoid;
+    }
+
+    .lex::before,
+    .plate-row::after,
+    .principle::before,
+    .sig-card::before {
+        content: none !important;
+        display: none !important;
+    }
+
+    .lex-def {
+        max-width: none !important;
+        color: var(--ink) !important;
+        font-size: 17pt !important;
+    }
+
+    .lex-tag,
+    .lex-abbr,
+    .lex-def em,
+    .chapter-body h2 .amp,
+    .pr-text .note .emph,
+    .p-lead .hl,
+    .signature-kicker,
+    .signature-seal strong {
+        color: var(--ink) !important;
+    }
+
+    .lex-abbr,
+    .signature-seal,
+    .signature-seal::before,
+    .signature-seal::after,
+    .sig-entry {
+        border-color: var(--rule) !important;
+    }
+
+    .vsch-grid,
+    .signature-open-body,
+    .sig-grid {
+        display: block !important;
+    }
+
+    .vsch,
+    .plate-row,
+    .principle,
+    .sig-card {
+        margin: 0 0 5mm !important;
+    }
+
+    .vsch-svg,
+    .scene-svg {
+        max-height: 58mm !important;
+    }
+
+    .plate {
+        display: block !important;
+        padding: 0 !important;
+    }
+
+    .plate-row {
+        display: block !important;
+        padding: 8mm 0 !important;
+        border-top: 1px solid var(--rule);
+        page-break-inside: auto;
+        break-inside: auto;
+    }
+
+    .plate-row .pr-icon,
+    .p-num .p-icon {
+        display: none !important;
+    }
+
+    .pr-folio,
+    .p-num {
+        display: inline-block !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        width: auto !important;
+        margin: 0 0 3mm !important;
+        padding: 0 !important;
+        color: var(--ink-3) !important;
+        font-size: 18pt !important;
+        opacity: 1 !important;
+    }
+
+    .pr-text .left {
+        color: var(--ink) !important;
+        font-size: 28pt !important;
+    }
+
+    .pr-text .right,
+    .pr-text .over {
+        color: var(--ink-3) !important;
+    }
+
+    .pr-text .right svg.strike path,
+    .pr-text .note .emph svg.und path,
+    .p-lead .hl {
+        stroke-dashoffset: 0 !important;
+        background-size: 100% 2px !important;
+    }
+
+    .plate-row .pr-art {
+        display: block !important;
+        margin-top: 5mm !important;
+    }
+
+    .pr-art {
+        background: var(--paper-2) !important;
+        border: 1px solid var(--rule) !important;
+        border-radius: 0 !important;
+    }
+
+    .pr-art::after {
+        content: none !important;
+        display: none !important;
+    }
+
+    .value-art {
+        display: block !important;
+        min-height: 0 !important;
+        padding: 5mm !important;
+        color: var(--ink) !important;
+        font-size: 9pt !important;
+        line-height: 1.45 !important;
+    }
+
+    .value-art *,
+    .value-art pre,
+    .value-art pre.va-dim,
+    .value-art .va-col.va-bad pre,
+    .value-art .va-sub,
+    .value-art .va-label,
+    .value-art .va-dim2 {
+        color: var(--ink) !important;
+    }
+
+    .va-col {
+        display: block !important;
+        margin-bottom: 4mm !important;
+    }
+
+    .va-sep {
+        display: none !important;
+    }
+
+    .va-l,
+    .va-c,
+    .va-sub,
+    .va-cursor,
+    .ascii-line,
+    .handoff-token {
+        clip-path: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .principles {
+        padding-bottom: 10mm !important;
+    }
+
+    .p-grid {
+        display: block !important;
+        border-top: 1px solid var(--rule) !important;
+    }
+
+    .principle {
+        display: block !important;
+        padding: 7mm 0 !important;
+        border-bottom: 1px solid var(--rule) !important;
+        break-inside: avoid-page;
+        page-break-inside: avoid;
+    }
+
+    .p-body {
+        padding-top: 0 !important;
+    }
+
+    .p-lead {
+        color: var(--ink) !important;
+        font-size: 14pt !important;
+    }
+
+    .principle .p-demo {
+        display: block !important;
+        max-width: none !important;
+        min-height: 0 !important;
+        margin-top: 4mm !important;
+        background: var(--paper-2) !important;
+    }
+
+    .p-demo p {
+        color: var(--ink-3) !important;
+    }
+
+    .scene-ascii-doc,
+    .plan-person,
+    .agent-core,
+    .plan-talk,
+    .plan-artifact,
+    .code-tile,
+    .map-row i {
+        background: var(--paper) !important;
+        border-color: var(--rule) !important;
+    }
+
+    .signature {
+        padding-bottom: 8mm !important;
+    }
+
+    .signature-open {
+        min-height: 0 !important;
+        padding: 9mm 0 5mm !important;
+    }
+
+    .signature-open-mark {
+        display: none !important;
+    }
+
+    .signature-open-copy,
+    .signature-open .chapter-lede {
+        max-width: none !important;
+    }
+
+    .signature-seal {
+        width: 38mm !important;
+        margin-top: 5mm !important;
+        background: var(--paper) !important;
+    }
+
+    .sig-wall {
+        padding-top: 0 !important;
+    }
+
+    .sig-wall-head {
+        display: block !important;
+        margin-bottom: 5mm !important;
+    }
+
+    .sig-wall-rule {
+        display: none !important;
+    }
+
+    .sig-grid {
+        list-style: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .sig-card {
+        background: var(--paper) !important;
+    }
+
+    .sig-avatar {
+        display: none !important;
+    }
+
+    .sig-name {
+        color: var(--ink) !important;
+        white-space: normal !important;
+    }
+
+    .sig-affil,
+    .sig-wall-count,
+    .signature-seal-label,
+    .signature-seal-caption {
+        color: var(--ink-3) !important;
+    }
+
+    footer.doc-footer {
+        display: block !important;
+        padding: 7mm 0 0 !important;
+        border-top: 1px solid var(--rule) !important;
+    }
+
+    .footer-nav {
+        display: block !important;
+    }
+
+    .footer-link {
+        display: block !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        margin-bottom: 3mm !important;
+        color: var(--ink-3) !important;
+    }
+
+    .footer-link svg {
+        display: none !important;
     }
 }
