@@ -24,6 +24,10 @@
   --mint: oklch(0.72 0.13 162);
   --raspberry: oklch(0.60 0.18 9);
 
+  /* External platform brand fills — used only on the share popup buttons. */
+  --x-brand: oklch(0 0 0);                   /* X / Twitter — pure black */
+  --linkedin-brand: oklch(0.519 0.174 258);  /* #0A66C2 — LinkedIn blue */
+
   /* Type — characterful display + clean sans. Mono only inside code illustrations. */
   --display: "Bricolage Grotesque", "Inter Tight", ui-sans-serif, system-ui, sans-serif;
   --sans: "Inter Tight", ui-sans-serif, system-ui, sans-serif;

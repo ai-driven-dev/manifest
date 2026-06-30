@@ -23,11 +23,12 @@
   --row-inset: clamp(18px, 2.2vw, 28px);
   position: relative;
   display: grid;
-  grid-template-columns: clamp(44px, 4.6vw, 58px) minmax(320px, 1fr) minmax(280px, 380px);
-  gap: clamp(18px, 1.9vw, 28px);
+  grid-template-columns: clamp(48px, 5vw, 64px) minmax(0, 1fr) minmax(280px, 420px);
+  gap: clamp(18px, 2vw, 28px);
   align-items: start;
   min-width: 0;
-  padding: clamp(26px, 4.3vh, 46px) var(--row-inset);
+  /* Generous breathing room — rows were too cramped. */
+  padding: clamp(40px, 6.5vh, 78px) var(--row-inset);
   scroll-margin-top: clamp(20px, 8vh, 80px);
   border-bottom: 1px solid var(--rule);
   background: var(--paper);
