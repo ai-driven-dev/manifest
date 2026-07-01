@@ -28,8 +28,10 @@ Required fields:
 ```yaml
 github: your-handle
 name: Your Name
-signed_on: YYYY-MM-DD
 ```
+
+The signature date is derived from the git commit that adds your file, so
+there is no `signed_on` field.
 
 See [SIGNATORIES.md](./SIGNATORIES.md) for the full guide.
 

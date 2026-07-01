@@ -10,7 +10,7 @@ request.
 Go to **[ai-driven-development.org](https://ai-driven-development.org)** and
 click **Sign the manifesto**. It opens GitHub's web editor with the file
 already pre-filled — same link as
-[this one](https://github.com/ai-driven-dev/manifest/new/main/app/src/content/signatories?filename=YOUR-HANDLE.yml&value=github%3A%20your-handle%0Aname%3A%20Your%20Full%20Name%0Alinkedin%3A%20%23%20optional%20-%20https%3A%2F%2Fwww.linkedin.com%2Fin%2F...%0Aaffiliation%3A%20%23%20optional%20-%20title%20or%20company%0Asigned_on%3A%202026-05-08%0Astatement%3A%20%23%20optional%20-%20one-line%20public%20statement%20%28max%20280%20chars%29%0A).
+[this one](https://github.com/ai-driven-dev/manifest/new/main/app/src/content/signatories?filename=YOUR-HANDLE.yml&value=github%3A%20your-handle%0Aname%3A%20Your%20Full%20Name%0Alinkedin%3A%20%23%20optional%20-%20https%3A%2F%2Fwww.linkedin.com%2Fin%2F...%0Aaffiliation%3A%20%23%20optional%20-%20title%20or%20company%0Astatement%3A%20%23%20optional%20-%20one-line%20public%20statement%20%28max%20280%20chars%29%0A).
 
 This flow is for **everyone — Core Team members included**. Nobody has push
 access to this repository; GitHub forks it for you automatically.
@@ -22,8 +22,8 @@ What happens:
    and the YAML body filled in.
 3. Replace the filename's `YOUR-HANDLE` with your **actual GitHub handle**
    (lowercase letters, digits, hyphens — same as in your profile URL).
-4. Replace the placeholder values in the file body. Set `signed_on` to
-   today's date.
+4. Replace the placeholder values in the file body. There is no date field —
+   your signature date is derived from the commit that lands on `main`.
 5. Click **Propose new file**. GitHub opens a pull request automatically.
 
 A maintainer reviews and merges. Your name appears on
@@ -60,8 +60,9 @@ gh pr create --fill
 ## File format
 
 See [`app/src/content/signatories/_SCHEMA.md`](./app/src/content/signatories/_SCHEMA.md)
-for the canonical reference. Required fields: `github`, `name`,
-`signed_on`. Optional: `linkedin`, `affiliation`, `statement`.
+for the canonical reference. Required fields: `github`, `name`. Optional:
+`linkedin`, `affiliation`, `statement`. There is no `signed_on` field — the
+signature date is derived from the git commit that adds your file.
 
 The build validates every file against a Zod schema. A malformed YAML
 makes the CI red — review before merge catches it either way.
