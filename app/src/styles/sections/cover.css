@@ -137,57 +137,185 @@
   color: var(--ink);
   text-wrap: pretty;
 }
-.cover-cta{ display: flex; flex-wrap: wrap; gap: 14px 20px; align-items: center; }
+.cover-cta{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 18px;
+  align-items: center;
+}
 .cover-link{
-  display: inline-flex; align-items: center; gap: .5em;
-  min-height: 50px; padding: 8px 20px 8px 10px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: .64em;
+  min-height: 60px;
+  padding: 10px 24px 10px 12px;
   font-family: var(--sans);
-  font-size: clamp(14px, 1.1vw, 15px);
-  font-weight: 650; letter-spacing: 0;
-  color: var(--ink); text-decoration: none;
-  border: 1px solid var(--rule); border-radius: var(--radius-pill);
+  font-size: clamp(15px, 1.18vw, 17px);
+  font-weight: 850;
+  letter-spacing: 0;
+  color: var(--ink);
+  text-decoration: none;
+  border-radius: var(--radius-input);
+  background: var(--paper);
+  box-shadow: 0 0 0 2px var(--ink), 7px 7px 0 var(--ink);
+  overflow: hidden;
+  transform: translateY(8px);
+  opacity: 0;
+  animation: cover-cta-enter .46s var(--ease-out) calc(.82s + var(--cta-i, 0) * 70ms) forwards;
   transition:
-    border-color .2s var(--ease-out),
-    color .2s var(--ease-out),
-    background .2s var(--ease-out),
-    transform .2s var(--ease-out);
+    background-color .18s var(--ease-out),
+    box-shadow .18s var(--ease-out),
+    color .18s var(--ease-out),
+    transform .18s var(--ease-out),
+    filter .18s var(--ease-out);
 }
-.cover-link:hover{ border-color: var(--ink); transform: translateY(-1px); }
+@keyframes cover-cta-enter{
+  from{
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to{
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.cover-link > *{
+  position: relative;
+  z-index: 1;
+}
+.cover-link::before{
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 6px;
+  background: currentColor;
+  opacity: .22;
+  transform: scaleX(.28);
+  transform-origin: left;
+  transition: transform .22s var(--ease-out), opacity .18s var(--ease-out);
+  pointer-events: none;
+}
+.cover-link:hover,
+.cover-link:focus-visible{
+  transform: translate(-2px, -2px);
+  box-shadow: 0 0 0 2px var(--ink), 10px 10px 0 var(--ink);
+}
+.cover-link:active{
+  transform: translate(5px, 5px);
+  box-shadow: 0 0 0 2px var(--ink), 1px 1px 0 var(--ink);
+  transition-duration: 90ms;
+}
+.cover-link:hover::before,
+.cover-link:focus-visible::before{
+  opacity: .95;
+  transform: scaleX(1);
+}
+.cover-link:focus-visible{
+  outline: 3px solid var(--focus);
+  outline-offset: 4px;
+}
 .cover-link-primary{
-  background: var(--accent); color: var(--accent-ink); border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 0 0 2px var(--accent), 7px 7px 0 var(--ink);
 }
-.cover-link-primary:hover{ border-color: var(--accent); filter: brightness(1.08); }
+.cover-link-primary:hover,
+.cover-link-primary:focus-visible{
+  filter: brightness(1.08);
+  box-shadow: 0 0 0 2px var(--accent), 10px 10px 0 var(--ink);
+}
+.cover-link-primary:active{
+  box-shadow: 0 0 0 2px var(--accent), 1px 1px 0 var(--ink);
+}
 .cover-link-icon{
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-input);
   background: var(--paper-2);
   color: var(--ink);
   flex: none;
-  box-shadow: 0 0 0 1px var(--rule);
+  box-shadow: 0 0 0 2px currentColor;
+  transition:
+    background .2s var(--ease-out),
+    color .2s var(--ease-out),
+    transform .22s var(--ease-out),
+    box-shadow .2s var(--ease-out);
 }
 .cover-link-primary .cover-link-icon{
   background: var(--accent-ink);
   color: var(--accent);
-  box-shadow: none;
+  box-shadow: 0 0 0 2px var(--accent-ink);
 }
 .cover-link-icon svg{
-  width: 17px;
-  height: 17px;
+  width: 19px;
+  height: 19px;
   overflow: visible;
 }
 .cover-link-icon-aidd svg{
-  width: 21px;
-  height: 21px;
+  width: 24px;
+  height: 24px;
+}
+.cover-link:hover .cover-link-icon,
+.cover-link:focus-visible .cover-link-icon{
+  transform: translate(-1px, -1px);
+}
+.cover-link-copy{
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  line-height: 1;
+}
+.cover-link-kicker{
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  color: oklch(from currentColor l c h / 0.68);
+}
+.cover-link-main{
+  line-height: 1.02;
+  white-space: nowrap;
+}
+.cover-link-github{
+  color: var(--accent-ink);
+  background: var(--ink);
+  box-shadow: 0 0 0 2px var(--ink), 7px 7px 0 var(--accent);
+}
+.cover-link-github:hover,
+.cover-link-github:focus-visible{
+  background: oklch(from var(--ink) calc(l + 0.04) c h);
+  box-shadow: 0 0 0 2px var(--ink), 10px 10px 0 var(--accent);
+}
+.cover-link-github:active{
+  box-shadow: 0 0 0 2px var(--ink), 1px 1px 0 var(--accent);
+}
+.cover-link-icon-github{
+  position: relative;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 0 0 2px var(--paper);
+}
+.cover-link-github:hover .cover-link-icon-github,
+.cover-link-github:focus-visible .cover-link-icon-github{
+  background: var(--accent-ink);
+  color: var(--ink);
+  transform: translate(-1px, -1px);
 }
 .cover-link .cl-ext{
-  margin-left: 2px;
+  margin-left: 4px;
+  font-weight: 900;
   transition: transform .2s var(--ease-out);
 }
-.cover-link:hover .cl-ext{ transform: translate(2px, -2px); }
+.cover-link:hover .cl-ext,
+.cover-link:focus-visible .cl-ext{
+  transform: translate(4px, -4px);
+}
 
 @media (max-width: 760px){
   .cover{ padding: clamp(64px, 12vh, 96px) clamp(20px, 6vw, 40px); }
@@ -206,6 +334,12 @@
   .cover-lede{ max-width: 31ch; }
   .cover-cta{ width: 100%; }
   .cover-link{ flex: 1 1 auto; justify-content: center; }
+  .cover-link-primary{
+    flex: 0 0 auto;
+    min-width: 148px;
+  }
+  .cover-link-github{ flex-basis: 100%; }
+  .cover-link-copy{ align-items: center; }
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -213,10 +347,21 @@
   .cover-rule,
   .cover-watermark line,
   .cover-watermark circle,
+  .cover-link,
   .reveal-word,
   .cover-title .ai-strike{
     animation: none !important;
     transform: none !important;
+    filter: none !important;
+  }
+  .cover-link,
+  .cover-link::before,
+  .cover-link-icon,
+  .cover-link .cl-ext{
+    transition: none !important;
+  }
+  .cover-link{
+    opacity: 1;
   }
   .cover-watermark line,
   .cover-watermark circle{

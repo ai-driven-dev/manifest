@@ -1,3 +1,24 @@
 .claude/settings.local.json
 .claude/worktrees/
 .playwright-mcp/
+
+# Local task notes / generated work logs
+aidd_docs/tasks/
+aiddocs/task/
+aiddocs/tasks/
+
+# Test snapshots
+**/*-snapshots/
+**/__snapshots__/
+*.snap
+*.snap.*
+
+# Local screenshots / visual debugging captures
+**/screenshots/
+**/captures/
+screenshot*.png
+screenshot*.jpg
+screenshot*.jpeg
+capture*.png
+capture*.jpg
+capture*.jpeg
