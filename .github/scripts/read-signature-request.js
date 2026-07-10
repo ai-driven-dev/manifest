@@ -180,14 +180,6 @@ function main() {
   }));
 }
 
-module.exports = {
-  buildRequestOutputs,
-  parseIssueFormBody,
-  readDispatchSignature,
-  readIssueSignature,
-  validateSignature,
-};
-
 if (require.main === module) {
   try {
     main();
