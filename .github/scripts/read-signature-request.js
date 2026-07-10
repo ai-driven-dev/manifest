@@ -67,7 +67,9 @@ function checkLength(value, field) {
 
 function requiredText(value, field) {
   const text = clean(value);
-  if (!text) throw new Error(`${field} is required`);
+  // GitHub renders an unanswered field as `_No response_`, a non-empty string.
+  // A required field must reject it, or the signer is named `_No response_`.
+  if (!text || text === NO_RESPONSE) throw new Error(`${field} is required`);
   return checkLength(checkOneLine(text, field), field);
 }
 

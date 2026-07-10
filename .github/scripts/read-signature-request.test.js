@@ -134,6 +134,15 @@ describe('signature request reader behavior', () => {
     assert.equal(outputs.statement_yaml, '"I review: plan, code, tests."');
   });
 
+  it('fails a signer issue when the required display name was left unanswered', () => {
+    const result = failRequestReader(signatureIssueEvent({
+      body: issueFormBody({ 'Display name': '_No response_' }),
+    }));
+
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /name is required/);
+  });
+
   it('fails a signer issue when the LinkedIn field cannot become a public URL', () => {
     const result = failRequestReader(signatureIssueEvent({
       body: issueFormBody({ 'LinkedIn profile': 'not-a-url' }),
