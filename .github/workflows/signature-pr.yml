@@ -1,0 +1,135 @@
+name: Signature PR
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: signature-pr-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  create-signature-pr:
+    if: github.event.issue.state == 'open' && (contains(github.event.issue.labels.*.name, 'signature-request') || (startsWith(github.event.issue.title, 'Signature:') && contains(github.event.issue.body, '### Display name')))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Read signature request
+        id: request
+        continue-on-error: true
+        env:
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+        run: node .github/scripts/read-signature-request.js
+
+      - name: Report invalid signature request
+        if: steps.request.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          gh issue comment "$ISSUE_NUMBER" --body "Signature request could not be processed. Please check the form fields and submit again."
+          gh issue edit "$ISSUE_NUMBER" --add-label "signature-needs-fix" || true
+          exit 1
+
+      - name: Stop duplicate signature
+        id: duplicate
+        if: steps.request.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_HANDLE: ${{ steps.request.outputs.github }}
+          ISSUE_NUMBER: ${{ steps.request.outputs.issue_number }}
+          SIGNATURE_PATH: ${{ steps.request.outputs.path }}
+        run: |
+          if [ ! -f "$SIGNATURE_PATH" ]; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          gh issue comment "$ISSUE_NUMBER" --body "@$GITHUB_HANDLE is already in the signature registry."
+          gh issue edit "$ISSUE_NUMBER" --add-label "signature-duplicate" || true
+          echo "found=true" >> "$GITHUB_OUTPUT"
+
+      - name: Stop existing pull request
+        id: existing-pr
+        if: steps.duplicate.outputs.found == 'false'
+        env:
+          BRANCH: ${{ steps.request.outputs.branch }}
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ steps.request.outputs.issue_number }}
+        run: |
+          pr_url="$(gh pr list --head "$BRANCH" --state open --json url --jq '.[0].url // ""')"
+          echo "url=$pr_url" >> "$GITHUB_OUTPUT"
+
+          if [ -n "$pr_url" ]; then
+            gh issue comment "$ISSUE_NUMBER" --body "A signature pull request is already open: $pr_url"
+          fi
+
+      - name: Write signature file
+        if: steps.request.outcome == 'success' && steps.duplicate.outputs.found == 'false' && steps.existing-pr.outputs.url == ''
+        env:
+          AFFILIATION_YAML: ${{ steps.request.outputs.affiliation_yaml }}
+          GITHUB_HANDLE: ${{ steps.request.outputs.github }}
+          LINKEDIN_YAML: ${{ steps.request.outputs.linkedin_yaml }}
+          NAME_YAML: ${{ steps.request.outputs.name_yaml }}
+          SIGNATURE_PATH: ${{ steps.request.outputs.path }}
+          STATEMENT_YAML: ${{ steps.request.outputs.statement_yaml }}
+        run: |
+          mkdir -p "$(dirname "$SIGNATURE_PATH")"
+          {
+            echo "github: $GITHUB_HANDLE"
+            echo "name: $NAME_YAML"
+            [ -n "$LINKEDIN_YAML" ] && echo "linkedin: $LINKEDIN_YAML"
+            [ -n "$AFFILIATION_YAML" ] && echo "affiliation: $AFFILIATION_YAML"
+            [ -n "$STATEMENT_YAML" ] && echo "statement: $STATEMENT_YAML"
+          } > "$SIGNATURE_PATH"
+
+      - name: Commit signature file
+        if: steps.request.outcome == 'success' && steps.duplicate.outputs.found == 'false' && steps.existing-pr.outputs.url == ''
+        env:
+          BRANCH: ${{ steps.request.outputs.branch }}
+          GITHUB_HANDLE: ${{ steps.request.outputs.github }}
+          SIGNATURE_PATH: ${{ steps.request.outputs.path }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$BRANCH"
+          git add "$SIGNATURE_PATH"
+          git commit -m "Add signature for $GITHUB_HANDLE"
+          git push -u origin "$BRANCH"
+
+      - name: Open signature pull request
+        id: pull-request
+        if: steps.request.outcome == 'success' && steps.duplicate.outputs.found == 'false' && steps.existing-pr.outputs.url == ''
+        env:
+          BRANCH: ${{ steps.request.outputs.branch }}
+          DISPLAY_NAME: ${{ steps.request.outputs.name }}
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_HANDLE: ${{ steps.request.outputs.github }}
+        run: |
+          pr_url="$(gh pr create \
+            --title "Add signature: $DISPLAY_NAME" \
+            --body "Automated signature PR from the GitHub Issue Form for @$GITHUB_HANDLE. Review the generated YAML and merge if accepted." \
+            --head "$BRANCH" \
+            --base main)"
+          echo "url=$pr_url" >> "$GITHUB_OUTPUT"
+
+      - name: Close signature issue
+        if: steps.pull-request.outputs.url != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ steps.request.outputs.issue_number }}
+          PR_URL: ${{ steps.pull-request.outputs.url }}
+        run: |
+          gh issue comment "$ISSUE_NUMBER" --body "Created signature pull request: $PR_URL"
+          gh issue edit "$ISSUE_NUMBER" --add-label "signature-pr-created" || true
+          gh issue close "$ISSUE_NUMBER" --reason completed

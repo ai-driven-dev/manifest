@@ -1,0 +1,43 @@
+name: Sign the manifesto
+description: Submit a signature request. A pull request will be opened for review.
+title: "Signature: "
+labels:
+  - signature-request
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Your GitHub account will be used for the public profile link and avatar.
+        A pull request will be opened for review before your signature appears.
+  - type: input
+    id: display_name
+    attributes:
+      label: Display name
+      description: Public name shown on the signature wall.
+      placeholder: Your Full Name
+    validations:
+      required: true
+  - type: input
+    id: linkedin
+    attributes:
+      label: LinkedIn profile
+      description: Optional full LinkedIn profile URL.
+      placeholder: https://www.linkedin.com/in/your-profile/
+    validations:
+      required: false
+  - type: input
+    id: affiliation
+    attributes:
+      label: Affiliation
+      description: Optional title, company, or organization. Maximum 120 characters.
+      placeholder: Title or company
+    validations:
+      required: false
+  - type: input
+    id: statement
+    attributes:
+      label: Statement
+      description: Optional one-line public statement. Maximum 280 characters.
+      placeholder: This is how I build software with AI.
+    validations:
+      required: false

@@ -1,5 +1,54 @@
 # Signatory file format
 
+Most signers should use the GitHub signature form linked from the manifesto
+site. The form uses the GitHub account that submits the issue as the public
+`github` handle, then automation opens a pull request with the YAML file below.
+
+```mermaid
+---
+title: Signature Flow
+---
+flowchart LR
+  subgraph Signer["Signer"]
+    Sign["Sign"]
+  end
+
+  subgraph GitHub["GitHub"]
+    Form["Issue Form"]
+    Issue["Issue"]
+    PR["PR"]
+  end
+
+  subgraph Automation["Automation"]
+    Login["issue.user.login"]
+    YAML["YAML"]
+    CI["Validate"]
+  end
+
+  subgraph Maintainer["Maintainer"]
+    Review["Review"]
+    Merge["Merge"]
+    Close["Close"]
+  end
+
+  subgraph Site["Site"]
+    Registry["Avatar + signature"]
+    Unchanged["Unchanged"]
+  end
+
+  Sign --> Form
+  Form --> Issue
+  Issue --> Login
+  Login --> YAML
+  YAML --> PR
+  PR --> CI
+  CI --> Review
+  Review --> Merge
+  Review --> Close
+  Merge --> Registry
+  Close --> Unchanged
+```
+
 Each signatory has one YAML file in this directory, named after their GitHub
 handle: `{handle}.yml`. The handle must match the `github` field inside the
 file. Filename collisions are impossible because GitHub handles are unique.
@@ -38,3 +87,9 @@ YAML files are validated at build time by Astro Content Collections (Zod
 schema in `app/src/content.config.ts`). A malformed file will fail the
 build, so the `Validate` GitHub Action on each pull request catches errors
 before merge.
+
+## Pre-merge check
+
+A generated signature is not published until its pull request is merged. To
+verify the automation without changing the site, review the generated PR and
+close it without merging.
