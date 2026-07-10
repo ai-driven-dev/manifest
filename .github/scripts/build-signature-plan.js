@@ -7,23 +7,22 @@ const SIGNATORY_DIR = 'app/src/content/signatories';
 const NO_RESPONSE = '_No response_';
 
 const LIMIT = Object.freeze({
-  githubHandle: 39,
-  displayName: 120,
+  github: 39,
+  name: 120,
   linkedin: 200,
   affiliation: 120,
   statement: 280,
 });
 
 const FIELD = Object.freeze({
-  name: ['Display name', 'Name'],
-  linkedin: ['LinkedIn profile', 'LinkedIn'],
-  affiliation: ['Affiliation'],
-  statement: ['Statement'],
+  name: 'display name',
+  linkedin: 'linkedin profile',
+  affiliation: 'affiliation',
+  statement: 'statement',
 });
 
-const GITHUB_HANDLE_RE = new RegExp(
-  `^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,${LIMIT.githubHandle - 1}})$`,
-);
+const YAML_FIELDS = ['github', 'name', 'linkedin', 'affiliation', 'statement'];
+const GITHUB_HANDLE_RE = new RegExp(`^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,${LIMIT.github - 1}})$`);
 
 function clean(value) {
   return String(value ?? '')
@@ -40,15 +39,15 @@ function normalizeHeading(value) {
 
 function parseIssueFormBody(body) {
   const fields = {};
-  let currentField = null;
+  let heading = null;
 
   for (const line of clean(body).split('\n')) {
-    const heading = line.match(/^###\s+(.+?)\s*$/);
-    if (heading) {
-      currentField = normalizeHeading(heading[1]);
-      fields[currentField] = [];
-    } else if (currentField) {
-      fields[currentField].push(line);
+    const match = line.match(/^###\s+(.+?)\s*$/);
+    if (match) {
+      heading = normalizeHeading(match[1]);
+      fields[heading] = [];
+    } else if (heading) {
+      fields[heading].push(line);
     }
   }
 
@@ -60,30 +59,21 @@ function parseIssueFormBody(body) {
   );
 }
 
-function fieldValue(fields, aliases) {
-  for (const alias of aliases) {
-    const value = fields[normalizeHeading(alias)];
-    if (value) return value;
-  }
-  return '';
-}
-
-function checkLength(value, fieldName) {
-  const limit = LIMIT[fieldName];
-  if (value.length > limit) throw new Error(`${fieldName} must be ${limit} characters or fewer`);
+function checkLength(value, field) {
+  if (value.length > LIMIT[field]) throw new Error(`${field} must be ${LIMIT[field]} characters or fewer`);
   return value;
 }
 
-function requiredText(value, fieldName) {
+function requiredText(value, field) {
   const text = clean(value);
-  if (!text) throw new Error(`${fieldName} is required`);
-  return checkLength(text, fieldName);
+  if (!text) throw new Error(`${field} is required`);
+  return checkLength(text, field);
 }
 
-function optionalText(value, fieldName) {
+function optionalText(value, field) {
   const text = clean(value);
   if (!text || text === NO_RESPONSE) return undefined;
-  return checkLength(text, fieldName);
+  return checkLength(text, field);
 }
 
 function validateLinkedIn(value) {
@@ -94,13 +84,20 @@ function validateLinkedIn(value) {
     const parsed = new URL(url);
     if (['http:', 'https:'].includes(parsed.protocol)) return url;
   } catch {
-    // Fall through to one public validation error.
+    // Use one stable public error below.
   }
   throw new Error('linkedin must be a valid URL');
 }
 
-function yamlString(value) {
-  return JSON.stringify(value);
+function yamlValue(field, value) {
+  return field === 'github' ? value : JSON.stringify(value);
+}
+
+function buildYaml(signature) {
+  return `${YAML_FIELDS
+    .filter((field) => signature[field])
+    .map((field) => `${field}: ${yamlValue(field, signature[field])}`)
+    .join('\n')}\n`;
 }
 
 function signatureFromFields({ github, name, linkedin, affiliation, statement }) {
@@ -109,51 +106,36 @@ function signatureFromFields({ github, name, linkedin, affiliation, statement })
 
   const signature = {
     github,
-    name: requiredText(name, 'displayName'),
+    name: requiredText(name, 'name'),
     linkedin: validateLinkedIn(linkedin),
     affiliation: optionalText(affiliation, 'affiliation'),
     statement: optionalText(statement, 'statement'),
   };
 
-  const yaml = [`github: ${signature.github}`, `name: ${yamlString(signature.name)}`];
-  if (signature.linkedin) yaml.push(`linkedin: ${yamlString(signature.linkedin)}`);
-  if (signature.affiliation) yaml.push(`affiliation: ${yamlString(signature.affiliation)}`);
-  if (signature.statement) yaml.push(`statement: ${yamlString(signature.statement)}`);
-
   return {
     ...signature,
     path: `${SIGNATORY_DIR}/${github}.yml`,
-    yaml: `${yaml.join('\n')}\n`,
+    yaml: buildYaml(signature),
   };
 }
 
-function buildSignature(issue) {
+function buildIssueSignature(issue) {
   const fields = parseIssueFormBody(issue.body);
   return signatureFromFields({
     github: issue.user?.login,
-    name: fieldValue(fields, FIELD.name),
-    linkedin: fieldValue(fields, FIELD.linkedin),
-    affiliation: fieldValue(fields, FIELD.affiliation),
-    statement: fieldValue(fields, FIELD.statement),
+    name: fields[FIELD.name],
+    linkedin: fields[FIELD.linkedin],
+    affiliation: fields[FIELD.affiliation],
+    statement: fields[FIELD.statement],
   });
 }
 
 function buildDispatchSignature(inputs = {}) {
-  return signatureFromFields({
-    github: inputs.github,
-    name: inputs.name,
-    linkedin: inputs.linkedin,
-    affiliation: inputs.affiliation,
-    statement: inputs.statement,
-  });
+  return signatureFromFields(inputs);
 }
 
-function buildBranchName(signature, { testMode, runId }) {
-  return testMode ? `signature-test/${signature.github}-${runId}` : `signature/${signature.github}`;
-}
-
-function buildPullRequestPayload(signature, branch, testMode) {
-  const body = testMode
+function buildPrBody(signature, testMode) {
+  const lines = testMode
     ? [
         'Test-mode signature PR.',
         '',
@@ -167,33 +149,36 @@ function buildPullRequestPayload(signature, branch, testMode) {
         'Maintainer action: review the generated YAML, wait for validation, then merge if accepted.',
       ];
 
-  return {
-    title: testMode ? `[TEST] Add signature: ${signature.name}` : `Add signature: ${signature.name}`,
-    head: branch,
-    base: DEFAULT_BRANCH,
-    draft: testMode,
-    body: body.join('\n'),
-  };
+  return lines.join('\n');
 }
 
-function buildRunPlan({ event, runId }) {
+function buildActionPlan({ event, runId }) {
   const issue = event.issue ?? null;
   const testMode = !issue;
-  const signature = issue ? buildSignature(issue) : buildDispatchSignature(event.inputs);
-  const branch = buildBranchName(signature, { testMode, runId });
+  const signature = issue ? buildIssueSignature(issue) : buildDispatchSignature(event.inputs);
+  const branch = testMode ? `signature-test/${signature.github}-${runId}` : `signature/${signature.github}`;
 
   return {
-    issue,
-    testMode,
-    signature,
     branch,
-    pullRequest: buildPullRequestPayload(signature, branch, testMode),
+    commitMessage: testMode
+      ? `[TEST] Add signature for ${signature.github}`
+      : `Add signature for ${signature.github}`,
+    duplicate: existsSync(signature.path),
+    duplicateMessage: `@${signature.github} is already in the signature registry.`,
+    issue,
+    pr: {
+      base: DEFAULT_BRANCH,
+      body: buildPrBody(signature, testMode),
+      draft: testMode,
+      head: branch,
+      title: testMode ? `[TEST] Add signature: ${signature.name}` : `Add signature: ${signature.name}`,
+    },
+    signature,
+    testMode,
   };
 }
 
-function buildDryRunResult({ event, runId }) {
-  const plan = buildRunPlan({ event, runId });
-
+function dryRun(plan) {
   return {
     status: 'dry-run',
     issue: plan.issue?.number ?? null,
@@ -201,74 +186,51 @@ function buildDryRunResult({ event, runId }) {
     branch: plan.branch,
     path: plan.signature.path,
     yaml: plan.signature.yaml,
-    pullRequest: plan.pullRequest,
+    pullRequest: plan.pr,
   };
 }
 
-function commitMessage(signature, testMode) {
-  return testMode
-    ? `[TEST] Add signature for ${signature.github}`
-    : `Add signature for ${signature.github}`;
+function output(name, value) {
+  if (process.env.GITHUB_OUTPUT) writeFileSync(process.env.GITHUB_OUTPUT, `${name}=${value}\n`, { flag: 'a' });
 }
 
-function writeOutput(name, value) {
-  if (!process.env.GITHUB_OUTPUT) return;
-  writeFileSync(process.env.GITHUB_OUTPUT, `${name}=${value}\n`, { flag: 'a' });
-}
-
-function writePlanFiles(plan) {
+function writePlan(plan) {
   const prBodyFile = join(process.env.RUNNER_TEMP || tmpdir(), 'signature-pr-body.md');
 
   if (!plan.duplicate) {
     mkdirSync(dirname(plan.signature.path), { recursive: true });
     writeFileSync(plan.signature.path, plan.signature.yaml);
   }
-  writeFileSync(prBodyFile, plan.pullRequest.body);
+  writeFileSync(prBodyFile, plan.pr.body);
 
-  return { prBodyFile };
-}
-
-function buildActionPlan({ event, runId }) {
-  const plan = buildRunPlan({ event, runId });
-  const duplicate = existsSync(plan.signature.path);
-
-  return {
-    ...plan,
-    duplicate,
-    commitMessage: commitMessage(plan.signature, plan.testMode),
-    duplicateMessage: `@${plan.signature.github} is already in the signature registry.`,
-  };
-}
-
-function writeActionOutputs(plan, files) {
-  writeOutput('branch', plan.branch);
-  writeOutput('commit_message', plan.commitMessage);
-  writeOutput('draft', String(plan.pullRequest.draft));
-  writeOutput('duplicate', String(plan.duplicate));
-  writeOutput('duplicate_message', plan.duplicateMessage);
-  writeOutput('issue_number', plan.issue?.number ?? '');
-  writeOutput('path', plan.signature.path);
-  writeOutput('pr_body_file', files.prBodyFile);
-  writeOutput('pr_title', plan.pullRequest.title);
-  writeOutput('test_mode', String(plan.testMode));
+  output('branch', plan.branch);
+  output('commit_message', plan.commitMessage);
+  output('draft', String(plan.pr.draft));
+  output('duplicate', String(plan.duplicate));
+  output('duplicate_message', plan.duplicateMessage);
+  output('issue_number', plan.issue?.number ?? '');
+  output('path', plan.signature.path);
+  output('pr_body_file', prBodyFile);
+  output('pr_title', plan.pr.title);
+  output('test_mode', String(plan.testMode));
 }
 
 function main() {
   const eventPath = process.env.GITHUB_EVENT_PATH;
   const runId = process.env.GITHUB_RUN_ID || Date.now().toString();
-  const dryRun = process.argv.includes('--dry-run') || process.env.SIGNATURE_PR_DRY_RUN === '1';
+  const shouldDryRun = process.argv.includes('--dry-run') || process.env.SIGNATURE_PR_DRY_RUN === '1';
 
   if (!eventPath) throw new Error('GITHUB_EVENT_PATH is required');
 
   const event = JSON.parse(readFileSync(eventPath, 'utf8'));
-  if (dryRun) {
-    console.log(JSON.stringify(buildDryRunResult({ event, runId }), null, 2));
+  const plan = buildActionPlan({ event, runId });
+
+  if (shouldDryRun) {
+    console.log(JSON.stringify(dryRun(plan), null, 2));
     return;
   }
 
-  const plan = buildActionPlan({ event, runId });
-  const files = writePlanFiles(plan);
-  writeActionOutputs(plan, files);
+  writePlan(plan);
   console.log(JSON.stringify({
     branch: plan.branch,
     duplicate: plan.duplicate,
@@ -280,11 +242,9 @@ function main() {
 
 module.exports = {
   buildActionPlan,
-  buildBranchName,
-  buildDryRunResult,
   buildDispatchSignature,
-  buildPullRequestPayload,
-  buildSignature,
+  buildIssueSignature,
+  dryRun,
   parseIssueFormBody,
 };
 
