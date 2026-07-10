@@ -68,7 +68,7 @@ function resetShareButtons(ready: boolean) {
 
 function renderCountdown(el: HTMLElement, n: number, lang: string) {
   const fr = isFrench(lang);
-  const label = fr ? 'Ouverture du formulaire de signature GitHub dans' : 'Opening the GitHub signature form in';
+  const label = fr ? 'Ouverture de votre contribution sur GitHub dans' : 'Opening your contribution on GitHub in';
   el.innerHTML = `${label} <strong>${n}</strong>`;
 }
 
@@ -193,7 +193,7 @@ export function initSharePopup(): void {
   });
 
   document.addEventListener('click', (e) => {
-    const signBtn = (e.target as HTMLElement).closest('[data-sign-manifesto-btn]');
+    const signBtn = (e.target as HTMLElement).closest('#sign-manifesto-btn');
     if (signBtn) {
       e.preventDefault();
       const githubUrl = (signBtn as HTMLElement).dataset.githubUrl || '';

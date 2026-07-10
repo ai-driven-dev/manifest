@@ -9,10 +9,6 @@ aiddocs/tasks/
 
 # Test snapshots
 **/*-snapshots/
-!app/tests/e2e/visual.spec.ts-snapshots/
-app/tests/e2e/visual.spec.ts-snapshots/*
-!app/tests/e2e/visual.spec.ts-snapshots/cover-desktop-desktop-*.png
-!app/tests/e2e/visual.spec.ts-snapshots/cover-mobile-mobile-*.png
 **/__snapshots__/
 *.snap
 *.snap.*

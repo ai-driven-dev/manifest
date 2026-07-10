@@ -1,5 +1,3 @@
-import { SIGNATURE_ISSUE_URL } from './signature-url';
-
 export const SITE = {
   origin: 'https://www.ai-driven-development.org',
   lang: 'en',
@@ -10,7 +8,8 @@ export const SITE = {
   description:
     'Four values and twelve principles for developers who build software with AI as a deliberate partner.',
   repoUrl: 'https://github.com/ai-driven-dev/manifest',
-  signUrl: SIGNATURE_ISSUE_URL,
+  signUrl:
+    'https://github.com/ai-driven-dev/manifest/new/main/app/src/content/signatories',
   publishedDate: '2026-05-08',
   modifiedDate: '2026-05-31',
   indexNowKey: 'a1f401c8d1e64cb99fbe0d7f4a462026',
