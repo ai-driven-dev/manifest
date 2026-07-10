@@ -122,9 +122,7 @@ function validateLinkedIn(value) {
   try {
     const parsed = new URL(url);
     if (['http:', 'https:'].includes(parsed.protocol)) return url;
-  } catch {
-    // Use one stable public error below.
-  }
+  } catch {}
   throw new Error('linkedin must be a valid URL');
 }
 
@@ -197,11 +195,6 @@ function buildPrBody(signature, testMode) {
 }
 
 /**
- * Creates the complete contract consumed by the GitHub workflow.
- *
- * The script owns validation and file content. The workflow owns side effects:
- * git branch/commit/push, PR creation, issue comments, labels, and closure.
- *
  * @param {{ event: { issue?: WorkflowIssue, inputs?: Object }, runId: string }} params
  * @returns {WorkflowPlan}
  */
