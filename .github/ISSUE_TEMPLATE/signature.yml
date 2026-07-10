@@ -33,11 +33,11 @@ body:
       placeholder: Title or company
     validations:
       required: false
-  - type: textarea
+  - type: input
     id: statement
     attributes:
       label: Statement
-      description: Optional short public note, 280 characters max.
-      placeholder: I build software with AI as a deliberate partner.
+      description: Optional one-line public statement. Maximum 280 characters.
+      placeholder: This is how I build software with AI.
     validations:
       required: false

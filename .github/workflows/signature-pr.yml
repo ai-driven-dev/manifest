@@ -47,16 +47,16 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
-      - name: Build signature plan
-        id: plan
+      - name: Read signature request
+        id: request
         continue-on-error: true
         env:
           GITHUB_EVENT_PATH: ${{ github.event_path }}
           GITHUB_RUN_ID: ${{ github.run_id }}
-        run: node .github/scripts/build-signature-plan.js
+        run: node .github/scripts/read-signature-request.js
 
       - name: Report invalid signature request
-        if: steps.plan.outcome == 'failure'
+        if: steps.request.outcome == 'failure'
         env:
           GH_TOKEN: ${{ github.token }}
           ISSUE_NUMBER: ${{ github.event.issue.number || '' }}
@@ -68,18 +68,19 @@ jobs:
           exit 1
 
       - name: Create signature pull request
-        if: steps.plan.outcome == 'success'
+        if: steps.request.outcome == 'success'
         env:
-          BRANCH: ${{ steps.plan.outputs.branch }}
-          COMMIT_MESSAGE: ${{ steps.plan.outputs.commit_message }}
-          DRAFT: ${{ steps.plan.outputs.draft }}
-          DUPLICATE: ${{ steps.plan.outputs.duplicate }}
-          DUPLICATE_MESSAGE: ${{ steps.plan.outputs.duplicate_message }}
+          AFFILIATION_YAML: ${{ steps.request.outputs.affiliation_yaml }}
+          BRANCH: ${{ steps.request.outputs.branch }}
+          DISPLAY_NAME: ${{ steps.request.outputs.name }}
+          DRAFT: ${{ steps.request.outputs.draft }}
           GH_TOKEN: ${{ github.token }}
-          ISSUE_NUMBER: ${{ steps.plan.outputs.issue_number }}
-          PR_BODY_FILE: ${{ steps.plan.outputs.pr_body_file }}
-          PR_TITLE: ${{ steps.plan.outputs.pr_title }}
-          SIGNATURE_PATH: ${{ steps.plan.outputs.path }}
+          GITHUB_HANDLE: ${{ steps.request.outputs.github }}
+          ISSUE_NUMBER: ${{ steps.request.outputs.issue_number }}
+          LINKEDIN_YAML: ${{ steps.request.outputs.linkedin_yaml }}
+          NAME_YAML: ${{ steps.request.outputs.name_yaml }}
+          SIGNATURE_PATH: ${{ steps.request.outputs.path }}
+          STATEMENT_YAML: ${{ steps.request.outputs.statement_yaml }}
         run: |
           set -euo pipefail
 
@@ -90,9 +91,39 @@ jobs:
             fi
           }
 
-          if [ "$DUPLICATE" = "true" ]; then
+          write_signature_file() {
+            mkdir -p "$(dirname "$SIGNATURE_PATH")"
+            {
+              echo "github: $GITHUB_HANDLE"
+              echo "name: $NAME_YAML"
+              if [ -n "$LINKEDIN_YAML" ]; then echo "linkedin: $LINKEDIN_YAML"; fi
+              if [ -n "$AFFILIATION_YAML" ]; then echo "affiliation: $AFFILIATION_YAML"; fi
+              if [ -n "$STATEMENT_YAML" ]; then echo "statement: $STATEMENT_YAML"; fi
+            } > "$SIGNATURE_PATH"
+          }
+
+          write_pr_body() {
+            PR_BODY_FILE="$RUNNER_TEMP/signature-pr-body.md"
+            if [ "$DRAFT" = "true" ]; then
+              cat > "$PR_BODY_FILE" <<'BODY'
+          Test-mode signature PR.
+
+          Do not merge. Success means the generated diff is correct and validation can run.
+          BODY
+            else
+              cat > "$PR_BODY_FILE" <<BODY
+          Automated signature PR from the GitHub Issue Form.
+
+          GitHub handle: @$GITHUB_HANDLE
+
+          Maintainer action: review the generated YAML, wait for validation, then merge if accepted.
+          BODY
+            fi
+          }
+
+          if [ -f "$SIGNATURE_PATH" ]; then
             if [ -n "$ISSUE_NUMBER" ]; then
-              gh issue comment "$ISSUE_NUMBER" --body "$DUPLICATE_MESSAGE"
+              gh issue comment "$ISSUE_NUMBER" --body "@$GITHUB_HANDLE is already in the signature registry."
               add_label "signature-duplicate"
             fi
             echo '{"status":"duplicate"}'
@@ -111,9 +142,20 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c "$BRANCH"
+          write_signature_file
           git add "$SIGNATURE_PATH"
+
+          if [ "$DRAFT" = "true" ]; then
+            COMMIT_MESSAGE="[TEST] Add signature for $GITHUB_HANDLE"
+            PR_TITLE="[TEST] Add signature: $DISPLAY_NAME"
+          else
+            COMMIT_MESSAGE="Add signature for $GITHUB_HANDLE"
+            PR_TITLE="Add signature: $DISPLAY_NAME"
+          fi
+
           git commit -m "$COMMIT_MESSAGE"
           git push -u origin "$BRANCH"
+          write_pr_body
 
           if [ "$DRAFT" = "true" ]; then
             pr_url="$(gh pr create --draft --title "$PR_TITLE" --body-file "$PR_BODY_FILE" --head "$BRANCH" --base main)"
