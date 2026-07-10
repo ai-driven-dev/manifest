@@ -30,18 +30,6 @@ function signatureIssueEvent(overrides = {}) {
   };
 }
 
-function maintainerTestEvent(inputs = {}) {
-  return {
-    inputs: {
-      github: 'octocat',
-      name: 'AIDD Test Signature',
-      affiliation: 'Test run',
-      statement: 'Test-mode signature; do not merge.',
-      ...inputs,
-    },
-  };
-}
-
 function testWorkspace() {
   const dir = mkdtempSync(join(tmpdir(), 'signature-request-'));
   return {
@@ -76,7 +64,6 @@ function runRequestReader(event, args = []) {
       ...process.env,
       GITHUB_EVENT_PATH: workspace.eventPath,
       GITHUB_OUTPUT: workspace.outputPath,
-      GITHUB_RUN_ID: '123',
     },
     encoding: 'utf8',
   });
@@ -96,7 +83,6 @@ function failRequestReader(event) {
       ...process.env,
       GITHUB_EVENT_PATH: workspace.eventPath,
       GITHUB_OUTPUT: workspace.outputPath,
-      GITHUB_RUN_ID: '123',
     },
     encoding: 'utf8',
   });
@@ -110,12 +96,10 @@ describe('signature request reader behavior', () => {
       github: 'octocat',
       issue: 42,
       path: 'app/src/content/signatories/octocat.yml',
-      testMode: false,
     });
     assert.equal(outputs.github, 'octocat');
     assert.equal(outputs.name, 'Octo Cat');
-    assert.equal(outputs.branch, 'signature/octocat');
-    assert.equal(outputs.draft, 'false');
+    assert.equal(outputs.branch, 'signature/octocat-42');
     assert.equal(outputs.issue_number, '42');
     assert.equal(outputs.path, 'app/src/content/signatories/octocat.yml');
     assert.equal(outputs.name_yaml, '"Octo Cat"');
@@ -177,28 +161,16 @@ describe('signature request reader behavior', () => {
     assert.match(result.stderr, /statement must be one line/);
   });
 
-  it('prepares a maintainer workflow_dispatch run as a draft test PR', () => {
-    const { stdout, outputs } = runRequestReader(maintainerTestEvent());
-
-    assert.deepEqual(stdout, {
-      github: 'octocat',
-      issue: null,
-      path: 'app/src/content/signatories/octocat.yml',
-      testMode: true,
+  it('fails when it is not called from a GitHub issue event', () => {
+    const result = failRequestReader({
+      inputs: {
+        github: 'octocat',
+        name: 'Octo Cat',
+      },
     });
-    assert.equal(outputs.branch, 'signature-test/octocat-123');
-    assert.equal(outputs.draft, 'true');
-    assert.equal(outputs.issue_number, '');
-    assert.equal(outputs.name_yaml, '"AIDD Test Signature"');
-    assert.equal(outputs.linkedin_yaml, '');
-    assert.equal(outputs.affiliation_yaml, '"Test run"');
-  });
-
-  it('applies the same signature rules to maintainer test runs', () => {
-    const result = failRequestReader(maintainerTestEvent({ github: 'octocat-', name: 'Octo Cat' }));
 
     assert.equal(result.status, 1);
-    assert.match(result.stderr, /github must be a valid GitHub handle/);
+    assert.match(result.stderr, /issue event is required/);
   });
 
   it('prints a dry-run summary without exposing GitHub Actions outputs', () => {

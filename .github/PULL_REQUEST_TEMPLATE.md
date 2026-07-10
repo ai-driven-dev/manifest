@@ -5,9 +5,7 @@ If this PR adds your signature (a new file under
 app/src/content/signatories/), the checklist below is what we look at.
 For any other change, delete the checklist and describe the change.
 
-Automated signature PRs are created from the GitHub Issue Form. Test-mode PRs
-are maintainer-triggered drafts titled `[TEST] ...`; validate them, then close
-without merge.
+Automated signature PRs are created from the GitHub Issue Form.
 -->
 
 ## Signing the manifesto
@@ -18,7 +16,6 @@ without merge.
 - [ ] Optional `linkedin` is a full URL, `statement` is ≤ 280 chars
 - [ ] By signing, I state that the manifesto reflects how I already work,
       or how I mean to. I am not signing for my employer.
-- [ ] If this is a `[TEST]` draft PR, it must be closed without merge.
 
 ## Other change
 

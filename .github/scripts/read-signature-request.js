@@ -119,32 +119,25 @@ function readIssueSignature(issue) {
   });
 }
 
-function readDispatchSignature(inputs = {}) {
-  return validateSignature(inputs);
-}
-
 function yamlString(value) {
   return value ? JSON.stringify(value) : '';
 }
 
-function buildRequestOutputs({ event, runId }) {
-  const issue = event.issue ?? null;
-  const testMode = !issue;
-  const signature = issue ? readIssueSignature(issue) : readDispatchSignature(event.inputs);
-  const branch = testMode ? `signature-test/${signature.github}-${runId}` : `signature/${signature.github}`;
+function buildRequestOutputs(event) {
+  if (!event.issue) throw new Error('issue event is required');
+
+  const signature = readIssueSignature(event.issue);
 
   return {
     github: signature.github,
     name: signature.name,
     path: signature.path,
-    branch,
-    draft: String(testMode),
-    issue_number: issue?.number ?? '',
+    branch: `signature/${signature.github}-${event.issue.number}`,
+    issue_number: event.issue.number,
     name_yaml: yamlString(signature.name),
     linkedin_yaml: yamlString(signature.linkedin),
     affiliation_yaml: yamlString(signature.affiliation),
     statement_yaml: yamlString(signature.statement),
-    test_mode: String(testMode),
   };
 }
 
@@ -158,13 +151,12 @@ function writeOutputs(outputs) {
 
 function main() {
   const eventPath = process.env.GITHUB_EVENT_PATH;
-  const runId = process.env.GITHUB_RUN_ID || Date.now().toString();
   const shouldDryRun = process.argv.includes('--dry-run') || process.env.SIGNATURE_PR_DRY_RUN === '1';
 
   if (!eventPath) throw new Error('GITHUB_EVENT_PATH is required');
 
   const event = JSON.parse(readFileSync(eventPath, 'utf8'));
-  const outputs = buildRequestOutputs({ event, runId });
+  const outputs = buildRequestOutputs(event);
 
   if (shouldDryRun) {
     console.log(JSON.stringify({ status: 'dry-run', ...outputs }, null, 2));
@@ -176,7 +168,6 @@ function main() {
     github: outputs.github,
     issue: outputs.issue_number || null,
     path: outputs.path,
-    testMode: outputs.test_mode === 'true',
   }));
 }
 

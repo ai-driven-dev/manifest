@@ -17,7 +17,6 @@ flowchart LR
     Form["Issue Form"]
     Issue["Issue"]
     PR["PR"]
-    TestPR["Draft PR [TEST]"]
   end
 
   subgraph Automation["Automation"]
@@ -27,6 +26,7 @@ flowchart LR
   end
 
   subgraph Maintainer["Maintainer"]
+    Review["Review"]
     Merge["Merge"]
     Close["Close"]
   end
@@ -42,12 +42,10 @@ flowchart LR
   Login --> YAML
   YAML --> PR
   PR --> CI
-  CI --> Merge
+  CI --> Review
+  Review --> Merge
+  Review --> Close
   Merge --> Registry
-
-  Sign -. maintainer test .-> TestPR
-  TestPR --> YAML
-  CI -. test .-> Close
   Close --> Unchanged
 ```
 
@@ -90,9 +88,8 @@ schema in `app/src/content.config.ts`). A malformed file will fail the
 build, so the `Validate` GitHub Action on each pull request catches errors
 before merge.
 
-## Maintainer test mode
+## Pre-merge check
 
-For an end-to-end test that must not publish a signature, run the `Signature PR`
-workflow manually with `workflow_dispatch`. Automation must create a draft PR
-titled `[TEST] ...`; verify that validation can run, then close the PR without
-merging and delete the test branch.
+A generated signature is not published until its pull request is merged. To
+verify the automation without changing the site, review the generated PR and
+close it without merging.
