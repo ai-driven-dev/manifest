@@ -1,9 +1,46 @@
 import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
-const HANDLE_RE = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,38})$/;
-const API_ROOT = 'https://api.github.com';
+const DEFAULT_BRANCH = 'main';
+const GITHUB_API_ROOT = 'https://api.github.com';
+const GITHUB_API_VERSION = '2022-11-28';
 const SIGNATORY_DIR = 'app/src/content/signatories';
+const NO_RESPONSE = '_No response_';
+
+const FIELD_LIMITS = Object.freeze({
+  githubHandle: 39,
+  displayName: 120,
+  linkedin: 200,
+  affiliation: 120,
+  statement: 280,
+});
+
+const ISSUE_FIELDS = Object.freeze({
+  name: ['Display name', 'Name'],
+  linkedin: ['LinkedIn profile', 'LinkedIn'],
+  affiliation: ['Affiliation'],
+  statement: ['Statement'],
+});
+
+const ISSUE_LABELS = Object.freeze({
+  duplicate: 'signature-duplicate',
+  needsFix: 'signature-needs-fix',
+  prCreated: 'signature-pr-created',
+});
+
+const HTTP_STATUS = Object.freeze({
+  ok: 200,
+  created: 201,
+  noContent: 204,
+  notFound: 404,
+  validationFailed: 422,
+});
+
+const SUCCESS_STATUSES = [HTTP_STATUS.ok, HTTP_STATUS.created, HTTP_STATUS.noContent];
+const OPTIONAL_LABEL_FAILURE_STATUSES = [HTTP_STATUS.notFound, HTTP_STATUS.validationFailed];
+const GITHUB_HANDLE_RE = new RegExp(
+  `^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,${FIELD_LIMITS.githubHandle - 1}})$`,
+);
 
 function clean(value) {
   return String(value ?? '')
@@ -49,15 +86,28 @@ function firstField(fields, names) {
   return '';
 }
 
-function optionalField(value, max, name) {
+function optionalField(value, fieldName) {
   const cleaned = clean(value);
-  if (!cleaned || cleaned === '_No response_') return undefined;
-  if (cleaned.length > max) throw new Error(`${name} must be ${max} characters or fewer`);
+  const maxLength = FIELD_LIMITS[fieldName];
+  if (!cleaned || cleaned === NO_RESPONSE) return undefined;
+  if (cleaned.length > maxLength) {
+    throw new Error(`${fieldName} must be ${maxLength} characters or fewer`);
+  }
+  return cleaned;
+}
+
+function requireField(value, fieldName) {
+  const cleaned = clean(value);
+  const maxLength = FIELD_LIMITS[fieldName];
+  if (!cleaned) throw new Error(`${fieldName} is required`);
+  if (cleaned.length > maxLength) {
+    throw new Error(`${fieldName} must be ${maxLength} characters or fewer`);
+  }
   return cleaned;
 }
 
 function validateLinkedIn(value) {
-  const cleaned = optionalField(value, 200, 'linkedin');
+  const cleaned = optionalField(value, 'linkedin');
   if (!cleaned) return undefined;
   let parsed;
   try {
@@ -77,16 +127,14 @@ function yamlString(value) {
 
 function signatureFromFields({ github, name, linkedin, affiliation, statement }) {
   github = clean(github);
-  name = clean(name);
-  if (!HANDLE_RE.test(github)) {
+  if (!GITHUB_HANDLE_RE.test(github)) {
     throw new Error('github must be a valid GitHub handle');
   }
-  if (!name) throw new Error('display name is required');
-  if (name.length > 120) throw new Error('display name must be 120 characters or fewer');
 
+  name = requireField(name, 'displayName');
   linkedin = validateLinkedIn(linkedin);
-  affiliation = optionalField(affiliation, 120, 'affiliation');
-  statement = optionalField(statement, 280, 'statement');
+  affiliation = optionalField(affiliation, 'affiliation');
+  statement = optionalField(statement, 'statement');
 
   const lines = [`github: ${github}`, `name: ${yamlString(name)}`];
   if (linkedin) lines.push(`linkedin: ${yamlString(linkedin)}`);
@@ -108,10 +156,10 @@ export function buildSignature(issue) {
   const fields = parseIssueFormBody(issue.body);
   return signatureFromFields({
     github: issue.user?.login,
-    name: firstField(fields, ['Display name', 'Name']),
-    linkedin: firstField(fields, ['LinkedIn profile', 'LinkedIn']),
-    affiliation: firstField(fields, ['Affiliation']),
-    statement: firstField(fields, ['Statement']),
+    name: firstField(fields, ISSUE_FIELDS.name),
+    linkedin: firstField(fields, ISSUE_FIELDS.linkedin),
+    affiliation: firstField(fields, ISSUE_FIELDS.affiliation),
+    statement: firstField(fields, ISSUE_FIELDS.statement),
   });
 }
 
@@ -134,7 +182,7 @@ export function buildPullRequestPayload(signature, branch, testMode) {
   return {
     title: testMode ? `[TEST] Add signature: ${signature.name}` : `Add signature: ${signature.name}`,
     head: branch,
-    base: 'main',
+    base: DEFAULT_BRANCH,
     draft: testMode,
     body: testMode
       ? [
@@ -160,21 +208,21 @@ class GitHubClient {
     this.token = token;
   }
 
-  async request(method, path, body, ok = [200, 201, 204]) {
-    const response = await fetch(`${API_ROOT}${path}`, {
+  async request({ method, path, body, okStatuses = SUCCESS_STATUSES }) {
+    const response = await fetch(`${GITHUB_API_ROOT}${path}`, {
       method,
       headers: {
         Accept: 'application/vnd.github+json',
         Authorization: `Bearer ${this.token}`,
         'Content-Type': 'application/json',
-        'X-GitHub-Api-Version': '2022-11-28',
+        'X-GitHub-Api-Version': GITHUB_API_VERSION,
       },
       body: body ? JSON.stringify(body) : undefined,
     });
 
     const text = await response.text();
     const data = text ? JSON.parse(text) : null;
-    if (!ok.includes(response.status)) {
+    if (!okStatuses.includes(response.status)) {
       const message = data?.message || `GitHub API returned ${response.status}`;
       const error = new Error(message);
       error.status = response.status;
@@ -184,32 +232,38 @@ class GitHubClient {
     return data;
   }
 
-  async getContent(path, ref = 'main') {
+  async getContent(path, ref = DEFAULT_BRANCH) {
     try {
-      return await this.request(
-        'GET',
-        `/repos/${this.owner}/${this.repo}/contents/${encodeURIComponentPath(path)}?ref=${encodeURIComponent(ref)}`,
-        null,
-      );
+      return await this.request({
+        method: 'GET',
+        path: `/repos/${this.owner}/${this.repo}/contents/${encodeURIComponentPath(path)}?ref=${encodeURIComponent(ref)}`,
+      });
     } catch (error) {
-      if (error.status === 404) return null;
+      if (error.status === HTTP_STATUS.notFound) return null;
       throw error;
     }
   }
 
   async getMainSha() {
-    const ref = await this.request('GET', `/repos/${this.owner}/${this.repo}/git/ref/heads/main`, null);
+    const ref = await this.request({
+      method: 'GET',
+      path: `/repos/${this.owner}/${this.repo}/git/ref/heads/${DEFAULT_BRANCH}`,
+    });
     return ref.object.sha;
   }
 
   async createBranch(branch, sha) {
     try {
-      await this.request('POST', `/repos/${this.owner}/${this.repo}/git/refs`, {
-        ref: `refs/heads/${branch}`,
-        sha,
+      await this.request({
+        method: 'POST',
+        path: `/repos/${this.owner}/${this.repo}/git/refs`,
+        body: {
+          ref: `refs/heads/${branch}`,
+          sha,
+        },
       });
     } catch (error) {
-      if (error.status !== 422) throw error;
+      if (error.status !== HTTP_STATUS.validationFailed) throw error;
     }
   }
 
@@ -221,40 +275,59 @@ class GitHubClient {
       branch,
     };
     if (existing?.sha) body.sha = existing.sha;
-    return this.request('PUT', `/repos/${this.owner}/${this.repo}/contents/${encodeURIComponentPath(path)}`, body);
+    return this.request({
+      method: 'PUT',
+      path: `/repos/${this.owner}/${this.repo}/contents/${encodeURIComponentPath(path)}`,
+      body,
+    });
   }
 
   async findOpenPr(branch) {
-    const prs = await this.request(
-      'GET',
-      `/repos/${this.owner}/${this.repo}/pulls?state=open&head=${encodeURIComponent(`${this.owner}:${branch}`)}`,
-      null,
-    );
+    const prs = await this.request({
+      method: 'GET',
+      path: `/repos/${this.owner}/${this.repo}/pulls?state=open&head=${encodeURIComponent(`${this.owner}:${branch}`)}`,
+    });
     return prs[0] ?? null;
   }
 
   async createPullRequest(payload) {
-    return this.request('POST', `/repos/${this.owner}/${this.repo}/pulls`, payload);
+    return this.request({
+      method: 'POST',
+      path: `/repos/${this.owner}/${this.repo}/pulls`,
+      body: payload,
+    });
   }
 
   async comment(issueNumber, body) {
-    return this.request('POST', `/repos/${this.owner}/${this.repo}/issues/${issueNumber}/comments`, { body });
+    return this.request({
+      method: 'POST',
+      path: `/repos/${this.owner}/${this.repo}/issues/${issueNumber}/comments`,
+      body: { body },
+    });
   }
 
   async addLabels(issueNumber, labels) {
     try {
-      return await this.request('POST', `/repos/${this.owner}/${this.repo}/issues/${issueNumber}/labels`, { labels });
+      return await this.request({
+        method: 'POST',
+        path: `/repos/${this.owner}/${this.repo}/issues/${issueNumber}/labels`,
+        body: { labels },
+      });
     } catch (error) {
-      if (![404, 422].includes(error.status)) throw error;
+      if (!OPTIONAL_LABEL_FAILURE_STATUSES.includes(error.status)) throw error;
       console.warn(`Could not add issue labels: ${labels.join(', ')}`);
       return null;
     }
   }
 
   async closeIssue(issueNumber) {
-    return this.request('PATCH', `/repos/${this.owner}/${this.repo}/issues/${issueNumber}`, {
-      state: 'closed',
-      state_reason: 'completed',
+    return this.request({
+      method: 'PATCH',
+      path: `/repos/${this.owner}/${this.repo}/issues/${issueNumber}`,
+      body: {
+        state: 'closed',
+        state_reason: 'completed',
+      },
     });
   }
 }
@@ -270,11 +343,11 @@ export async function runSignaturePr({ event, repository, token, runId }) {
   const branch = buildBranchName(signature, { testMode, runId });
   const client = new GitHubClient({ token, repository });
 
-  const existingFile = await client.getContent(signature.path, 'main');
+  const existingFile = await client.getContent(signature.path, DEFAULT_BRANCH);
   if (existingFile) {
     if (issue) {
       await client.comment(issue.number, `@${signature.github} is already in the signature registry.`);
-      await client.addLabels(issue.number, ['signature-duplicate']);
+      await client.addLabels(issue.number, [ISSUE_LABELS.duplicate]);
     }
     return { status: 'duplicate' };
   }
@@ -300,7 +373,7 @@ export async function runSignaturePr({ event, repository, token, runId }) {
   const pr = await client.createPullRequest(prPayload);
   if (issue) {
     await client.comment(issue.number, `Created signature pull request: ${pr.html_url}`);
-    await client.addLabels(issue.number, ['signature-pr-created']);
+    await client.addLabels(issue.number, [ISSUE_LABELS.prCreated]);
     await client.closeIssue(issue.number);
   }
 
@@ -326,7 +399,7 @@ async function main() {
     if (issue?.number && token && repository) {
       const client = new GitHubClient({ token, repository });
       await client.comment(issue.number, `Signature request could not be processed: ${error.message}`);
-      await client.addLabels(issue.number, ['signature-needs-fix']);
+      await client.addLabels(issue.number, [ISSUE_LABELS.needsFix]);
     }
     throw error;
   }
