@@ -195,6 +195,35 @@ function buildPullRequestPayload(signature, branch, testMode) {
   };
 }
 
+function buildRunPlan({ event, runId }) {
+  const issue = event.issue ?? null;
+  const testMode = !issue;
+  const signature = issue ? buildSignature(issue) : buildDispatchSignature(event.inputs);
+  const branch = buildBranchName(signature, { testMode, runId });
+
+  return {
+    issue,
+    testMode,
+    signature,
+    branch,
+    pullRequest: buildPullRequestPayload(signature, branch, testMode),
+  };
+}
+
+function buildDryRunResult({ event, runId }) {
+  const plan = buildRunPlan({ event, runId });
+
+  return {
+    status: 'dry-run',
+    issue: plan.issue?.number ?? null,
+    testMode: plan.testMode,
+    branch: plan.branch,
+    path: plan.signature.path,
+    yaml: plan.signature.yaml,
+    pullRequest: plan.pullRequest,
+  };
+}
+
 function github({ repository, token }) {
   const [owner, repo] = repository.split('/');
   return {
@@ -328,10 +357,7 @@ async function closeIssue(gh, issueNumber) {
 }
 
 async function runSignaturePr({ event, repository, token, runId }) {
-  const issue = event.issue ?? null;
-  const testMode = !issue;
-  const signature = issue ? buildSignature(issue) : buildDispatchSignature(event.inputs);
-  const branch = buildBranchName(signature, { testMode, runId });
+  const { issue, testMode, signature, branch, pullRequest } = buildRunPlan({ event, runId });
   const gh = github({ repository, token });
 
   if (await getFile(gh, signature.path)) {
@@ -353,7 +379,7 @@ async function runSignaturePr({ event, repository, token, runId }) {
   await createBranch(gh, branch, await getBranchSha(gh));
   await writeSignatureFile(gh, signature, branch, testMode);
 
-  const pr = await createPr(gh, buildPullRequestPayload(signature, branch, testMode));
+  const pr = await createPr(gh, pullRequest);
   if (issue) {
     await commentIssue(gh, issue.number, `Created signature pull request: ${pr.html_url}`);
     await addIssueLabels(gh, issue.number, [LABEL.prCreated]);
@@ -368,12 +394,19 @@ async function main() {
   const repository = process.env.GITHUB_REPOSITORY;
   const eventPath = process.env.GITHUB_EVENT_PATH;
   const runId = process.env.GITHUB_RUN_ID || Date.now().toString();
+  const dryRun = process.argv.includes('--dry-run') || process.env.SIGNATURE_PR_DRY_RUN === '1';
 
-  if (!token) throw new Error('GITHUB_TOKEN is required');
-  if (!repository) throw new Error('GITHUB_REPOSITORY is required');
   if (!eventPath) throw new Error('GITHUB_EVENT_PATH is required');
 
   const event = JSON.parse(readFileSync(eventPath, 'utf8'));
+  if (dryRun) {
+    console.log(JSON.stringify(buildDryRunResult({ event, runId }), null, 2));
+    return;
+  }
+
+  if (!token) throw new Error('GITHUB_TOKEN is required');
+  if (!repository) throw new Error('GITHUB_REPOSITORY is required');
+
   try {
     console.log(JSON.stringify(await runSignaturePr({ event, repository, token, runId })));
   } catch (error) {
@@ -388,6 +421,7 @@ async function main() {
 
 module.exports = {
   buildBranchName,
+  buildDryRunResult,
   buildDispatchSignature,
   buildPullRequestPayload,
   buildSignature,

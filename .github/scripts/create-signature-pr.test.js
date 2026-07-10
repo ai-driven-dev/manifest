@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const { describe, it } = require('node:test');
 const {
   buildBranchName,
+  buildDryRunResult,
   buildDispatchSignature,
   buildPullRequestPayload,
   buildSignature,
@@ -113,6 +114,23 @@ describe('test mode', () => {
     assert.equal(payload.draft, true);
     assert.equal(payload.title, '[TEST] Add signature: AIDD Test Signature');
     assert.match(payload.body, /Do not merge/);
+  });
+});
+
+describe('dry run', () => {
+  it('prints the generated signature plan without GitHub API calls', () => {
+    const result = buildDryRunResult({
+      event: { issue: issue() },
+      runId: '123',
+    });
+
+    assert.equal(result.status, 'dry-run');
+    assert.equal(result.issue, 42);
+    assert.equal(result.testMode, false);
+    assert.equal(result.branch, 'signature/octocat');
+    assert.equal(result.path, 'app/src/content/signatories/octocat.yml');
+    assert.match(result.yaml, /^name: "Octo Cat"$/m);
+    assert.equal(result.pullRequest.title, 'Add signature: Octo Cat');
   });
 });
 
