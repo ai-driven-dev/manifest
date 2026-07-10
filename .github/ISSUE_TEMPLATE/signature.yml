@@ -8,7 +8,7 @@ body:
     attributes:
       value: |
         Your GitHub account will be used for the public profile link and avatar.
-        Do not enter YAML here; automation will create the pull request.
+        A pull request will be opened for review before your signature appears.
   - type: input
     id: display_name
     attributes:
@@ -37,7 +37,7 @@ body:
     id: statement
     attributes:
       label: Statement
-      description: Optional one-line public statement. Maximum 280 characters.
-      placeholder: This is how I build software with AI.
+      description: Optional short public note, 280 characters max.
+      placeholder: I build software with AI as a deliberate partner.
     validations:
       required: false

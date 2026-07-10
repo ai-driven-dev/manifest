@@ -81,6 +81,13 @@ describe('buildSignature', () => {
       /statement must be 280 characters or fewer/,
     );
   });
+
+  it('accepts statements up to 280 characters', () => {
+    const statement = 'x'.repeat(280);
+    const signature = buildSignature(issue({ body: validBody({ Statement: statement }) }));
+
+    assert.match(signature.yaml, new RegExp(`^statement: "${statement}"$`, 'm'));
+  });
 });
 
 describe('test mode', () => {
