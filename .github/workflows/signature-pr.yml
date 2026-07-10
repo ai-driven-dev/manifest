@@ -1,0 +1,56 @@
+name: Signature PR
+
+on:
+  issues:
+    types: [opened]
+  workflow_dispatch:
+    inputs:
+      github:
+        description: GitHub handle to use in the generated test signature.
+        required: true
+        type: string
+      name:
+        description: Display name to use in the generated test signature.
+        required: true
+        default: AIDD Test Signature
+        type: string
+      linkedin:
+        description: Optional LinkedIn URL.
+        required: false
+        type: string
+      affiliation:
+        description: Optional affiliation.
+        required: false
+        default: Test run
+        type: string
+      statement:
+        description: Optional statement.
+        required: false
+        default: Test-mode signature; do not merge.
+        type: string
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: signature-pr-${{ github.event.issue.number || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  create-signature-pr:
+    if: github.event_name == 'workflow_dispatch' || (github.event.issue.state == 'open' && (contains(github.event.issue.labels.*.name, 'signature-request') || (startsWith(github.event.issue.title, 'Signature:') && contains(github.event.issue.body, '### Display name'))))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Create signature pull request
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: node .github/scripts/create-signature-pr.mjs

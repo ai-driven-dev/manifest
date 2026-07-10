@@ -1,20 +1,9 @@
 ---
-// CTA that opens GitHub's web editor pre-filled with a YAML signatory file.
-// No JS, no backend — just an anchor to GitHub's `/new/...?filename=...&value=...`
-// endpoint, which lets contributors propose a new file directly from the browser.
+// CTA that opens GitHub's structured signature form. GitHub provides the
+// authenticated account for avatar/profile, while automation opens the PR.
+import { SIGNATURE_ISSUE_URL } from '~/lib/signature-url';
 
-const REPO = 'ai-driven-dev/manifest';
-const TARGET_PATH = 'app/src/content/signatories';
-
-const TEMPLATE = `github: your-handle
-name: Your Full Name
-linkedin: # optional - https://www.linkedin.com/in/...
-affiliation: # optional - title or company
-statement: # optional - one-line public statement (max 280 chars)
-`;
-
-const HREF = `https://github.com/${REPO}/new/main/${TARGET_PATH}?filename=YOUR-HANDLE.yml&value=${encodeURIComponent(TEMPLATE)}`;
-const GITHUB_URL = HREF;
+const GITHUB_URL = SIGNATURE_ISSUE_URL;
 
 interface Props {
   /** 'github' (default, bottom CTA) or 'aidd' (animated brand mark, sidebar). */
@@ -25,8 +14,8 @@ interface Props {
 const { logo = 'github', variant = 'default' } = Astro.props;
 ---
 <button 
-  id="sign-manifesto-btn"
   class:list={['sign-btn', variant === 'sidebar' && 'sign-btn--sidebar']}
+  data-sign-manifesto-btn
   data-github-url={GITHUB_URL}
   type="button"
   aria-label="Sign and share the manifesto"

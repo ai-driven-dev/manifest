@@ -1,5 +1,56 @@
 # Signatory file format
 
+Most signers should use the GitHub signature form linked from the manifesto
+site. The form uses the GitHub account that submits the issue as the public
+`github` handle, then automation opens a pull request with the YAML file below.
+
+```mermaid
+---
+title: Signature Flow
+---
+flowchart LR
+  subgraph Signer["Signer"]
+    Sign["Sign"]
+  end
+
+  subgraph GitHub["GitHub"]
+    Form["Issue Form"]
+    Issue["Issue"]
+    PR["PR"]
+    TestPR["Draft PR [TEST]"]
+  end
+
+  subgraph Automation["Automation"]
+    Login["issue.user.login"]
+    YAML["YAML"]
+    CI["Validate"]
+  end
+
+  subgraph Maintainer["Maintainer"]
+    Merge["Merge"]
+    Close["Close"]
+  end
+
+  subgraph Site["Site"]
+    Registry["Avatar + signature"]
+    Unchanged["Unchanged"]
+  end
+
+  Sign --> Form
+  Form --> Issue
+  Issue --> Login
+  Login --> YAML
+  YAML --> PR
+  PR --> CI
+  CI --> Merge
+  Merge --> Registry
+
+  Sign -. maintainer test .-> TestPR
+  TestPR --> YAML
+  CI -. test .-> Close
+  Close --> Unchanged
+```
+
 Each signatory has one YAML file in this directory, named after their GitHub
 handle: `{handle}.yml`. The handle must match the `github` field inside the
 file. Filename collisions are impossible because GitHub handles are unique.
@@ -38,3 +89,10 @@ YAML files are validated at build time by Astro Content Collections (Zod
 schema in `app/src/content.config.ts`). A malformed file will fail the
 build, so the `Validate` GitHub Action on each pull request catches errors
 before merge.
+
+## Maintainer test mode
+
+For an end-to-end test that must not publish a signature, run the `Signature PR`
+workflow manually with `workflow_dispatch`. Automation must create a draft PR
+titled `[TEST] ...`; verify that validation can run, then close the PR without
+merging and delete the test branch.

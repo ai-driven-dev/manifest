@@ -28,6 +28,21 @@ const routeChecks = [
 ] as const;
 
 test.describe('web checklist surface', () => {
+  test('signing CTA points to the GitHub signature issue form', async ({ page }) => {
+    await page.goto('/');
+
+    const signButtons = page.locator('[data-sign-manifesto-btn]');
+    await expect(signButtons).toHaveCount(2);
+    for (const signButton of await signButtons.all()) {
+      await expect(signButton).toHaveAttribute(
+        'data-github-url',
+        'https://github.com/ai-driven-dev/manifest/issues/new?template=signature.yml',
+      );
+      await expect(signButton).not.toHaveAttribute('data-github-url', /\/new\/main\//);
+    }
+    await expect(page.locator('#sign-manifesto-btn')).toHaveCount(0);
+  });
+
   test('homepage has required document head, semantics, and security headers', async ({ page, request }) => {
     const consoleErrors: string[] = [];
     page.on('console', (message) => {
@@ -83,7 +98,7 @@ test.describe('web checklist surface', () => {
     await expect(page.locator('main#main')).toHaveCount(1);
     await expect(page.locator('footer')).toHaveCount(1);
     await expect(page.locator('h1')).toHaveCount(1);
-    await expect(page.locator('h2')).toHaveCount(3);
+    await expect(page.locator('h2')).toHaveCount(4);
     await expect(page.locator('#V-1')).toHaveCount(1);
     await expect(page.locator('#P-01')).toHaveCount(1);
 
