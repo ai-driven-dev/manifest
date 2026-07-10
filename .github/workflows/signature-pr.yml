@@ -4,10 +4,10 @@ on:
   issues:
     types: [opened]
 
+# The job acts as the signature bot App, not as GITHUB_TOKEN, so the workflow
+# token itself needs nothing beyond reading the checked-out ref.
 permissions:
-  contents: write
-  issues: write
-  pull-requests: write
+  contents: read
 
 concurrency:
   group: signature-pr-${{ github.event.issue.number }}
@@ -21,7 +21,19 @@ jobs:
     if: github.event.issue.state == 'open' && contains(github.event.issue.labels.*.name, 'signature-request')
     runs-on: ubuntu-latest
     steps:
+      # A pull request opened by GITHUB_TOKEN leaves its Validate run stuck on
+      # action_required, so the required `build` check never reports and the
+      # signature PR can never merge. An App installation token is a distinct
+      # actor, so the run starts on its own.
+      - uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          app-id: ${{ vars.SIGNATURE_BOT_APP_ID }}
+          private-key: ${{ secrets.SIGNATURE_BOT_PRIVATE_KEY }}
+
       - uses: actions/checkout@v6
+        with:
+          token: ${{ steps.app-token.outputs.token }}
 
       - uses: actions/setup-node@v6
         with:
@@ -37,7 +49,7 @@ jobs:
       - name: Report invalid signature request
         if: steps.request.outcome == 'failure'
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
           gh issue comment "$ISSUE_NUMBER" --body "Signature request could not be processed. Please check the form fields and submit again."
@@ -48,7 +60,7 @@ jobs:
         id: duplicate
         if: steps.request.outcome == 'success'
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           GITHUB_HANDLE: ${{ steps.request.outputs.github }}
           ISSUE_NUMBER: ${{ steps.request.outputs.issue_number }}
           SIGNATURE_PATH: ${{ steps.request.outputs.path }}
@@ -67,7 +79,7 @@ jobs:
         if: steps.duplicate.outputs.found == 'false'
         env:
           BRANCH: ${{ steps.request.outputs.branch }}
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           ISSUE_NUMBER: ${{ steps.request.outputs.issue_number }}
         run: |
           pr_url="$(gh pr list --head "$BRANCH" --state open --json url --jq '.[0].url // ""')"
@@ -116,7 +128,7 @@ jobs:
         env:
           BRANCH: ${{ steps.request.outputs.branch }}
           DISPLAY_NAME: ${{ steps.request.outputs.name }}
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           GITHUB_HANDLE: ${{ steps.request.outputs.github }}
         run: |
           pr_url="$(gh pr create \
@@ -129,7 +141,7 @@ jobs:
       - name: Close signature issue
         if: steps.pull-request.outputs.url != ''
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           ISSUE_NUMBER: ${{ steps.request.outputs.issue_number }}
           PR_URL: ${{ steps.pull-request.outputs.url }}
         run: |
