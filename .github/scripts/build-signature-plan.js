@@ -24,6 +24,45 @@ const FIELD = Object.freeze({
 const YAML_FIELDS = ['github', 'name', 'linkedin', 'affiliation', 'statement'];
 const GITHUB_HANDLE_RE = new RegExp(`^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,${LIMIT.github - 1}})$`);
 
+/**
+ * @typedef {Object} WorkflowIssue
+ * @property {string} body
+ * @property {number} number
+ * @property {{ login: string }} user
+ */
+
+/**
+ * @typedef {Object} Signature
+ * @property {string} github
+ * @property {string} name
+ * @property {string | undefined} linkedin
+ * @property {string | undefined} affiliation
+ * @property {string | undefined} statement
+ * @property {string} path
+ * @property {string} yaml
+ */
+
+/**
+ * @typedef {Object} PullRequestPlan
+ * @property {string} base
+ * @property {string} body
+ * @property {boolean} draft
+ * @property {string} head
+ * @property {string} title
+ */
+
+/**
+ * @typedef {Object} WorkflowPlan
+ * @property {string} branch
+ * @property {string} commitMessage
+ * @property {boolean} duplicate
+ * @property {string} duplicateMessage
+ * @property {WorkflowIssue | null} issue
+ * @property {PullRequestPlan} pullRequest
+ * @property {Signature} signature
+ * @property {boolean} testMode
+ */
+
 function clean(value) {
   return String(value ?? '')
     .replace(/\r\n/g, '\n')
@@ -100,7 +139,12 @@ function buildYaml(signature) {
     .join('\n')}\n`;
 }
 
-function signatureFromFields({ github, name, linkedin, affiliation, statement }) {
+/**
+ * @param {{ github: string, name: string, linkedin?: string, affiliation?: string, statement?: string }} fields
+ * @returns {Signature}
+ */
+function createSignature(fields) {
+  let { github, name, linkedin, affiliation, statement } = fields;
   github = clean(github);
   if (!GITHUB_HANDLE_RE.test(github)) throw new Error('github must be a valid GitHub handle');
 
@@ -121,7 +165,7 @@ function signatureFromFields({ github, name, linkedin, affiliation, statement })
 
 function buildIssueSignature(issue) {
   const fields = parseIssueFormBody(issue.body);
-  return signatureFromFields({
+  return createSignature({
     github: issue.user?.login,
     name: fields[FIELD.name],
     linkedin: fields[FIELD.linkedin],
@@ -131,7 +175,7 @@ function buildIssueSignature(issue) {
 }
 
 function buildDispatchSignature(inputs = {}) {
-  return signatureFromFields(inputs);
+  return createSignature(inputs);
 }
 
 function buildPrBody(signature, testMode) {
@@ -152,7 +196,17 @@ function buildPrBody(signature, testMode) {
   return lines.join('\n');
 }
 
-function buildActionPlan({ event, runId }) {
+/**
+ * Creates the complete contract consumed by the GitHub workflow.
+ *
+ * The script owns validation and file content. The workflow owns side effects:
+ * git branch/commit/push, PR creation, issue comments, labels, and closure.
+ *
+ * @param {{ event: { issue?: WorkflowIssue, inputs?: Object }, runId: string }} params
+ * @returns {WorkflowPlan}
+ */
+function createWorkflowPlan(params) {
+  const { event, runId } = params;
   const issue = event.issue ?? null;
   const testMode = !issue;
   const signature = issue ? buildIssueSignature(issue) : buildDispatchSignature(event.inputs);
@@ -166,7 +220,7 @@ function buildActionPlan({ event, runId }) {
     duplicate: existsSync(signature.path),
     duplicateMessage: `@${signature.github} is already in the signature registry.`,
     issue,
-    pr: {
+    pullRequest: {
       base: DEFAULT_BRANCH,
       body: buildPrBody(signature, testMode),
       draft: testMode,
@@ -186,7 +240,7 @@ function dryRun(plan) {
     branch: plan.branch,
     path: plan.signature.path,
     yaml: plan.signature.yaml,
-    pullRequest: plan.pr,
+    pullRequest: plan.pullRequest,
   };
 }
 
@@ -194,24 +248,24 @@ function output(name, value) {
   if (process.env.GITHUB_OUTPUT) writeFileSync(process.env.GITHUB_OUTPUT, `${name}=${value}\n`, { flag: 'a' });
 }
 
-function writePlan(plan) {
+function writeWorkflowPlan(plan) {
   const prBodyFile = join(process.env.RUNNER_TEMP || tmpdir(), 'signature-pr-body.md');
 
   if (!plan.duplicate) {
     mkdirSync(dirname(plan.signature.path), { recursive: true });
     writeFileSync(plan.signature.path, plan.signature.yaml);
   }
-  writeFileSync(prBodyFile, plan.pr.body);
+  writeFileSync(prBodyFile, plan.pullRequest.body);
 
   output('branch', plan.branch);
   output('commit_message', plan.commitMessage);
-  output('draft', String(plan.pr.draft));
+  output('draft', String(plan.pullRequest.draft));
   output('duplicate', String(plan.duplicate));
   output('duplicate_message', plan.duplicateMessage);
   output('issue_number', plan.issue?.number ?? '');
   output('path', plan.signature.path);
   output('pr_body_file', prBodyFile);
-  output('pr_title', plan.pr.title);
+  output('pr_title', plan.pullRequest.title);
   output('test_mode', String(plan.testMode));
 }
 
@@ -223,14 +277,14 @@ function main() {
   if (!eventPath) throw new Error('GITHUB_EVENT_PATH is required');
 
   const event = JSON.parse(readFileSync(eventPath, 'utf8'));
-  const plan = buildActionPlan({ event, runId });
+  const plan = createWorkflowPlan({ event, runId });
 
   if (shouldDryRun) {
     console.log(JSON.stringify(dryRun(plan), null, 2));
     return;
   }
 
-  writePlan(plan);
+  writeWorkflowPlan(plan);
   console.log(JSON.stringify({
     branch: plan.branch,
     duplicate: plan.duplicate,
@@ -241,7 +295,7 @@ function main() {
 }
 
 module.exports = {
-  buildActionPlan,
+  createWorkflowPlan,
   buildDispatchSignature,
   buildIssueSignature,
   dryRun,

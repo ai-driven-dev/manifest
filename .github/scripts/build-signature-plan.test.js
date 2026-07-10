@@ -1,7 +1,7 @@
 const assert = require('node:assert/strict');
 const { describe, it } = require('node:test');
 const {
-  buildActionPlan,
+  createWorkflowPlan,
   buildDispatchSignature,
   buildIssueSignature,
   dryRun,
@@ -81,17 +81,17 @@ describe('signature validation', () => {
   });
 });
 
-describe('action plan', () => {
+describe('workflow plan', () => {
   it('builds the metadata used by git and gh workflow steps', () => {
-    const plan = buildActionPlan({ event: { issue: issue() }, runId: '123' });
+    const plan = createWorkflowPlan({ event: { issue: issue() }, runId: '123' });
 
     assert.equal(plan.branch, 'signature/octocat');
     assert.equal(plan.commitMessage, 'Add signature for octocat');
     assert.equal(plan.duplicate, false);
     assert.equal(plan.duplicateMessage, '@octocat is already in the signature registry.');
     assert.equal(plan.issue.number, 42);
-    assert.equal(plan.pr.title, 'Add signature: Octo Cat');
-    assert.equal(plan.pr.draft, false);
+    assert.equal(plan.pullRequest.title, 'Add signature: Octo Cat');
+    assert.equal(plan.pullRequest.draft, false);
     assert.equal(plan.signature.path, 'app/src/content/signatories/octocat.yml');
   });
 
@@ -102,20 +102,19 @@ describe('action plan', () => {
       affiliation: 'Test run',
       statement: 'Test-mode signature; do not merge.',
     };
-    const signature = buildDispatchSignature(inputs);
-    const plan = buildActionPlan({
+    const plan = createWorkflowPlan({
       event: { inputs },
       runId: '123',
     });
 
     assert.equal(plan.branch, 'signature-test/octocat-123');
-    assert.equal(plan.pr.draft, true);
-    assert.equal(plan.pr.title, '[TEST] Add signature: AIDD Test Signature');
-    assert.match(plan.pr.body, /Do not merge/);
+    assert.equal(plan.pullRequest.draft, true);
+    assert.equal(plan.pullRequest.title, '[TEST] Add signature: AIDD Test Signature');
+    assert.match(plan.pullRequest.body, /Do not merge/);
   });
 
   it('prints a dry-run plan without GitHub API calls', () => {
-    const result = dryRun(buildActionPlan({ event: { issue: issue() }, runId: '123' }));
+    const result = dryRun(createWorkflowPlan({ event: { issue: issue() }, runId: '123' }));
 
     assert.equal(result.status, 'dry-run');
     assert.equal(result.issue, 42);
