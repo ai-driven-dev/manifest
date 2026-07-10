@@ -15,7 +15,10 @@ concurrency:
 
 jobs:
   create-signature-pr:
-    if: github.event.issue.state == 'open' && (contains(github.event.issue.labels.*.name, 'signature-request') || (startsWith(github.event.issue.title, 'Signature:') && contains(github.event.issue.body, '### Display name')))
+    # The label is applied server-side by the Issue Form and cannot be set by a
+    # contributor without triage rights. Title and body can, so they are not a
+    # trigger. Delete the label and this workflow stops firing.
+    if: github.event.issue.state == 'open' && contains(github.event.issue.labels.*.name, 'signature-request')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
