@@ -1,14 +1,14 @@
 const assert = require('node:assert/strict');
 const { describe, it } = require('node:test');
 const {
+  buildActionPlan,
   buildBranchName,
   buildDryRunResult,
   buildDispatchSignature,
   buildPullRequestPayload,
   buildSignature,
   parseIssueFormBody,
-  runSignaturePr,
-} = require('./create-signature-pr.js');
+} = require('./build-signature-plan.js');
 
 function issue({ login = 'octocat', body = validBody(), labels = ['signature-request'] } = {}) {
   return {
@@ -134,65 +134,19 @@ describe('dry run', () => {
   });
 });
 
-describe('runSignaturePr', () => {
-  it('does not fail an otherwise created signature PR when optional issue labels are missing', async (t) => {
-    const originalFetch = globalThis.fetch;
-    const originalWarn = console.warn;
-    const calls = [];
-
-    console.warn = () => {};
-    globalThis.fetch = async (url, options = {}) => {
-      const method = options.method ?? 'GET';
-      const path = new URL(url).pathname;
-      calls.push({ method, path });
-
-      if (method === 'GET' && path.endsWith('/contents/app/src/content/signatories/octocat.yml')) {
-        return json({ message: 'Not Found' }, 404);
-      }
-      if (method === 'GET' && path.endsWith('/pulls')) return json([]);
-      if (method === 'GET' && path.endsWith('/git/ref/heads/main')) {
-        return json({ object: { sha: 'main-sha' } });
-      }
-      if (method === 'POST' && path.endsWith('/git/refs')) return json({}, 201);
-      if (method === 'PUT' && path.endsWith('/contents/app/src/content/signatories/octocat.yml')) {
-        return json({ content: { sha: 'signature-sha' } }, 201);
-      }
-      if (method === 'POST' && path.endsWith('/pulls')) {
-        return json({ html_url: 'https://github.com/ai-driven-dev/manifest/pull/123' }, 201);
-      }
-      if (method === 'POST' && path.endsWith('/issues/42/comments')) return json({}, 201);
-      if (method === 'POST' && path.endsWith('/issues/42/labels')) {
-        return json({ message: 'Validation Failed' }, 422);
-      }
-      if (method === 'PATCH' && path.endsWith('/issues/42')) return json({});
-
-      return json({ message: `Unexpected ${method} ${path}` }, 500);
-    };
-    t.after(() => {
-      globalThis.fetch = originalFetch;
-      console.warn = originalWarn;
-    });
-
-    const result = await runSignaturePr({
+describe('action plan', () => {
+  it('builds the metadata used by git and gh workflow steps', () => {
+    const plan = buildActionPlan({
       event: { issue: issue() },
-      repository: 'ai-driven-dev/manifest',
-      token: 'token',
       runId: '123',
     });
 
-    assert.deepEqual(result, {
-      status: 'created',
-      url: 'https://github.com/ai-driven-dev/manifest/pull/123',
-      testMode: false,
-    });
-    assert.ok(calls.some((call) => call.method === 'POST' && call.path.endsWith('/issues/42/labels')));
-    assert.ok(calls.some((call) => call.method === 'PATCH' && call.path.endsWith('/issues/42')));
+    assert.equal(plan.branch, 'signature/octocat');
+    assert.equal(plan.commitMessage, 'Add signature for octocat');
+    assert.equal(plan.duplicate, false);
+    assert.equal(plan.duplicateMessage, '@octocat is already in the signature registry.');
+    assert.equal(plan.issue.number, 42);
+    assert.equal(plan.pullRequest.title, 'Add signature: Octo Cat');
+    assert.equal(plan.signature.path, 'app/src/content/signatories/octocat.yml');
   });
 });
-
-function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  });
-}

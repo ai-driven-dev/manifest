@@ -47,10 +47,84 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
-      - name: Create signature pull request
+      - name: Build signature plan
+        id: plan
+        continue-on-error: true
         env:
-          GITHUB_TOKEN: ${{ github.token }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
           GITHUB_RUN_ID: ${{ github.run_id }}
-        run: node .github/scripts/create-signature-pr.js
+        run: node .github/scripts/build-signature-plan.js
+
+      - name: Report invalid signature request
+        if: steps.plan.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || '' }}
+        run: |
+          if [ -n "$ISSUE_NUMBER" ]; then
+            gh issue comment "$ISSUE_NUMBER" --body "Signature request could not be processed. Please check the form fields and submit again."
+            gh issue edit "$ISSUE_NUMBER" --add-label "signature-needs-fix" || true
+          fi
+          exit 1
+
+      - name: Create signature pull request
+        if: steps.plan.outcome == 'success'
+        env:
+          BRANCH: ${{ steps.plan.outputs.branch }}
+          COMMIT_MESSAGE: ${{ steps.plan.outputs.commit_message }}
+          DRAFT: ${{ steps.plan.outputs.draft }}
+          DUPLICATE: ${{ steps.plan.outputs.duplicate }}
+          DUPLICATE_MESSAGE: ${{ steps.plan.outputs.duplicate_message }}
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ steps.plan.outputs.issue_number }}
+          PR_BODY_FILE: ${{ steps.plan.outputs.pr_body_file }}
+          PR_TITLE: ${{ steps.plan.outputs.pr_title }}
+          SIGNATURE_PATH: ${{ steps.plan.outputs.path }}
+        run: |
+          set -euo pipefail
+
+          add_label() {
+            local label="$1"
+            if [ -n "$ISSUE_NUMBER" ]; then
+              gh issue edit "$ISSUE_NUMBER" --add-label "$label" || true
+            fi
+          }
+
+          if [ "$DUPLICATE" = "true" ]; then
+            if [ -n "$ISSUE_NUMBER" ]; then
+              gh issue comment "$ISSUE_NUMBER" --body "$DUPLICATE_MESSAGE"
+              add_label "signature-duplicate"
+            fi
+            echo '{"status":"duplicate"}'
+            exit 0
+          fi
+
+          if [ -n "$ISSUE_NUMBER" ]; then
+            existing_pr="$(gh pr list --head "$BRANCH" --state open --json url --jq '.[0].url // ""')"
+            if [ -n "$existing_pr" ]; then
+              gh issue comment "$ISSUE_NUMBER" --body "A signature pull request is already open: $existing_pr"
+              echo "{\"status\":\"existing-pr\",\"url\":\"$existing_pr\"}"
+              exit 0
+            fi
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$BRANCH"
+          git add "$SIGNATURE_PATH"
+          git commit -m "$COMMIT_MESSAGE"
+          git push -u origin "$BRANCH"
+
+          if [ "$DRAFT" = "true" ]; then
+            pr_url="$(gh pr create --draft --title "$PR_TITLE" --body-file "$PR_BODY_FILE" --head "$BRANCH" --base main)"
+          else
+            pr_url="$(gh pr create --title "$PR_TITLE" --body-file "$PR_BODY_FILE" --head "$BRANCH" --base main)"
+          fi
+
+          if [ -n "$ISSUE_NUMBER" ]; then
+            gh issue comment "$ISSUE_NUMBER" --body "Created signature pull request: $pr_url"
+            add_label "signature-pr-created"
+            gh issue close "$ISSUE_NUMBER" --reason completed
+          fi
+
+          echo "{\"status\":\"created\",\"url\":\"$pr_url\"}"

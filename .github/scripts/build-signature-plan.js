@@ -1,13 +1,10 @@
-const { readFileSync } = require('node:fs');
+const { existsSync, mkdirSync, readFileSync, writeFileSync } = require('node:fs');
+const { dirname, join } = require('node:path');
+const { tmpdir } = require('node:os');
 
 const DEFAULT_BRANCH = 'main';
 const SIGNATORY_DIR = 'app/src/content/signatories';
 const NO_RESPONSE = '_No response_';
-
-const GITHUB_API = Object.freeze({
-  root: 'https://api.github.com',
-  version: '2022-11-28',
-});
 
 const LIMIT = Object.freeze({
   githubHandle: 39,
@@ -24,22 +21,6 @@ const FIELD = Object.freeze({
   statement: ['Statement'],
 });
 
-const LABEL = Object.freeze({
-  duplicate: 'signature-duplicate',
-  needsFix: 'signature-needs-fix',
-  prCreated: 'signature-pr-created',
-});
-
-const STATUS = Object.freeze({
-  ok: 200,
-  created: 201,
-  noContent: 204,
-  notFound: 404,
-  validationFailed: 422,
-});
-
-const OK = [STATUS.ok, STATUS.created, STATUS.noContent];
-const OPTIONAL_LABEL_ERRORS = [STATUS.notFound, STATUS.validationFailed];
 const GITHUB_HANDLE_RE = new RegExp(
   `^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,${LIMIT.githubHandle - 1}})$`,
 );
@@ -224,174 +205,55 @@ function buildDryRunResult({ event, runId }) {
   };
 }
 
-function github({ repository, token }) {
-  const [owner, repo] = repository.split('/');
+function commitMessage(signature, testMode) {
+  return testMode
+    ? `[TEST] Add signature for ${signature.github}`
+    : `Add signature for ${signature.github}`;
+}
+
+function writeOutput(name, value) {
+  if (!process.env.GITHUB_OUTPUT) return;
+  writeFileSync(process.env.GITHUB_OUTPUT, `${name}=${value}\n`, { flag: 'a' });
+}
+
+function writePlanFiles(plan) {
+  const prBodyFile = join(process.env.RUNNER_TEMP || tmpdir(), 'signature-pr-body.md');
+
+  if (!plan.duplicate) {
+    mkdirSync(dirname(plan.signature.path), { recursive: true });
+    writeFileSync(plan.signature.path, plan.signature.yaml);
+  }
+  writeFileSync(prBodyFile, plan.pullRequest.body);
+
+  return { prBodyFile };
+}
+
+function buildActionPlan({ event, runId }) {
+  const plan = buildRunPlan({ event, runId });
+  const duplicate = existsSync(plan.signature.path);
+
   return {
-    owner,
-    repo,
-    token,
-    path: (suffix) => `/repos/${owner}/${repo}${suffix}`,
+    ...plan,
+    duplicate,
+    commitMessage: commitMessage(plan.signature, plan.testMode),
+    duplicateMessage: `@${plan.signature.github} is already in the signature registry.`,
   };
 }
 
-function encodePath(path) {
-  return path.split('/').map(encodeURIComponent).join('/');
+function writeActionOutputs(plan, files) {
+  writeOutput('branch', plan.branch);
+  writeOutput('commit_message', plan.commitMessage);
+  writeOutput('draft', String(plan.pullRequest.draft));
+  writeOutput('duplicate', String(plan.duplicate));
+  writeOutput('duplicate_message', plan.duplicateMessage);
+  writeOutput('issue_number', plan.issue?.number ?? '');
+  writeOutput('path', plan.signature.path);
+  writeOutput('pr_body_file', files.prBodyFile);
+  writeOutput('pr_title', plan.pullRequest.title);
+  writeOutput('test_mode', String(plan.testMode));
 }
 
-async function request(gh, { method, path, body, ok = OK }) {
-  const response = await fetch(`${GITHUB_API.root}${path}`, {
-    method,
-    headers: {
-      Accept: 'application/vnd.github+json',
-      Authorization: `Bearer ${gh.token}`,
-      'Content-Type': 'application/json',
-      'X-GitHub-Api-Version': GITHUB_API.version,
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-
-  const text = await response.text();
-  const data = text ? JSON.parse(text) : null;
-  if (ok.includes(response.status)) return data;
-
-  const error = new Error(data?.message || `GitHub API returned ${response.status}`);
-  error.status = response.status;
-  error.data = data;
-  throw error;
-}
-
-async function getFile(gh, path, ref = DEFAULT_BRANCH) {
-  try {
-    return await request(gh, {
-      method: 'GET',
-      path: gh.path(`/contents/${encodePath(path)}?ref=${encodeURIComponent(ref)}`),
-    });
-  } catch (error) {
-    if (error.status === STATUS.notFound) return null;
-    throw error;
-  }
-}
-
-async function getBranchSha(gh) {
-  const ref = await request(gh, {
-    method: 'GET',
-    path: gh.path(`/git/ref/heads/${DEFAULT_BRANCH}`),
-  });
-  return ref.object.sha;
-}
-
-async function createBranch(gh, branch, sha) {
-  try {
-    await request(gh, {
-      method: 'POST',
-      path: gh.path('/git/refs'),
-      body: { ref: `refs/heads/${branch}`, sha },
-    });
-  } catch (error) {
-    if (error.status !== STATUS.validationFailed) throw error;
-  }
-}
-
-async function writeSignatureFile(gh, signature, branch, testMode) {
-  const existing = await getFile(gh, signature.path, branch);
-  const body = {
-    branch,
-    content: Buffer.from(signature.yaml, 'utf8').toString('base64'),
-    message: testMode
-      ? `[TEST] Add signature for ${signature.github}`
-      : `Add signature for ${signature.github}`,
-  };
-  if (existing?.sha) body.sha = existing.sha;
-
-  await request(gh, {
-    method: 'PUT',
-    path: gh.path(`/contents/${encodePath(signature.path)}`),
-    body,
-  });
-}
-
-async function findOpenPr(gh, branch) {
-  const head = encodeURIComponent(`${gh.owner}:${branch}`);
-  const prs = await request(gh, {
-    method: 'GET',
-    path: gh.path(`/pulls?state=open&head=${head}`),
-  });
-  return prs[0] ?? null;
-}
-
-async function createPr(gh, payload) {
-  return request(gh, {
-    method: 'POST',
-    path: gh.path('/pulls'),
-    body: payload,
-  });
-}
-
-async function commentIssue(gh, issueNumber, body) {
-  await request(gh, {
-    method: 'POST',
-    path: gh.path(`/issues/${issueNumber}/comments`),
-    body: { body },
-  });
-}
-
-async function addIssueLabels(gh, issueNumber, labels) {
-  try {
-    await request(gh, {
-      method: 'POST',
-      path: gh.path(`/issues/${issueNumber}/labels`),
-      body: { labels },
-    });
-  } catch (error) {
-    if (!OPTIONAL_LABEL_ERRORS.includes(error.status)) throw error;
-    console.warn(`Could not add issue labels: ${labels.join(', ')}`);
-  }
-}
-
-async function closeIssue(gh, issueNumber) {
-  await request(gh, {
-    method: 'PATCH',
-    path: gh.path(`/issues/${issueNumber}`),
-    body: { state: 'closed', state_reason: 'completed' },
-  });
-}
-
-async function runSignaturePr({ event, repository, token, runId }) {
-  const { issue, testMode, signature, branch, pullRequest } = buildRunPlan({ event, runId });
-  const gh = github({ repository, token });
-
-  if (await getFile(gh, signature.path)) {
-    if (issue) {
-      await commentIssue(gh, issue.number, `@${signature.github} is already in the signature registry.`);
-      await addIssueLabels(gh, issue.number, [LABEL.duplicate]);
-    }
-    return { status: 'duplicate' };
-  }
-
-  if (!testMode) {
-    const existingPr = await findOpenPr(gh, branch);
-    if (existingPr) {
-      await commentIssue(gh, issue.number, `A signature pull request is already open: ${existingPr.html_url}`);
-      return { status: 'existing-pr', url: existingPr.html_url };
-    }
-  }
-
-  await createBranch(gh, branch, await getBranchSha(gh));
-  await writeSignatureFile(gh, signature, branch, testMode);
-
-  const pr = await createPr(gh, pullRequest);
-  if (issue) {
-    await commentIssue(gh, issue.number, `Created signature pull request: ${pr.html_url}`);
-    await addIssueLabels(gh, issue.number, [LABEL.prCreated]);
-    await closeIssue(gh, issue.number);
-  }
-
-  return { status: 'created', url: pr.html_url, testMode };
-}
-
-async function main() {
-  const token = process.env.GITHUB_TOKEN;
-  const repository = process.env.GITHUB_REPOSITORY;
+function main() {
   const eventPath = process.env.GITHUB_EVENT_PATH;
   const runId = process.env.GITHUB_RUN_ID || Date.now().toString();
   const dryRun = process.argv.includes('--dry-run') || process.env.SIGNATURE_PR_DRY_RUN === '1';
@@ -404,34 +266,33 @@ async function main() {
     return;
   }
 
-  if (!token) throw new Error('GITHUB_TOKEN is required');
-  if (!repository) throw new Error('GITHUB_REPOSITORY is required');
-
-  try {
-    console.log(JSON.stringify(await runSignaturePr({ event, repository, token, runId })));
-  } catch (error) {
-    if (event.issue?.number) {
-      const gh = github({ repository, token });
-      await commentIssue(gh, event.issue.number, `Signature request could not be processed: ${error.message}`);
-      await addIssueLabels(gh, event.issue.number, [LABEL.needsFix]);
-    }
-    throw error;
-  }
+  const plan = buildActionPlan({ event, runId });
+  const files = writePlanFiles(plan);
+  writeActionOutputs(plan, files);
+  console.log(JSON.stringify({
+    branch: plan.branch,
+    duplicate: plan.duplicate,
+    issue: plan.issue?.number ?? null,
+    path: plan.signature.path,
+    testMode: plan.testMode,
+  }));
 }
 
 module.exports = {
+  buildActionPlan,
   buildBranchName,
   buildDryRunResult,
   buildDispatchSignature,
   buildPullRequestPayload,
   buildSignature,
   parseIssueFormBody,
-  runSignaturePr,
 };
 
 if (require.main === module) {
-  main().catch((error) => {
+  try {
+    main();
+  } catch (error) {
     console.error(error.message);
     process.exit(1);
-  });
+  }
 }
