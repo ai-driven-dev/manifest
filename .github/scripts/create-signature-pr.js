@@ -1,5 +1,4 @@
-import { readFileSync } from 'node:fs';
-import { pathToFileURL } from 'node:url';
+const { readFileSync } = require('node:fs');
 
 const DEFAULT_BRANCH = 'main';
 const GITHUB_API_ROOT = 'https://api.github.com';
@@ -59,7 +58,7 @@ function normalizeHeading(value) {
     .trim();
 }
 
-export function parseIssueFormBody(body) {
+function parseIssueFormBody(body) {
   const fields = {};
   let current = null;
 
@@ -152,7 +151,7 @@ function signatureFromFields({ github, name, linkedin, affiliation, statement })
   };
 }
 
-export function buildSignature(issue) {
+function buildSignature(issue) {
   const fields = parseIssueFormBody(issue.body);
   return signatureFromFields({
     github: issue.user?.login,
@@ -163,7 +162,7 @@ export function buildSignature(issue) {
   });
 }
 
-export function buildDispatchSignature(inputs = {}) {
+function buildDispatchSignature(inputs = {}) {
   return signatureFromFields({
     github: inputs.github,
     name: inputs.name,
@@ -173,12 +172,12 @@ export function buildDispatchSignature(inputs = {}) {
   });
 }
 
-export function buildBranchName(signature, { testMode, runId }) {
+function buildBranchName(signature, { testMode, runId }) {
   if (testMode) return `signature-test/${signature.github}-${runId}`;
   return `signature/${signature.github}`;
 }
 
-export function buildPullRequestPayload(signature, branch, testMode) {
+function buildPullRequestPayload(signature, branch, testMode) {
   return {
     title: testMode ? `[TEST] Add signature: ${signature.name}` : `Add signature: ${signature.name}`,
     head: branch,
@@ -336,7 +335,7 @@ function encodeURIComponentPath(path) {
   return path.split('/').map(encodeURIComponent).join('/');
 }
 
-export async function runSignaturePr({ event, repository, token, runId }) {
+async function runSignaturePr({ event, repository, token, runId }) {
   const issue = event.issue ?? null;
   const testMode = !issue;
   const signature = issue ? buildSignature(issue) : buildDispatchSignature(event.inputs);
@@ -405,7 +404,16 @@ async function main() {
   }
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+module.exports = {
+  buildBranchName,
+  buildDispatchSignature,
+  buildPullRequestPayload,
+  buildSignature,
+  parseIssueFormBody,
+  runSignaturePr,
+};
+
+if (require.main === module) {
   main().catch((error) => {
     console.error(error.message);
     process.exit(1);

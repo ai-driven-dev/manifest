@@ -53,4 +53,4 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
           GITHUB_RUN_ID: ${{ github.run_id }}
-        run: node .github/scripts/create-signature-pr.mjs
+        run: node .github/scripts/create-signature-pr.js

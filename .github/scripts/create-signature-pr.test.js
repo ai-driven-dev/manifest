@@ -1,13 +1,13 @@
-import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
-import {
+const assert = require('node:assert/strict');
+const { describe, it } = require('node:test');
+const {
   buildBranchName,
   buildDispatchSignature,
   buildPullRequestPayload,
   buildSignature,
   parseIssueFormBody,
   runSignaturePr,
-} from './create-signature-pr.mjs';
+} = require('./create-signature-pr.js');
 
 function issue({ login = 'octocat', body = validBody(), labels = ['signature-request'] } = {}) {
   return {
