@@ -52,8 +52,9 @@ jobs:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
-          gh issue comment "$ISSUE_NUMBER" --body "Signature request could not be processed. Please check the form fields and submit again."
+          gh issue comment "$ISSUE_NUMBER" --body "Signature request could not be processed. Check the form fields and open a new request: editing this issue does not re-run the workflow, which only reacts to newly opened issues."
           gh issue edit "$ISSUE_NUMBER" --add-label "signature-needs-fix" || true
+          gh issue close "$ISSUE_NUMBER" --reason "not planned"
           exit 1
 
       - name: Stop duplicate signature
@@ -72,21 +73,29 @@ jobs:
 
           gh issue comment "$ISSUE_NUMBER" --body "@$GITHUB_HANDLE is already in the signature registry."
           gh issue edit "$ISSUE_NUMBER" --add-label "signature-duplicate" || true
+          gh issue close "$ISSUE_NUMBER" --reason "not planned"
           echo "found=true" >> "$GITHUB_OUTPUT"
 
       - name: Stop existing pull request
         id: existing-pr
         if: steps.duplicate.outputs.found == 'false'
         env:
-          BRANCH: ${{ steps.request.outputs.branch }}
+          # Every signature branch for a handle shares this prefix; the issue
+          # number is appended. Matching the full branch would only ever catch a
+          # re-run of the same issue, never a second request from the same signer.
+          BRANCH_PREFIX: signature/${{ steps.request.outputs.github }}-
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GITHUB_HANDLE: ${{ steps.request.outputs.github }}
           ISSUE_NUMBER: ${{ steps.request.outputs.issue_number }}
         run: |
-          pr_url="$(gh pr list --head "$BRANCH" --state open --json url --jq '.[0].url // ""')"
+          pr_url="$(gh pr list --state open --json url,headRefName \
+            --jq '[.[] | select(.headRefName | startswith(env.BRANCH_PREFIX))] | .[0].url // ""')"
           echo "url=$pr_url" >> "$GITHUB_OUTPUT"
 
           if [ -n "$pr_url" ]; then
-            gh issue comment "$ISSUE_NUMBER" --body "A signature pull request is already open: $pr_url"
+            gh issue comment "$ISSUE_NUMBER" --body "A signature pull request is already open for @$GITHUB_HANDLE: $pr_url"
+            gh issue edit "$ISSUE_NUMBER" --add-label "signature-pr-created" || true
+            gh issue close "$ISSUE_NUMBER" --reason "not planned"
           fi
 
       - name: Write signature file
