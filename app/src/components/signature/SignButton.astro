@@ -1,20 +1,14 @@
 ---
-// CTA that opens GitHub's web editor pre-filled with a YAML signatory file.
-// No JS, no backend — just an anchor to GitHub's `/new/...?filename=...&value=...`
-// endpoint, which lets contributors propose a new file directly from the browser.
+// CTA that opens the signature Issue Form. Actions turns the submitted issue
+// into a reviewed pull request. The signer's handle is read from the issue
+// author, never from a field, so nobody can sign in someone else's name.
+//
+// No query params: the page is static and knows nothing about the visitor. The
+// form carries its own placeholders, which are hints rather than submitted text.
 
 const REPO = 'ai-driven-dev/manifest';
-const TARGET_PATH = 'app/src/content/signatories';
 
-const TEMPLATE = `github: your-handle
-name: Your Full Name
-linkedin: # optional - https://www.linkedin.com/in/...
-affiliation: # optional - title or company
-statement: # optional - one-line public statement (max 280 chars)
-`;
-
-const HREF = `https://github.com/${REPO}/new/main/${TARGET_PATH}?filename=YOUR-HANDLE.yml&value=${encodeURIComponent(TEMPLATE)}`;
-const GITHUB_URL = HREF;
+const GITHUB_URL = `https://github.com/${REPO}/issues/new?template=signature.yml`;
 
 interface Props {
   /** 'github' (default, bottom CTA) or 'aidd' (animated brand mark, sidebar). */
