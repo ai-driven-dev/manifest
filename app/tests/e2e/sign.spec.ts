@@ -37,9 +37,15 @@ test.describe('signature modal', () => {
     });
   }
 
-  test('with JavaScript off, the cover Sign CTA links straight to the GitHub signature form', async ({ page }) => {
+});
+
+test.describe('signature fallback without JavaScript', () => {
+  test.use({ javaScriptEnabled: false });
+
+  test('the cover Sign CTA is a plain link to the GitHub signature form and opens no modal', async ({ page }) => {
     await page.goto('/');
 
     await expect(page.locator('.cover-link-primary')).toHaveAttribute('href', SIGNATURE_FORM);
+    await expect(page.locator('#share-popup')).toHaveJSProperty('open', false);
   });
 });
