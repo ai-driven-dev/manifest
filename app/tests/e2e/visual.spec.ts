@@ -19,6 +19,9 @@ for (const v of VIEWPORTS) {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1500);
+    // Scrollbar gutter width is OS-dependent (0px overlay vs 15px classic); hide it
+    // so the captured `.cover` width is machine-independent.
+    await page.evaluate(() => { document.documentElement.style.overflow = 'hidden'; });
     const astroBuf = await page.locator('.cover').screenshot({ animations: 'disabled' });
 
     expect(astroBuf.byteLength).toBeGreaterThan(0);
