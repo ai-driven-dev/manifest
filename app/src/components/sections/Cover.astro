@@ -1,6 +1,7 @@
 ---
 // Cover — standard splash: a version header, a huge confident title, two entry links.
 // The AIDD mark stays as a faint watermark (parallax hook); two hairlines frame the fold.
+import { SITE } from '~/lib/site';
 ---
 <section class="cover" data-screen-label="Cover">
   <svg class="cover-watermark" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
@@ -28,7 +29,7 @@
     <div class="cover-foot reveal-word" style="--d:.72s">
       <p class="cover-lede">A standard for building software in the age of AI — written by developers, for developers.</p>
       <nav class="cover-cta" aria-label="Manifesto entry points">
-        <a class="cover-link cover-link-primary" href="#sign" style="--cta-i:0">
+        <a class="cover-link cover-link-primary" href={SITE.signUrl} data-github-url={SITE.signUrl} target="_blank" rel="noopener" style="--cta-i:0">
           <span class="cover-link-icon cover-link-icon-aidd" aria-hidden="true">
             <svg viewBox="0 0 100 100" focusable="false">
               <line x1="8" y1="92" x2="28" y2="62" stroke="currentColor" stroke-width="14" stroke-linecap="round" />

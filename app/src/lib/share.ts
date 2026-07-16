@@ -192,8 +192,9 @@ export function initSharePopup(): void {
     }
   });
 
+  const SIGN_TRIGGER = '[data-github-url]';
   document.addEventListener('click', (e) => {
-    const signBtn = (e.target as HTMLElement).closest('#sign-manifesto-btn');
+    const signBtn = (e.target as HTMLElement).closest(SIGN_TRIGGER);
     if (signBtn) {
       e.preventDefault();
       const githubUrl = (signBtn as HTMLElement).dataset.githubUrl || '';

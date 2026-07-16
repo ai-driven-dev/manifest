@@ -83,7 +83,8 @@ test.describe('web checklist surface', () => {
     await expect(page.locator('main#main')).toHaveCount(1);
     await expect(page.locator('footer')).toHaveCount(1);
     await expect(page.locator('h1')).toHaveCount(1);
-    await expect(page.locator('h2')).toHaveCount(3);
+    // One h2 per homepage doc section: Definition, Values, Principles, Signature.
+    await expect(page.locator('h2')).toHaveCount(4);
     await expect(page.locator('#V-1')).toHaveCount(1);
     await expect(page.locator('#P-01')).toHaveCount(1);
 
