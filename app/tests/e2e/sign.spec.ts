@@ -20,25 +20,24 @@ async function redirectedToSignatureForm(page: import('@playwright/test').Page) 
   return opened.some((url) => SIGNATURE_FORM.test(url));
 }
 
+// Every Sign entry point runs the one shared flow, so assert it once per trigger.
+const SIGN_TRIGGERS = [
+  { label: 'cover Sign CTA', selector: '.cover-link-primary' },
+  { label: 'bottom Sign CTA', selector: '.sign-cta .sign-btn' },
+];
+
 test.describe('signature modal', () => {
-  test('the cover Sign CTA opens the modal, then redirects to the GitHub signature form', async ({ page }) => {
-    await page.goto('/');
+  for (const trigger of SIGN_TRIGGERS) {
+    test(`the ${trigger.label} opens the modal, then redirects to the GitHub signature form`, async ({ page }) => {
+      await page.goto('/');
 
-    await page.locator('.cover-link-primary').click();
+      await page.locator(trigger.selector).click();
 
-    await expect(page.locator('#share-popup')).toHaveJSProperty('open', true);
-    expect(new URL(page.url()).pathname).toBe('/'); // the page itself stays put
-    await expect.poll(() => redirectedToSignatureForm(page), { timeout: 6000 }).toBe(true);
-  });
-
-  test('the bottom Sign CTA opens the modal, then redirects to the GitHub signature form', async ({ page }) => {
-    await page.goto('/');
-
-    await page.locator('.sign-cta .sign-btn').click();
-
-    await expect(page.locator('#share-popup')).toHaveJSProperty('open', true);
-    await expect.poll(() => redirectedToSignatureForm(page), { timeout: 6000 }).toBe(true);
-  });
+      await expect(page.locator('#share-popup')).toHaveJSProperty('open', true);
+      expect(new URL(page.url()).pathname).toBe('/'); // the page itself stays put
+      await expect.poll(() => redirectedToSignatureForm(page), { timeout: 6000 }).toBe(true);
+    });
+  }
 
   test('with JavaScript off, the cover Sign CTA links straight to the GitHub signature form', async ({ page }) => {
     await page.goto('/');
