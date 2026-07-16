@@ -1,40 +1,48 @@
 import { expect, test } from '@playwright/test';
 
-// Both the cover CTA and the bottom button open the modal via the same
-// [data-github-url] click delegation in share.ts.
-test.describe('sign flow', () => {
-  // The share flow ends by opening the GitHub form in a new tab after a 3 s
-  // countdown. Stub it so the tests assert the modal, not the external redirect.
-  test.beforeEach(async ({ page }) => {
-    await page.addInitScript(() => {
-      window.open = () => null;
-    });
-  });
+// The signature form URL every Sign entry point must reach.
+const SIGNATURE_FORM = /github\.com\/.*issues\/new\?template=signature\.yml/;
 
-  test('cover Sign opens the share modal instead of scrolling to #sign', async ({ page }) => {
+// Signing ends by opening the GitHub form in a new tab. Capture window.open so
+// the tests assert that destination instead of following the real redirect.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    (window as unknown as { __opened: string[] }).__opened = [];
+    window.open = (url) => {
+      (window as unknown as { __opened: string[] }).__opened.push(String(url ?? ''));
+      return null;
+    };
+  });
+});
+
+async function redirectedToSignatureForm(page: import('@playwright/test').Page) {
+  const opened = await page.evaluate(() => (window as unknown as { __opened: string[] }).__opened);
+  return opened.some((url) => SIGNATURE_FORM.test(url));
+}
+
+test.describe('signature modal', () => {
+  test('the cover Sign CTA opens the modal, then redirects to the GitHub signature form', async ({ page }) => {
     await page.goto('/');
 
-    const cover = page.locator('.cover-link-primary');
-    await expect(cover).toBeVisible();
-    // It is a real anchor to the GitHub form (works with JS off).
-    await expect(cover).toHaveAttribute('href', /github\.com\/.*issues\/new\?template=signature\.yml/);
+    await page.locator('.cover-link-primary').click();
 
-    const popup = page.locator('#share-popup');
-    await expect(popup).not.toHaveJSProperty('open', true);
-
-    await cover.click();
-
-    // JS intercepted the anchor: modal opens and the page did not scroll/navigate.
-    await expect(popup).toHaveJSProperty('open', true);
-    expect(new URL(page.url()).pathname).toBe('/');
+    await expect(page.locator('#share-popup')).toHaveJSProperty('open', true);
+    expect(new URL(page.url()).pathname).toBe('/'); // the page itself stays put
+    await expect.poll(() => redirectedToSignatureForm(page), { timeout: 6000 }).toBe(true);
   });
 
-  test('bottom Sign button still opens the same modal', async ({ page }) => {
+  test('the bottom Sign CTA opens the modal, then redirects to the GitHub signature form', async ({ page }) => {
     await page.goto('/');
 
-    const popup = page.locator('#share-popup');
     await page.locator('.sign-cta .sign-btn').click();
 
-    await expect(popup).toHaveJSProperty('open', true);
+    await expect(page.locator('#share-popup')).toHaveJSProperty('open', true);
+    await expect.poll(() => redirectedToSignatureForm(page), { timeout: 6000 }).toBe(true);
+  });
+
+  test('with JavaScript off, the cover Sign CTA links straight to the GitHub signature form', async ({ page }) => {
+    await page.goto('/');
+
+    await expect(page.locator('.cover-link-primary')).toHaveAttribute('href', SIGNATURE_FORM);
   });
 });
