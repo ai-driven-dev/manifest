@@ -6,9 +6,7 @@
 // No query params: the page is static and knows nothing about the visitor. The
 // form carries its own placeholders, which are hints rather than submitted text.
 
-const REPO = 'ai-driven-dev/manifest';
-
-const GITHUB_URL = `https://github.com/${REPO}/issues/new?template=signature.yml`;
+import { SITE } from '~/lib/site';
 
 interface Props {
   /** 'github' (default, bottom CTA) or 'aidd' (animated brand mark, sidebar). */
@@ -18,10 +16,9 @@ interface Props {
 }
 const { logo = 'github', variant = 'default' } = Astro.props;
 ---
-<button 
-  id="sign-manifesto-btn"
+<button
   class:list={['sign-btn', variant === 'sidebar' && 'sign-btn--sidebar']}
-  data-github-url={GITHUB_URL}
+  data-github-url={SITE.signUrl}
   type="button"
   aria-label="Sign and share the manifesto"
 >
