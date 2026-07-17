@@ -2,7 +2,7 @@ name: Signature PR
 
 on:
   issues:
-    types: [opened]
+    types: [opened, labeled]
 
 # The job acts as the signature bot App, not as GITHUB_TOKEN, so the workflow
 # token itself needs nothing beyond reading the checked-out ref.
@@ -18,7 +18,15 @@ jobs:
     # The label is applied server-side by the Issue Form and cannot be set by a
     # contributor without triage rights. Title and body can, so they are not a
     # trigger. Delete the label and this workflow stops firing.
-    if: github.event.issue.state == 'open' && contains(github.event.issue.labels.*.name, 'signature-request')
+    #
+    # Adding signature-retry reprocesses a request that failed. It is a label,
+    # so it stays triage-only, and it is never applied at creation or by the
+    # bot: the Issue Form sets signature-request and the workflow sets
+    # signature-*, so neither can fire the labeled path.
+    if: >-
+      github.event.issue.state == 'open'
+      && contains(github.event.issue.labels.*.name, 'signature-request')
+      && (github.event.action != 'labeled' || github.event.label.name == 'signature-retry')
     runs-on: ubuntu-latest
     steps:
       # A pull request opened by GITHUB_TOKEN leaves its Validate run stuck on
@@ -109,12 +117,14 @@ jobs:
           STATEMENT_YAML: ${{ steps.request.outputs.statement_yaml }}
         run: |
           mkdir -p "$(dirname "$SIGNATURE_PATH")"
+          # A trailing `[ -n "$X" ] && echo` would make the group, and so the
+          # step, exit 1 whenever the last optional field is empty.
           {
             echo "github: $GITHUB_HANDLE"
             echo "name: $NAME_YAML"
-            [ -n "$LINKEDIN_YAML" ] && echo "linkedin: $LINKEDIN_YAML"
-            [ -n "$AFFILIATION_YAML" ] && echo "affiliation: $AFFILIATION_YAML"
-            [ -n "$STATEMENT_YAML" ] && echo "statement: $STATEMENT_YAML"
+            if [ -n "$LINKEDIN_YAML" ]; then echo "linkedin: $LINKEDIN_YAML"; fi
+            if [ -n "$AFFILIATION_YAML" ]; then echo "affiliation: $AFFILIATION_YAML"; fi
+            if [ -n "$STATEMENT_YAML" ]; then echo "statement: $STATEMENT_YAML"; fi
           } > "$SIGNATURE_PATH"
 
       - name: Commit signature file
