@@ -89,6 +89,7 @@ test.describe('web checklist surface', () => {
     await expect(page.locator('#definition')).toContainText('Related practices');
     await expect(page.locator('#principles h2')).toContainText('12 principles');
     await expect(page.locator('#values')).toContainText('Creating useful outcomes is not');
+    await expect(page.locator('.si-sign-phrase')).toHaveText('Created in France 🇫🇷');
     await expect(page.locator('#V-1')).toHaveCount(1);
     await expect(page.locator('#P-01')).toHaveCount(1);
 
