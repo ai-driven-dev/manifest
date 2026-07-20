@@ -55,9 +55,9 @@ export const ICONS: Record<IconKey, IconDef> = {
       <path pathLength="100" d="M16 12.5 C 12 12.5, 12 19.5, 16 19.5 C 20 19.5, 20 12.5, 16 12.5" fill="none"/>
       <circle pathLength="100" cx="16" cy="16" r="1.5" fill="currentColor" stroke="none"/>`,
   },
-  // V-4 Impact — a target with an arrow planted at the centre.
+  // V-4 Outcome — a target with an arrow planted at the centre.
   'V-4': {
-    label: 'Impact — an arrow striking the centre of a target',
+    label: 'Outcome — an arrow striking the centre of a target',
     paths: `
       <path pathLength="100" d="M16 5.5 C 10 5.5, 5.5 10, 5.5 16 C 5.5 22, 10 26.5, 16 26.5 C 22 26.5, 26.5 22, 26.5 16 C 26.5 11, 23 6.5, 18 5.7" fill="none"/>
       <path pathLength="100" d="M16 11 C 13.2 11, 11 13.2, 11 16 C 11 18.8, 13.2 21, 16 21 C 18.6 21, 20.8 19, 21 16.4" fill="none"/>

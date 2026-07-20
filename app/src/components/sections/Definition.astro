@@ -1,5 +1,5 @@
 ---
-import { ENTRY, SYNONYMS } from '~/content/lexicon';
+import { ENTRY, RELATED_PRACTICES } from '~/content/lexicon';
 import VersusSchemas from '~/components/definition/VersusSchemas.astro';
 ---
 <section id="definition" class="definition">
@@ -16,8 +16,8 @@ import VersusSchemas from '~/components/definition/VersusSchemas.astro';
     </p>
     <p class="lex-def" set:html={ENTRY.def} />
     <p class="lex-syn">
-      <span class="lex-tag">Also known as</span>
-      <span class="lex-syn-terms">{SYNONYMS.join(', ')}</span>
+      <span class="lex-tag">Related practices</span>
+      <span class="lex-syn-terms">{RELATED_PRACTICES.join(', ')}</span>
     </p>
   </article>
 

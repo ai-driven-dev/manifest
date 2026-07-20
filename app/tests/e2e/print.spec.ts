@@ -5,11 +5,12 @@ test.describe('print rendering', () => {
     await page.emulateMedia({ media: 'print' });
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-    for (const selector of ['.cover', '#definition', '#values', '#principles', '#sign', 'footer.doc-footer']) {
+    for (const selector of ['.cover', '#preamble', '#definition', '#values', '#principles', '#sign', 'footer.doc-footer']) {
       await expect(page.locator(selector), `${selector} should render for print`).toBeVisible();
     }
 
     await expect(page.locator('h1.cover-title')).toContainText(/AI-Driven\s+Development\s+Manifesto/);
+    await expect(page.locator('#preamble')).toContainText('As AI-Driven Developers');
     await expect(page.locator('#definition')).toContainText('A way of building software');
     await expect(page.locator('#values')).toContainText('Bet on the method, not the model');
     await expect(page.locator('#principles')).toContainText('Do not delegate what you cannot evaluate');

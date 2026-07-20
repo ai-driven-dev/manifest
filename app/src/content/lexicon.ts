@@ -1,6 +1,6 @@
-// Lexicon — the dictionary entry for "AI-Driven Development", the alternative
-// labels others use for the same shift (SEO surface), and the AIDD vs vibe
-// coding contrast. Editorial content; rendered by sections/Definition.astro.
+// Lexicon — the dictionary entry for "AI-Driven Development", adjacent
+// practices, and the AIDD vs vibe coding contrast. Editorial content; rendered
+// by sections/Definition.astro.
 // HTML is allowed in `def` (kept minimal, only <em>).
 
 export interface LexiconEntry {
@@ -31,16 +31,12 @@ export const ENTRY: LexiconEntry = {
   def: "A way of building software in which a developer works <em>with AI as a deliberate partner</em> — planning, decomposing, and reviewing every change — while remaining the architect accountable for what ships.",
 };
 
-/** Alternative labels others use for the same practice — the SEO surface. */
-export const SYNONYMS: string[] = [
+/** Practices that overlap with AIDD without being equivalent to it. */
+export const RELATED_PRACTICES: string[] = [
   "AI-assisted development",
-  "AI-assisted coding",
-  "AI-augmented engineering",
-  "AI-native development",
+  "AI pair programming",
   "agentic coding",
   "spec-driven development",
-  "prompt-driven development",
-  "AI pair programming",
   "context engineering",
 ];
 

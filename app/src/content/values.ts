@@ -2,7 +2,7 @@
  * Each "value" pairs a left (preferred) concept with a right (devalued) concept,
  * shown in the values plate. The four values are the core of the manifesto, laid
  * out as a 2×2 quadrant (see `Quadrant.astro`) that builds up the new shape of a
- * developer's value: Method · Ownership · Understanding · Impact. Visual ASCII art
+ * developer's value: Method · Ownership · Understanding · Outcome. Visual ASCII art
  * is rendered inline (see `ValueArt.astro`). This file holds the structured content.
  */
 export interface ValueEntry {
@@ -61,8 +61,8 @@ export const VALUES: ValueEntry[] = [
     id: "V-4",
     left: "Outcome",
     right: "Output",
-    quad: "Impact",
-    note: 'Ship <em class="emph">impact<svg class="und" aria-hidden="true" viewBox="0 0 100 7" preserveAspectRatio="none"><path d="M2 4 Q 32 2, 56 5 T 98 4"/></svg></em>. Not <em class="emph">output<svg class="und" aria-hidden="true" viewBox="0 0 100 7" preserveAspectRatio="none"><path d="M2 5 Q 30 3, 54 6 T 98 3"/></svg></em>.',
-    body: "<strong>Writing code is easy. Building product is not</strong>.<br>Ship small, iterate fast, short feedback loops — avoid vanity metrics. The only number that serves is the business.",
+    quad: "Outcome",
+    note: 'Ship <em class="emph">outcomes<svg class="und" aria-hidden="true" viewBox="0 0 100 7" preserveAspectRatio="none"><path d="M2 4 Q 32 2, 56 5 T 98 4"/></svg></em>. Not <em class="emph">output<svg class="und" aria-hidden="true" viewBox="0 0 100 7" preserveAspectRatio="none"><path d="M2 5 Q 30 3, 54 6 T 98 3"/></svg></em>.',
+    body: "<strong>Writing code is easy. Creating useful outcomes is not</strong>.<br>Ship small, learn quickly, and measure results for users, product reliability, and the business — not lines, tokens, or commits.",
   },
 ];
