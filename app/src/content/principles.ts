@@ -9,7 +9,7 @@ export interface Principle {
   lead: string;
   /** HTML sub paragraph */
   sub: string;
-  /** Compact framework trace shown in the commitments table */
+  /** Compact framework trace associated with the principle */
   proof: string;
   /** Long-form essay paragraphs (HTML), shown in focus overlay (optional) */
   essay?: string[];

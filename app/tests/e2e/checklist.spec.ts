@@ -83,8 +83,12 @@ test.describe('web checklist surface', () => {
     await expect(page.locator('main#main')).toHaveCount(1);
     await expect(page.locator('footer')).toHaveCount(1);
     await expect(page.locator('h1')).toHaveCount(1);
-    // One h2 per homepage doc section: Definition, Values, Principles, Signature.
-    await expect(page.locator('h2')).toHaveCount(4);
+    // Five document-section headings plus the signature preflight dialog heading.
+    await expect(page.locator('h2')).toHaveCount(6);
+    await expect(page.locator('#preamble')).toContainText('As AI-Driven Developers');
+    await expect(page.locator('#definition')).toContainText('Related practices');
+    await expect(page.locator('#principles h2')).toContainText('12 principles');
+    await expect(page.locator('#values')).toContainText('Creating useful outcomes is not');
     await expect(page.locator('#V-1')).toHaveCount(1);
     await expect(page.locator('#P-01')).toHaveCount(1);
 

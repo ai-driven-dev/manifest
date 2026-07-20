@@ -1,9 +1,7 @@
 ---
+import { PREAMBLE } from '~/content/preamble';
 ---
 <section id="preamble" class="preamble">
-  <div class="label">Preamble</div>
-  <p>
-    As AI-Driven Developers, we are discovering <em>better ways</em> of building software
-    by working with AI as a deliberate partner — and helping others do the same.
-  </p>
+  <h2 class="label">Preamble</h2>
+  <p set:html={PREAMBLE} />
 </section>

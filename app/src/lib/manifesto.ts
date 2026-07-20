@@ -1,6 +1,7 @@
 import { PRINCIPLES } from '~/content/principles';
+import { PREAMBLE } from '~/content/preamble';
 import { VALUES } from '~/content/values';
-import { ENTRY, SYNONYMS, VERSUS } from '~/content/lexicon';
+import { ENTRY, RELATED_PRACTICES, VERSUS } from '~/content/lexicon';
 import { absoluteUrl, SITE, stripHtml } from '~/lib/site';
 
 export function getManifestoMarkdown(): string {
@@ -26,7 +27,7 @@ Version ${SITE.version}
 
 ## Preamble
 
-As AI-Driven Developers, we are discovering better ways of building software by working with AI as a deliberate partner, and helping others do the same.
+${stripHtml(PREAMBLE)}
 
 ## Definition
 
@@ -34,7 +35,7 @@ As AI-Driven Developers, we are discovering better ways of building software by 
 
 ${stripHtml(ENTRY.def)}
 
-Also known as: ${SYNONYMS.join(', ')}.
+Related practices: ${RELATED_PRACTICES.join(', ')}.
 
 ### AIDD vs vibe coding
 
@@ -69,6 +70,7 @@ export function getManifestoJson() {
     datePublished: SITE.publishedDate,
     dateModified: SITE.modifiedDate,
     repository: SITE.repoUrl,
+    relatedPractices: RELATED_PRACTICES,
     values: VALUES.map((value) => ({
       id: value.id,
       number: value.n,
@@ -135,6 +137,7 @@ export function getHomeJsonLd() {
         'AI-assisted software development',
         'software engineering',
         'developer practice',
+        ...manifesto.relatedPractices,
       ],
       hasPart: [
         ...manifesto.values.map((value) => ({
@@ -159,7 +162,7 @@ export function getHomeJsonLd() {
       '@type': 'DefinedTerm',
       '@id': `${absoluteUrl('/')}#aidd`,
       name: ENTRY.headword,
-      alternateName: [ENTRY.abbr, ...SYNONYMS],
+      alternateName: [ENTRY.abbr],
       description: stripHtml(ENTRY.def),
       url: `${absoluteUrl('/')}#definition`,
       inDefinedTermSet: {

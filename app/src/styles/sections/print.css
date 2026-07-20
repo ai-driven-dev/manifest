@@ -76,6 +76,7 @@
     }
 
     .cover,
+    .preamble,
     .definition,
     .values,
     .principles,
@@ -145,6 +146,7 @@
         font-size: 14pt !important;
     }
 
+    .preamble,
     .definition,
     .values,
     .principles,
