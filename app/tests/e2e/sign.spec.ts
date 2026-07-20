@@ -2,39 +2,32 @@ import { expect, test } from '@playwright/test';
 
 const SIGNATURE_FORM = /github\.com\/.*issues\/new\?template=signature\.yml/;
 
-// Capture window.open so the tests assert the redirect target instead of
-// following it into a real new tab.
-test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => {
-    (window as unknown as { __opened: string[] }).__opened = [];
-    window.open = (url) => {
-      (window as unknown as { __opened: string[] }).__opened.push(String(url ?? ''));
-      return null;
-    };
-  });
-});
-
-async function redirectedToSignatureForm(page: import('@playwright/test').Page) {
-  const opened = await page.evaluate(() => (window as unknown as { __opened: string[] }).__opened);
-  return opened.some((url) => SIGNATURE_FORM.test(url));
-}
-
 const SIGN_TRIGGERS = [
   { label: 'cover Sign CTA', selector: '.cover-link-primary' },
   { label: 'bottom Sign CTA', selector: '.sign-cta .sign-btn' },
 ];
 
-test.describe('signature modal', () => {
+test.describe('public signature preflight', () => {
   for (const trigger of SIGN_TRIGGERS) {
-    test(`the ${trigger.label} opens the modal, then redirects to the GitHub signature form`, async ({ page }) => {
+    test(`the ${trigger.label} explains the GitHub publication flow before continuing`, async ({ page }) => {
       await page.goto('/');
 
       await page.locator(trigger.selector).click();
 
-      await expect(page.locator('#share-popup')).toHaveJSProperty('open', true);
+      const dialog = page.locator('#sign-dialog');
+      await expect(dialog).toHaveJSProperty('open', true);
+      await expect(dialog).toContainText('Continue on GitHub');
+      await expect(dialog).toContainText('only after the pull request is reviewed and merged');
+      await expect(dialog).not.toContainText('You signed');
+      await expect(dialog).not.toContainText('signatory #');
+
+      const continueLink = dialog.locator('#sign-dialog-continue');
+      await expect(continueLink).toHaveAttribute('href', SIGNATURE_FORM);
+      await expect(continueLink).toHaveAttribute('target', '_blank');
       expect(new URL(page.url()).pathname).toBe('/');
-      await expect.poll(() => redirectedToSignatureForm(page), { timeout: 6000 }).toBe(true);
+
+      await dialog.locator('[data-sign-dialog-close]').first().click();
+      await expect(dialog).toHaveJSProperty('open', false);
     });
   }
-
 });

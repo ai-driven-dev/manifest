@@ -53,8 +53,7 @@
     #tweaks,
     .cover-cta,
     .sign-cta,
-    .share-popup,
-    .confetti-emoji,
+    .sign-dialog,
     .sig-linkedin {
         display: none !important;
     }

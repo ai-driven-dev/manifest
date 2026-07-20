@@ -3,6 +3,7 @@
 // Scroll-spy (.active) is wired in observers.ts → ClientApp. Hidden on mobile.
 import { getCollection } from 'astro:content';
 import SignButton from '~/components/signature/SignButton.astro';
+import { SITE } from '~/lib/site';
 
 const count = (await getCollection('signatories')).length;
 ---
@@ -16,7 +17,7 @@ const count = (await getCollection('signatories')).length;
       </svg>
       <span class="si-word">AIDD</span>
     </span>
-    <span class="si-ver">v1.1</span>
+    <span class="si-ver">v{SITE.version}</span>
   </div>
   <nav class="si-nav">
     <a class="si-link" href="#definition" data-spy="definition">Definition</a>

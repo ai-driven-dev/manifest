@@ -120,6 +120,15 @@
   margin: 0;
 }
 .lex-vs-x{ font-style: italic; font-weight: 400; color: var(--ink-3); padding: 0 .12em; }
+.lex-vs-intro p{
+  max-width: 68ch;
+  margin: 16px 0 0;
+  font-family: var(--sans);
+  font-size: clamp(15px, 1.5vw, 17px);
+  line-height: 1.65;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
 
 /* ---- Three schematics — a picture over prose ---- */
 .vsch-grid{
@@ -160,6 +169,37 @@
   text-wrap: pretty;
 }
 .vsch-note em{ font-style: normal; color: var(--accent); font-weight: 600; }
+
+.vsch-quality{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: clamp(16px, 2vw, 22px);
+  border-block: 1px solid var(--rule);
+}
+.vsch-quality p{
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: clamp(18px, 2.4vw, 26px);
+}
+.vsch-quality p + p{ border-left: 1px solid var(--rule); }
+.vsch-quality span{
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.vsch-quality strong{
+  max-width: 30ch;
+  font-family: var(--display);
+  font-size: clamp(16px, 1.7vw, 20px);
+  line-height: 1.35;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+.vsch-quality-aidd span{ color: var(--accent); }
+.vsch-quality-vibe span{ color: var(--ink-3); }
 
 /* SVG primitives — strokes/fills from oklch tokens, theming-safe. */
 .vsch-svg text{ font-family: var(--sans); }
@@ -214,4 +254,6 @@
 @media (max-width: 760px){
   .vsch-grid{ grid-template-columns: 1fr; gap: 14px; }
   .vsch-svg{ max-width: 420px; }
+  .vsch-quality{ grid-template-columns: 1fr; }
+  .vsch-quality p + p{ border-left: 0; border-top: 1px solid var(--rule); }
 }

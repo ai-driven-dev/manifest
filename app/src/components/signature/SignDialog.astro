@@ -1,0 +1,50 @@
+---
+import { SITE } from '~/lib/site';
+---
+
+<dialog
+  id="sign-dialog"
+  class="sign-dialog"
+  aria-labelledby="sign-dialog-title"
+  aria-describedby="sign-dialog-description"
+>
+  <div class="sign-dialog-card" role="document">
+    <button
+      class="sign-dialog-close"
+      type="button"
+      aria-label="Close signature dialog"
+      data-sign-dialog-close
+    >
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+      </svg>
+    </button>
+
+    <p class="sign-dialog-kicker">Public signature</p>
+    <h2 id="sign-dialog-title">Continue on GitHub</h2>
+    <p id="sign-dialog-description" class="sign-dialog-description">
+      Submit the contribution form to request your public signature. Your name appears
+      in the registry only after the pull request is reviewed and merged.
+    </p>
+
+    <ol class="sign-dialog-steps" aria-label="Signature publication steps">
+      <li><span>1</span><strong>Submit the GitHub form</strong></li>
+      <li><span>2</span><strong>Review the generated pull request</strong></li>
+      <li><span>3</span><strong>Join the registry after merge</strong></li>
+    </ol>
+
+    <div class="sign-dialog-actions">
+      <a
+        id="sign-dialog-continue"
+        class="sign-dialog-continue"
+        href={SITE.signUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        autofocus
+      >
+        Continue on GitHub <span aria-hidden="true">↗</span>
+      </a>
+      <button class="sign-dialog-cancel" type="button" data-sign-dialog-close>Not now</button>
+    </div>
+  </div>
+</dialog>

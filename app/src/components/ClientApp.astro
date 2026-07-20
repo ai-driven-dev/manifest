@@ -1,12 +1,12 @@
 ---
-// Single client island: wires observers, parallax, share popup, smooth
+// Single client island: wires observers, parallax, signature dialog, smooth
 // anchors, and the tweaks panel. The heavy logic lives in ~/lib/* modules
-// (share, scroll, tweaks) to keep this component within the .astro LOC budget
+// (signature, scroll, tweaks) to keep this component within the .astro LOC budget
 // (AC-6). EDIT MODE sentinel preserved verbatim here (do not rename markers).
 ---
 <script>
   import { observeReveals, observeValueArt, attachHeroParallax, observeSpecIndex, observeFocusBand } from '~/lib/observers';
-  import { initSharePopup } from '~/lib/share';
+  import { initSignDialog } from '~/lib/signature';
   import { initSmoothAnchors } from '~/lib/scroll';
   import { initTweaks, type TweakState } from '~/lib/tweaks';
 
@@ -16,7 +16,7 @@
   observeSpecIndex();
   observeFocusBand();
 
-  initSharePopup();
+  initSignDialog();
   initSmoothAnchors();
 
   // Service worker removed — unregister any previously-installed one (the /sw.js
