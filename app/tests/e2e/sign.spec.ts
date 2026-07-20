@@ -12,6 +12,7 @@ test.describe('public signature preflight', () => {
     test(`the ${trigger.label} explains the GitHub publication flow before continuing`, async ({ page }) => {
       await page.goto('/');
 
+      await expect(page.locator(trigger.selector)).toContainText('Sign the manifesto');
       await page.locator(trigger.selector).click();
 
       const dialog = page.locator('#sign-dialog');
