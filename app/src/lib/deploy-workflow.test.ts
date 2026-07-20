@@ -25,5 +25,9 @@ describe('deployment workflow', () => {
     ]) {
       expect(workflow).toContain(`check_public_endpoint "${endpoint}"`);
     }
+
+    expect(workflow).toMatch(
+      /check_public_endpoint "\/\$\{INDEXNOW_KEY\}\.txt"\n\n {10}echo "=== IndexNow submission ==="/,
+    );
   });
 });
