@@ -145,7 +145,7 @@ jobs:
 
           echo "=== Smoke test ==="
           CONTAINER_IP=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$CONTAINER_NAME")
-          HTTP_CODE=$(curl -sf -o /dev/null -w '%{http_code}' "http://${CONTAINER_IP}:${CONTAINER_PORT}/" 2>/dev/null || echo "000")
+          HTTP_CODE=$(curl -sf -o /dev/null -w '%{http_code}' "http://${CONTAINER_IP}:${CONTAINER_PORT}/" 2>/dev/null || true)
           if [ "$HTTP_CODE" != "200" ]; then
             echo "ERROR: Smoke test failed (HTTP $HTTP_CODE)"
             docker logs --tail 30 "$CONTAINER_NAME"
@@ -153,32 +153,37 @@ jobs:
           fi
 
           echo "=== Public checklist smoke ==="
-          for i in $(seq 1 12); do
-            HTTP_CODE=$(curl -sS -o /dev/null -w '%{http_code}' "${PUBLIC_ORIGIN}/healthz" 2>/dev/null || echo "000")
-            if [ "$HTTP_CODE" = "200" ]; then
-              break
-            fi
-            if [ "$i" -eq 12 ]; then
-              echo "ERROR: Public health check failed (HTTP $HTTP_CODE)"
-              exit 1
-            fi
-            sleep 5
-          done
+          check_public_endpoint() {
+            local endpoint="$1"
+            local attempt
+            local http_code
 
-          for path in \
-            "/" \
-            "/robots.txt" \
-            "/sitemap.xml" \
-            "/feed.xml" \
-            "/.well-known/security.txt" \
-            "/.well-known/agent-card.json" \
-            "/${INDEXNOW_KEY}.txt"; do
-            HTTP_CODE=$(curl -sS -o /dev/null -w '%{http_code}' "${PUBLIC_ORIGIN}${path}" 2>/dev/null || echo "000")
-            if [ "$HTTP_CODE" != "200" ]; then
-              echo "ERROR: Public checklist smoke failed for ${path} (HTTP $HTTP_CODE)"
-              exit 1
-            fi
-          done
+            for attempt in $(seq 1 5); do
+              http_code=$(curl -sS -o /dev/null -w '%{http_code}' \
+                --connect-timeout 5 --max-time 15 \
+                "${PUBLIC_ORIGIN}${endpoint}" || true)
+              if [ "$http_code" = "200" ]; then
+                echo "Public ${endpoint}: HTTP 200"
+                return 0
+              fi
+              echo "WARN: Public ${endpoint} attempt ${attempt}/5 returned HTTP ${http_code:-000}"
+              if [ "$attempt" -lt 5 ]; then
+                sleep 3
+              fi
+            done
+
+            echo "ERROR: Public checklist smoke failed for ${endpoint}"
+            return 1
+          }
+
+          check_public_endpoint "/healthz"
+          check_public_endpoint "/"
+          check_public_endpoint "/robots.txt"
+          check_public_endpoint "/sitemap.xml"
+          check_public_endpoint "/feed.xml"
+          check_public_endpoint "/.well-known/security.txt"
+          check_public_endpoint "/.well-known/agent-card.json"
+          check_public_endpoint "/${INDEXNOW_KEY}.txt"
 
           echo "=== IndexNow submission ==="
           curl -fsS --get "https://api.indexnow.org/indexnow" \
