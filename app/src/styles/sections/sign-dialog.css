@@ -1,0 +1,164 @@
+.sign-dialog{
+  position: fixed;
+  inset: 0;
+  width: min(560px, calc(100vw - 40px));
+  max-width: none;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+}
+.sign-dialog::backdrop{
+  background: var(--scrim);
+  backdrop-filter: blur(4px);
+}
+
+.sign-dialog-card{
+  position: relative;
+  overflow: hidden;
+  padding: clamp(30px, 5vw, 46px);
+  border-radius: var(--radius-card);
+  background: var(--paper);
+  box-shadow: var(--shadow-modal);
+  animation: sign-dialog-in var(--dur-med) var(--ease-out);
+}
+.sign-dialog-card::before{
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: var(--accent);
+}
+
+.sign-dialog-close{
+  all: unset;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: color var(--dur-short) var(--ease-out), background var(--dur-short) var(--ease-out);
+}
+.sign-dialog-close:hover{ color: var(--ink); background: var(--paper-3); }
+.sign-dialog-close:focus-visible,
+.sign-dialog-continue:focus-visible,
+.sign-dialog-cancel:focus-visible{
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.sign-dialog-kicker{
+  margin: 0 0 12px;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.sign-dialog h2{
+  max-width: 12ch;
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(32px, 6vw, 48px);
+  line-height: 1;
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+.sign-dialog-description{
+  max-width: 48ch;
+  margin: 18px 0 0;
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+
+.sign-dialog-steps{
+  display: grid;
+  gap: 0;
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+  border-block: 1px solid var(--rule);
+}
+.sign-dialog-steps li{
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 13px 0;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.sign-dialog-steps li + li{ border-top: 1px solid var(--rule); }
+.sign-dialog-steps span{
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+}
+.sign-dialog-steps strong{ font-weight: 600; }
+
+.sign-dialog-actions{
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 26px;
+}
+.sign-dialog-continue,
+.sign-dialog-cancel{
+  min-height: 44px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 700;
+}
+.sign-dialog-continue{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  border-radius: var(--radius-input);
+  background: var(--accent);
+  color: var(--accent-ink);
+  text-decoration: none;
+}
+.sign-dialog-cancel{
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+}
+.sign-dialog-cancel:hover{ color: var(--ink); }
+
+@keyframes sign-dialog-in{
+  from{ opacity: 0; transform: translateY(12px); }
+  to{ opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .sign-dialog-card{ animation: none; }
+}
+
+@media (max-width: 520px){
+  .sign-dialog{
+    width: 100%;
+    max-height: calc(100dvh - 16px);
+    margin: auto 0 0;
+  }
+  .sign-dialog-card{
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+    padding-block-end: max(28px, env(safe-area-inset-bottom));
+  }
+  .sign-dialog-actions{ align-items: stretch; flex-direction: column; }
+  .sign-dialog-cancel{ width: 100%; }
+}

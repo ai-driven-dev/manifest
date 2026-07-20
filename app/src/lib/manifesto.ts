@@ -22,6 +22,8 @@ export function getManifestoMarkdown(): string {
 
 ${SITE.description}
 
+Version ${SITE.version}
+
 ## Preamble
 
 As AI-Driven Developers, we are discovering better ways of building software by working with AI as a deliberate partner, and helping others do the same.
@@ -61,6 +63,7 @@ export function getManifestoJson() {
   return {
     name: SITE.name,
     description: SITE.description,
+    version: SITE.version,
     url: absoluteUrl('/'),
     inLanguage: SITE.lang,
     datePublished: SITE.publishedDate,
@@ -121,6 +124,7 @@ export function getHomeJsonLd() {
       '@id': `${absoluteUrl('/')}#manifesto`,
       name: manifesto.name,
       description: manifesto.description,
+      version: manifesto.version,
       url: manifesto.url,
       inLanguage: manifesto.inLanguage,
       datePublished: manifesto.datePublished,

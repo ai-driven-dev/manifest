@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 import SignButton from '~/components/signature/SignButton.astro';
 import SignatureWall from '~/components/signature/SignatureWall.astro';
-import SharePopup from '~/components/signature/SharePopup.astro';
+import SignDialog from '~/components/signature/SignDialog.astro';
 
 const count = (await getCollection('signatories')).length;
 const registryCount = String(count).padStart(3, '0');
@@ -18,14 +18,15 @@ const registryCount = String(count).padStart(3, '0');
     <div class="chapter-body signature-open-body">
       <div class="signature-open-copy">
         <p class="signature-kicker">Public signature registry</p>
-        <h2>Be part of the movement!</h2>
+        <h2>Sign the manifesto publicly.</h2>
         <div class="chapter-lede">
           <svg class="fleuron" width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
             <path d="M22 4 C 28 14, 40 14, 40 22 C 40 30, 28 30, 22 40 C 16 30, 4 30, 4 22 C 4 14, 16 14, 22 4 Z" stroke="currentColor" stroke-width="1" fill="none"/>
             <circle cx="22" cy="22" r="2" fill="currentColor"/>
           </svg>
           <p>
-          Be among the first to sign the <strong>AI-Driven Development Manifesto</strong> and help shape the future of software development.
+          Signing starts a GitHub contribution. Your name appears in the public registry
+          after the pull request is reviewed and merged.
           </p>
         </div>
       </div>
@@ -44,5 +45,5 @@ const registryCount = String(count).padStart(3, '0');
 
   <SignatureWall />
   
-  <SharePopup rank={count + 1} />
+  <SignDialog />
 </section>
