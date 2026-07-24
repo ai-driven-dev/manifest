@@ -78,7 +78,7 @@ app/
 - `api-routes.md` — JSON in/out, validation stricte, contrats versionnés.
 - `store-provider.md` — interface-first, swappable, framework-agnostic.
 - `styles-tokens.md` — `oklch()` uniquement, pas de hex/HSL hors `tokens.css`.
-- `docker.md` — multi-stage Node 22 alpine, non-root, port 4321.
+- `docker.md` — multi-stage Node LTS sur Debian Trixie slim, non-root, port 4321.
 - `testing.md` — Vitest unit + Playwright e2e + régression visuelle du cover ≤ 1 % (snapshot Astro, plus de baseline).
 
 ## Conventions

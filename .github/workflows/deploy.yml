@@ -45,14 +45,14 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           # Full history so the signature-date generator can read each
           # signatory file's add commit (git log --diff-filter=A).
           fetch-depth: 0
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v4
+        uses: docker/login-action@abd2ef45e78c5afb21d64d4ca52ee8550d9572c7 # v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -60,7 +60,7 @@ jobs:
 
       - name: Extract metadata (tags, labels)
         id: meta
-        uses: docker/metadata-action@v6
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
@@ -68,14 +68,14 @@ jobs:
             type=raw,value=latest
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
 
       - name: Set up Node.js
         # The self-hosted runner has no node on PATH; setup-node provides it for
         # the generator step below.
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: '24'
+          node-version: 'lts/*'
 
       - name: Generate signature dates from git
         # Derives signatures' dates from git history into
@@ -85,7 +85,7 @@ jobs:
 
       - name: Build and push Docker image
         id: build
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
         with:
           context: ./app
           file: ./app/Dockerfile
@@ -116,17 +116,52 @@ jobs:
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GHCR_USER: ${{ github.actor }}
         run: |
-          set -e
+          set -Eeuo pipefail
           cd "$DEPLOY_DIR"
+
+          rollback_ref=""
+          rollback() {
+            [ -n "$rollback_ref" ] || return 1
+            override="$(mktemp)"
+            printf 'services:\n  web:\n    image: %s\n' "$rollback_ref" >"$override"
+            docker compose \
+              -f docker-compose.yml \
+              -f "$override" \
+              up -d --no-deps --no-build --pull never --force-recreate web
+            rm -f "$override"
+
+            for _ in $(seq 1 30); do
+              status="$(docker inspect --format='{{.State.Health.Status}}' "$CONTAINER_NAME" 2>/dev/null || true)"
+              [ "$status" = healthy ] && return 0
+              sleep 2
+            done
+            return 1
+          }
+
+          fail_deploy() {
+            printf 'ERROR: %s\n' "$1" >&2
+            docker logs --tail 80 "$CONTAINER_NAME" 2>/dev/null || true
+            if ! rollback; then
+              printf 'ERROR: rollback failed or no previous image was available\n' >&2
+            fi
+            exit 1
+          }
 
           echo "=== GHCR login (ephemeral token) ==="
           echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+          trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT
+
+          current_image="$(docker inspect --format '{{.Image}}' "$CONTAINER_NAME" 2>/dev/null || true)"
+          if [ -n "$current_image" ]; then
+            rollback_ref="aidd-rollback/manifest:$(date -u +%Y%m%dT%H%M%SZ)"
+            docker image tag "$current_image" "$rollback_ref"
+          fi
 
           echo "=== Pulling latest image ==="
-          docker compose pull
+          docker compose pull || fail_deploy "image pull failed"
 
           echo "=== Deploying ==="
-          docker compose up -d --remove-orphans
+          docker compose up -d --remove-orphans || fail_deploy "container recreation failed"
 
           echo "=== Waiting for healthy ==="
           for i in $(seq 1 20); do
@@ -136,9 +171,7 @@ jobs:
               break
             fi
             if [ "$i" -eq 20 ]; then
-              echo "ERROR: Container not healthy after 100s"
-              docker logs --tail 30 "$CONTAINER_NAME"
-              exit 1
+              fail_deploy "container not healthy after 100s"
             fi
             sleep 5
           done
@@ -146,10 +179,8 @@ jobs:
           echo "=== Smoke test ==="
           CONTAINER_IP=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$CONTAINER_NAME")
           HTTP_CODE=$(curl -sf -o /dev/null -w '%{http_code}' "http://${CONTAINER_IP}:${CONTAINER_PORT}/" 2>/dev/null || true)
-          if [ "$HTTP_CODE" != "200" ]; then
-            echo "ERROR: Smoke test failed (HTTP $HTTP_CODE)"
-            docker logs --tail 30 "$CONTAINER_NAME"
-            exit 1
+          if [ "${HTTP_CODE:-000}" != "200" ]; then
+            fail_deploy "internal smoke test HTTP ${HTTP_CODE:-000}"
           fi
 
           echo "=== Public checklist smoke ==="
@@ -172,8 +203,7 @@ jobs:
               fi
             done
 
-            echo "ERROR: Public checklist smoke failed for ${endpoint}"
-            return 1
+            fail_deploy "public checklist ${endpoint} failed"
           }
 
           check_public_endpoint "/healthz"
@@ -189,7 +219,8 @@ jobs:
           curl -fsS --get "https://api.indexnow.org/indexnow" \
             --data-urlencode "url=${PUBLIC_ORIGIN}/" \
             --data-urlencode "key=${INDEXNOW_KEY}" \
-            -o /dev/null
+            -o /dev/null ||
+            echo "WARNING: IndexNow submission failed; deployment remains healthy."
 
           echo "=== Deploy successful ==="
           echo "Image:  $(docker inspect --format='{{.Config.Image}}' "$CONTAINER_NAME")"
@@ -198,3 +229,4 @@ jobs:
 
           echo "=== GHCR logout ==="
           docker logout ghcr.io
+          trap - EXIT

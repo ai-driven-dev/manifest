@@ -2,7 +2,7 @@
 #
 # Astro 6 SSR (Node standalone adapter) — multi-stage build.
 # Compliant with aidd_docs/rules/architecture/docker.md:
-#   - Multi-stage: deps → build → runner
+#   - Multi-stage: base → prod-deps / build-deps → build → runner
 #   - Runner runs prod-only node_modules (no devDeps)
 #   - Non-root USER with explicit UID/GID matching compose `user: 1001:1001`
 #   - HOST=0.0.0.0, PORT=4321, NODE_ENV=production
@@ -10,34 +10,38 @@
 # Image is built and pushed to ghcr.io/ai-driven-dev/manifest by the
 # .github/workflows/deploy.yml pipeline (self-hosted runner on AIDD).
 
-# ── Production dependencies (runner) ─────────────────────────────
-FROM node:24-alpine AS prod-deps
+# ── Shared build base ─────────────────────────────────────────────
+FROM node:lts-trixie-slim AS base
 WORKDIR /app
-COPY package.json package-lock.json* ./
+COPY package.json ./
+RUN npm install --global "$(node -p "require('./package.json').packageManager")"
+
+# ── Production dependencies (runner) ─────────────────────────────
+FROM base AS prod-deps
+COPY package.json package-lock.json* .npmrc ./
 RUN npm ci --omit=dev --no-audit --no-fund
 
 # ── All dependencies (build stage needs Astro CLI = devDep) ──────
-FROM node:24-alpine AS build-deps
-WORKDIR /app
-COPY package.json package-lock.json* ./
+FROM base AS build-deps
+COPY package.json package-lock.json* .npmrc ./
 RUN npm ci --no-audit --no-fund
 
 # ── Build ────────────────────────────────────────────────────────
-FROM node:24-alpine AS build
-WORKDIR /app
+FROM base AS build
 COPY --from=build-deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
 # ── Runner ───────────────────────────────────────────────────────
-FROM node:24-alpine AS runner
+FROM node:lts-trixie-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production \
     HOST=0.0.0.0 \
     PORT=4321
 
 # Explicit UID/GID 1001:1001 to match compose `user: "1001:1001"`.
-RUN addgroup -g 1001 -S app && adduser -u 1001 -S app -G app
+RUN groupadd --gid 1001 app \
+    && useradd --uid 1001 --gid app --no-create-home --shell /usr/sbin/nologin app
 
 COPY --from=prod-deps --chown=app:app /app/node_modules ./node_modules
 COPY --from=build     --chown=app:app /app/dist          ./dist

@@ -33,19 +33,19 @@ jobs:
       # action_required, so the required `build` check never reports and the
       # signature PR can never merge. An App installation token is a distinct
       # actor, so the run starts on its own.
-      - uses: actions/create-github-app-token@v3
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
         id: app-token
         with:
           app-id: ${{ vars.SIGNATURE_BOT_APP_ID }}
           private-key: ${{ secrets.SIGNATURE_BOT_PRIVATE_KEY }}
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           token: ${{ steps.app-token.outputs.token }}
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: '24'
+          node-version: 'lts/*'
 
       - name: Read signature request
         id: request
