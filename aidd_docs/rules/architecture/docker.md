@@ -4,8 +4,9 @@
 `app/Dockerfile`, `app/compose.yaml`, `app/.dockerignore`.
 
 ## Hard rules
-- Base image: `node:22-alpine` (build + runtime).
-- Multi-stage: `deps` → `build` → `runner`. Production image runs as a non-root user.
+- Base image: `node:lts-trixie-slim` (build + runtime).
+- Multi-stage: `base` → `prod-deps` / `build-deps` → `build` → `runner`.
+  Production runs as the explicit non-root UID/GID `1001:1001`.
 - `runner` stage installs only production dependencies.
 - Container listens on `4321`. Compose maps host `4321:4321`.
 - `HOST=0.0.0.0`, `PORT=4321`, `NODE_ENV=production` set in the runner stage.
