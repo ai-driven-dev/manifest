@@ -24,7 +24,9 @@ cd app && npm install && npm run dev
 cd app && npm run build && PORT=4321 HOST=127.0.0.1 node ./dist/server/entry.mjs
 
 # Docker
-cd app && docker compose up -d --build
+cd app
+docker build --target runner -t manifest-astro:dev .
+IMAGE_REF=manifest-astro:dev docker compose up -d
 # → http://localhost:4321
 ```
 

@@ -1,0 +1,94 @@
+name: Request deployment
+
+on:
+  workflow_run:
+    workflows: ["Build image"]
+    types: [completed]
+
+permissions: {}
+
+concurrency:
+  group: manifest-deploy-request-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+
+jobs:
+  request:
+    name: Ask private deployment controller
+    if: >-
+      github.repository == 'ai-driven-dev/manifest' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == 'ai-driven-dev/manifest'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      contents: read
+
+    steps:
+      - name: Read digest produced by the successful build
+        id: source
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_REPOSITORY: ${{ github.event.workflow_run.head_repository.full_name }}
+          SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_REPOSITORY" == "ai-driven-dev/manifest" ]]
+          [[ "$SOURCE_RUN_ID" =~ ^[0-9]+$ ]]
+
+          install -d -m 0700 source-artifact
+          gh run download "$SOURCE_RUN_ID" \
+            --repo "$SOURCE_REPOSITORY" \
+            --name manifest-image-digest \
+            --dir source-artifact
+          digest=$(tr -d '\r\n' <source-artifact/manifest-image-digest.txt)
+          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]
+          printf 'digest=%s\n' "$digest" >>"$GITHUB_OUTPUT"
+
+      - name: Create one-repository deployment token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        with:
+          client-id: ${{ vars.AIDD_OPS_DEPLOY_APP_CLIENT_ID }}
+          private-key: ${{ secrets.AIDD_OPS_DEPLOY_APP_PRIVATE_KEY }}
+          owner: ai-driven-dev
+          repositories: aidd-ops
+          permission-actions: write
+
+      - name: Dispatch verified build identity
+        shell: bash
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          SOURCE_REPOSITORY: ${{ github.event.workflow_run.head_repository.full_name }}
+          SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+          SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+          SOURCE_DIGEST: ${{ steps.source.outputs.digest }}
+        run: |
+          set -euo pipefail
+
+          [[ "$SOURCE_REPOSITORY" == "ai-driven-dev/manifest" ]]
+          [[ "$SOURCE_RUN_ID" =~ ^[0-9]+$ ]]
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$SOURCE_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]]
+
+          jq -n \
+            --arg repository "$SOURCE_REPOSITORY" \
+            --arg run_id "$SOURCE_RUN_ID" \
+            --arg sha "$SOURCE_SHA" \
+            --arg digest "$SOURCE_DIGEST" \
+            '{
+              ref: "main",
+              inputs: {
+                source_repository: $repository,
+                source_run_id: $run_id,
+                source_sha: $sha,
+                source_digest: $digest
+              }
+            }' |
+            gh api \
+              --method POST \
+              repos/ai-driven-dev/aidd-ops/actions/workflows/deploy-manifest.yml/dispatches \
+              --input -

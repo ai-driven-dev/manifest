@@ -1,9 +1,6 @@
 services:
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: manifest-astro:latest
+    image: "${IMAGE_REF:?Set IMAGE_REF to ghcr.io/ai-driven-dev/manifest@sha256:<digest>}"
     container_name: manifest-astro
     ports:
       - "4321:4321"

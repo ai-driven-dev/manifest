@@ -7,8 +7,9 @@
 #   - Non-root USER with explicit UID/GID matching compose `user: 1001:1001`
 #   - HOST=0.0.0.0, PORT=4321, NODE_ENV=production
 #
-# Image is built and pushed to ghcr.io/ai-driven-dev/manifest by the
-# .github/workflows/deploy.yml pipeline (self-hosted runner on AIDD).
+# Image is built on GitHub-hosted runners and pushed under the immutable
+# sha-<full commit> tag. Production resolves that tag once, then deploys its
+# registry digest through the private aidd-ops controller.
 
 # ── Shared build base ─────────────────────────────────────────────
 FROM node:lts-trixie-slim AS base
