@@ -4,9 +4,9 @@
   "version": "0.1.0",
   "license": "MIT",
   "private": true,
-  "packageManager": "npm@12.0.1",
+  "packageManager": "npm@12.0.2",
   "engines": {
-    "node": ">=24"
+    "node": ">=24.19.0"
   },
   "scripts": {
     "gen:signature-dates": "node scripts/gen-signature-dates.mjs",
@@ -24,15 +24,15 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@astrojs/node": "10.1.2",
-    "astro": "6.4.2"
+    "@astrojs/node": "10.1.4",
+    "astro": "6.4.8"
   },
   "devDependencies": {
-    "@playwright/test": "^1.48.2",
-    "@types/node": "^24.0.0",
-    "playwright": "^1.48.2",
-    "typescript": "^5.6.3",
-    "vitest": "4.1.8"
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^24.13.3",
+    "playwright": "^1.62.1",
+    "typescript": "^5.9.3",
+    "vitest": "4.1.11"
   },
   "allowScripts": {
     "esbuild": true,
