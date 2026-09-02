@@ -143,6 +143,22 @@ describe('signature request reader behavior', () => {
     assert.match(result.stderr, /name is required/);
   });
 
+  it('completes a scheme-less LinkedIn profile into the public URL stored in the YAML', () => {
+    const { outputs } = runRequestReader(signatureIssueEvent({
+      body: issueFormBody({ 'LinkedIn profile': 'www.linkedin.com/in/octocat-059b3725' }),
+    }));
+
+    assert.equal(outputs.linkedin_yaml, '"https://www.linkedin.com/in/octocat-059b3725"');
+  });
+
+  it('completes a scheme-less LinkedIn profile that omits the www subdomain', () => {
+    const { outputs } = runRequestReader(signatureIssueEvent({
+      body: issueFormBody({ 'LinkedIn profile': 'linkedin.com/in/octocat' }),
+    }));
+
+    assert.equal(outputs.linkedin_yaml, '"https://linkedin.com/in/octocat"');
+  });
+
   it('fails a signer issue when the LinkedIn field cannot become a public URL', () => {
     const result = failRequestReader(signatureIssueEvent({
       body: issueFormBody({ 'LinkedIn profile': 'not-a-url' }),

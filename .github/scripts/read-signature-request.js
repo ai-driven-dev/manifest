@@ -19,6 +19,8 @@ const FIELD = Object.freeze({
 });
 
 const GITHUB_HANDLE_RE = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$/;
+const SCHEME_RE = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//;
+const DOMAIN_START_RE = /^[^\s/?#]+\.[^\s/?#]+/;
 
 function clean(value) {
   return String(value ?? '')
@@ -85,13 +87,25 @@ function validateGithubHandle(value) {
   return github;
 }
 
+// Signers routinely paste the URL LinkedIn shows them, which has no scheme
+// (`www.linkedin.com/in/handle`). Prefixing `https://` unconditionally would
+// turn any typo into a hostname, so only a value that starts with a dotted
+// domain is completed.
+function withScheme(url) {
+  if (SCHEME_RE.test(url)) return url;
+  return DOMAIN_START_RE.test(url) ? `https://${url}` : url;
+}
+
 function validateLinkedIn(value) {
-  const url = optionalText(value, 'linkedin');
-  if (!url) return '';
+  const text = clean(value);
+  if (!text || text === NO_RESPONSE) return '';
+
+  const url = withScheme(checkOneLine(text, 'linkedin'));
 
   try {
     const parsed = new URL(url);
-    if (['http:', 'https:'].includes(parsed.protocol)) return url;
+    // The completed URL is what gets stored, so the limit applies to it.
+    if (['http:', 'https:'].includes(parsed.protocol)) return checkLength(url, 'linkedin');
   } catch {}
   throw new Error('linkedin must be a valid URL');
 }
