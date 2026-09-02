@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.7
+# syntax=docker/dockerfile:1.26
 #
 # Astro 6 SSR (Node standalone adapter) — multi-stage build.
 # Compliant with aidd_docs/rules/architecture/docker.md:
