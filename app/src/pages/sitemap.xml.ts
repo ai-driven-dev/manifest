@@ -11,7 +11,7 @@ export function GET() {
     <xhtml:link rel="alternate" hreflang="en" href="${absoluteUrl(page.path)}" />
     <xhtml:link rel="alternate" hreflang="x-default" href="${absoluteUrl(page.path)}" />
     <image:image>
-      <image:loc>${absoluteUrl(page.path === '/' ? '/og-image.png' : '/icon-512.png')}</image:loc>
+      <image:loc>${absoluteUrl(page.path === '/' ? '/og-image-2026-09.png' : '/icon-512.png')}</image:loc>
       <image:title>${page.title}</image:title>
     </image:image>
   </url>`
