@@ -74,7 +74,10 @@ test.describe('web checklist surface', () => {
     await expect(page.locator('meta[name="color-scheme"]')).toHaveAttribute('content', 'light dark');
     await expect(page.locator('meta[property="og:title"]')).toHaveCount(1);
     await expect(page.locator('meta[property="og:description"]')).toHaveCount(1);
-    await expect(page.locator('meta[property="og:image"]')).toHaveCount(1);
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+      'content',
+      'https://www.ai-driven-development.org/og-image-2026-09.png'
+    );
     await expect(page.locator('meta[property="og:url"]')).toHaveCount(1);
     await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'website');
     await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(1);

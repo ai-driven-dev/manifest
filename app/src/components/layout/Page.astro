@@ -37,7 +37,8 @@ const {
   jsonLd = getHomeJsonLd(),
 } = Astro.props;
 const canonical = absoluteUrl(path);
-const ogImage = absoluteUrl('/og-image.png');
+// Versioned filename forces social crawlers to retrieve the refreshed cover.
+const ogImage = absoluteUrl('/og-image-2026-09.png');
 const pageTitle = title === SITE.name ? title : `${title} | ${SITE.shortName}`;
 ---
 <!doctype html>
