@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Required check. Fast + reliable: build, unit tests, component LOC budget.
+  # Required check: build, typecheck, unit/browser tests, component LOC budget.
   build:
     runs-on: ubuntu-latest
     defaults:
@@ -32,5 +32,16 @@ jobs:
           cache-dependency-path: app/package-lock.json
       - run: npm ci
       - run: npm run build
+      - run: npx tsc --noEmit
       - run: npm test
       - run: bash tests/check-component-loc.sh
+      - run: npx playwright install --with-deps chromium
+      # Visual snapshots require reviewed, tracked baselines before enabling.
+      - run: npx playwright test tests/e2e/checklist.spec.ts tests/e2e/print.spec.ts tests/e2e/sign.spec.ts
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: failure()
+        with:
+          name: playwright-test-results
+          path: app/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
