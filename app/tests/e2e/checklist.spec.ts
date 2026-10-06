@@ -167,6 +167,33 @@ test.describe('web checklist surface', () => {
     expect(consoleErrors.filter((message) => message.includes('Content Security Policy'))).toEqual([]);
   });
 
+  test('Markdown alternatives point to the canonical homepage and remain discoverable', async ({ request }) => {
+    const original = await request.get('/index.md', { headers: { 'Accept-Encoding': 'identity' } });
+    const markdown = await original.text();
+    for (const path of ['/index.md', '/llms-full.txt']) {
+      for (const encoding of ['identity', 'gzip']) {
+        const response = await request.get(path, { headers: { 'Accept-Encoding': encoding } });
+        expect(response.status()).toBe(200);
+        expect(response.headers()['content-type']).toBe('text/markdown; charset=utf-8');
+        expect(response.headers().link).toContain('<https://www.ai-driven-development.org/>; rel="canonical"');
+        expect(response.headers().link).toContain('rel="llms"');
+        expect(response.headers().link).toContain('rel="llms-full"');
+        expect(response.headers().link).toContain('rel="sitemap"');
+        if (encoding === 'gzip') expect(response.headers()['content-encoding']).toBe('gzip');
+        expect(await response.text()).toBe(markdown);
+      }
+    }
+
+    const sitemap = await (await request.get('/sitemap.xml')).text();
+    expect([...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1])).toEqual([
+      'https://www.ai-driven-development.org/',
+      'https://www.ai-driven-development.org/privacy',
+    ]);
+    const discovery = await (await request.get('/llms.txt')).text();
+    expect(discovery).toContain('https://www.ai-driven-development.org/index.md');
+    expect(discovery).toContain('https://www.ai-driven-development.org/llms-full.txt');
+  });
+
   test('machine-readable, social, well-known, and resilience routes respond', async ({ request }) => {
     for (const [path, status, type] of routeChecks) {
       const response = await request.get(path);
