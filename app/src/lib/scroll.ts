@@ -32,13 +32,22 @@ function scrollToTarget(target: HTMLElement) {
 
 export function initSmoothAnchors(): void {
   document.addEventListener('click', (e) => {
+    // Leave modified clicks and links with another destination to the browser.
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     const link = (e.target as HTMLElement).closest('a[href^="#"]') as HTMLAnchorElement | null;
-    if (!link) return;
+    if (!link || link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
     const id = link.getAttribute('href')!.slice(1);
     const target = id && document.getElementById(id);
     if (!target) return;
     e.preventDefault();
+    // Custom scrolling must also move keyboard focus to the destination.
+    // A temporary tabindex avoids adding sections to the normal tab order.
+    if (target.tabIndex < 0 && !target.hasAttribute('tabindex')) {
+      target.setAttribute('tabindex', '-1');
+      target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
+    }
+    target.focus({ preventScroll: true });
     scrollToTarget(target);
-    history.pushState(null, '', '#' + id);
+    if (window.location.hash !== '#' + id) history.pushState(null, '', '#' + id);
   });
 }
