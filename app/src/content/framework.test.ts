@@ -1,8 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { FRAMEWORK } from './framework';
+import { PRINCIPLES } from './principles';
 import { getManifestoJson, getManifestoMarkdown } from '~/lib/manifesto';
 
 describe('framework onboarding content', () => {
+  it('uses the same feature workflow in the guide and the principle trace', () => {
+    const increment = PRINCIPLES.find((principle) => principle.n === '01')!;
+    expect(increment.proof).toBe('aidd-orchestrator:01-sdlc');
+    expect(FRAMEWORK.steps.some((step) => step.command?.startsWith(`/${increment.proof} `))).toBe(true);
+    expect(getManifestoJson().principles[0].frameworkTrace).toBe(increment.proof);
+  });
+
   it('keeps the practical guide consistent in machine-readable alternatives', () => {
     const markdown = getManifestoMarkdown();
     expect(getManifestoJson().framework).toEqual(FRAMEWORK);
