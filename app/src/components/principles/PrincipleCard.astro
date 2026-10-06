@@ -14,7 +14,7 @@ const { principle: p, index: i } = Astro.props;
   <span class="p-folio" aria-hidden="true">{p.r}</span>
   <a class="p-num" href={`#P-${p.n}`} aria-label={`Link to principle ${p.r}`}>{p.n}<Icon name={p.n as PrincipleIconKey} class="p-icon" /></a>
   <div class="p-body">
-    <p class="p-lead" set:html={p.lead} />
+    <h3 class="p-lead" set:html={p.lead} />
     <p class="p-sub">{p.sub}</p>
   </div>
   <PrincipleDemo index={i} />

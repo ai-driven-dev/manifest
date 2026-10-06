@@ -1,4 +1,7 @@
 import { expect, test } from '@playwright/test';
+import { VALUES } from '../../src/content/values';
+import { PRINCIPLES } from '../../src/content/principles';
+import { stripHtml } from '../../src/lib/site';
 
 const routeChecks = [
   ['/robots.txt', 200, 'text/plain'],
@@ -28,6 +31,26 @@ const routeChecks = [
 ] as const;
 
 test.describe('web checklist surface', () => {
+  test('each manifesto value and principle is a level-three heading with its stable permalink', async ({ page }) => {
+    await page.goto('/');
+
+    await expect(page.locator('#values').getByRole('heading', { level: 3 })).toHaveCount(4);
+    for (const value of VALUES) {
+      const row = page.locator(`#${value.id}`);
+      await expect(row.getByRole('heading', { level: 3 })).toHaveAccessibleName(
+        `${value.left} over ${value.right}`
+      );
+      await expect(row.locator('.pr-folio')).toHaveAttribute('href', `#${value.id}`);
+    }
+
+    await expect(page.locator('#principles').getByRole('heading', { level: 3 })).toHaveCount(12);
+    for (const principle of PRINCIPLES) {
+      const row = page.locator(`#P-${principle.n}`);
+      await expect(row.getByRole('heading', { level: 3 })).toHaveAccessibleName(stripHtml(principle.lead));
+      await expect(row.locator('.p-num')).toHaveAttribute('href', `#P-${principle.n}`);
+    }
+  });
+
   test('homepage has required document head, semantics, and security headers', async ({ page, request }) => {
     const consoleErrors: string[] = [];
     page.on('console', (message) => {

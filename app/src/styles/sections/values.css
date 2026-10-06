@@ -105,7 +105,8 @@
 .pr-folio:focus-visible{ outline: 2px solid var(--focus); outline-offset: 4px; border-radius: 2px; opacity: 0.5; }
 
 /* ---- Text column ---- */
-.pr-text{
+.pr-text,
+.pr-title{
   display: flex;
   flex-direction: column;
   align-items: flex-start;
