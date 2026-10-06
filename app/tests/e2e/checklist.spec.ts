@@ -152,8 +152,8 @@ test.describe('web checklist surface', () => {
     await expect(page.locator('.skip-link')).toBeFocused();
 
     const externalStyleOrScript = await page.evaluate(() =>
-      [...document.querySelectorAll('script[src], link[rel="stylesheet"]')]
-        .map((el) => (el as HTMLScriptElement | HTMLLinkElement).src || (el as HTMLLinkElement).href)
+      [...document.querySelectorAll<HTMLScriptElement | HTMLLinkElement>('script[src], link[rel="stylesheet"]')]
+        .map((el) => el instanceof HTMLScriptElement ? el.src : el.href)
         .filter((url) => url && !url.startsWith(location.origin))
     );
     expect(externalStyleOrScript).toEqual([]);
