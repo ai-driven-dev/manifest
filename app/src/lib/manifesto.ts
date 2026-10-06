@@ -1,6 +1,4 @@
 import { PRINCIPLES } from '~/content/principles';
-import { FRAMEWORK } from '~/content/framework';
-import { SIGNING } from '~/content/signing';
 import { PREAMBLE } from '~/content/preamble';
 import { VALUES } from '~/content/values';
 import { ENTRY, RELATED_PRACTICES, VERSUS } from '~/content/lexicon';
@@ -20,12 +18,6 @@ export function getManifestoMarkdown(): string {
   const versus = VERSUS.map(
     (row) => `| ${row.axis} | ${row.aidd} | ${row.vibe} |`
   ).join('\n');
-
-  const frameworkSteps = FRAMEWORK.steps.map((step, index) =>
-    `${index + 1}. **${step.title}**\n\n   ${step.description}\n\n` +
-    (step.command ? `   \`${step.command}\`\n\n` : '') +
-    `   [${step.link.label}](${step.link.url})`
-  ).join('\n\n');
 
   return `# ${SITE.name}
 
@@ -59,23 +51,9 @@ ${values}
 
 ${principles}
 
-## ${FRAMEWORK.title}
-
-${FRAMEWORK.description}
-
-${FRAMEWORK.compatibility}
-
-${frameworkSteps}
-
-${FRAMEWORK.safety}
-
 ## Sign
 
-${SIGNING.description}
-
-${SIGNING.steps.map((step, index) => `${index + 1}. ${step}`).join('\n')}
-
-[Request your signature](${SIGNING.url})
+Submit the [GitHub signature request form](${SITE.signUrl}). A pull request is generated for review; your name appears in the public registry after it is reviewed and merged.
 
 Repository: ${SITE.repoUrl}
 Canonical URL: ${SITE.origin}/
@@ -93,8 +71,6 @@ export function getManifestoJson() {
     dateModified: SITE.modifiedDate,
     repository: SITE.repoUrl,
     relatedPractices: RELATED_PRACTICES,
-    framework: FRAMEWORK,
-    signing: SIGNING,
     values: VALUES.map((value) => ({
       id: value.id,
       number: value.n,

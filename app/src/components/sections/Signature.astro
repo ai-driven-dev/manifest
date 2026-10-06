@@ -3,7 +3,6 @@ import { getCollection } from 'astro:content';
 import SignButton from '~/components/signature/SignButton.astro';
 import SignatureWall from '~/components/signature/SignatureWall.astro';
 import SignDialog from '~/components/signature/SignDialog.astro';
-import { SIGNING } from '~/content/signing';
 
 const count = (await getCollection('signatories')).length;
 const registryCount = String(count).padStart(3, '0');
@@ -25,7 +24,10 @@ const registryCount = String(count).padStart(3, '0');
             <path d="M22 4 C 28 14, 40 14, 40 22 C 40 30, 28 30, 22 40 C 16 30, 4 30, 4 22 C 4 14, 16 14, 22 4 Z" stroke="currentColor" stroke-width="1" fill="none"/>
             <circle cx="22" cy="22" r="2" fill="currentColor"/>
           </svg>
-          <p>{SIGNING.description}</p>
+          <p>
+          Signing starts a GitHub contribution. Your name appears in the public registry
+          after the pull request is reviewed and merged.
+          </p>
         </div>
       </div>
 

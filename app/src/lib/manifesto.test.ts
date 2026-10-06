@@ -38,6 +38,17 @@ describe('manifesto data helpers', () => {
     });
   });
 
+  it('exports the current SDLC framework trace', () => {
+    const principle = getManifestoJson().principles.find(({ number }) => number === '01');
+    expect(principle?.frameworkTrace).toBe('aidd-orchestrator:01-sdlc');
+  });
+
+  it('describes the signature request and review process in Markdown', () => {
+    const signing = getManifestoMarkdown().split('## Sign\n')[1];
+    expect(signing).toContain(SITE.signUrl);
+    expect(signing).toMatch(/request form.*pull request.*review.*registry.*reviewed and merged/s);
+  });
+
   it('exports raw Markdown source for agents and alternate routes', () => {
     const markdown = getManifestoMarkdown();
 
