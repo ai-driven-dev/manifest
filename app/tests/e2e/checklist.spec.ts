@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { VALUES } from '../../src/content/values';
 import { PRINCIPLES } from '../../src/content/principles';
-import { stripHtml } from '../../src/lib/site';
+import { SITE, stripHtml } from '../../src/lib/site';
 
 const routeChecks = [
   ['/robots.txt', 200, 'text/plain'],
@@ -85,7 +85,9 @@ test.describe('web checklist surface', () => {
       'content',
       /width=device-width/
     );
-    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /developers/);
+    for (const selector of ['meta[name="description"]', 'meta[property="og:description"]', 'meta[name="twitter:description"]']) {
+      await expect(page.locator(selector)).toHaveAttribute('content', SITE.description);
+    }
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       'href',
       'https://www.ai-driven-development.org/'
