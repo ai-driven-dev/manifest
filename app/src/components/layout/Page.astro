@@ -40,9 +40,11 @@ const canonical = absoluteUrl(path);
 // Versioned filename forces social crawlers to retrieve the refreshed cover.
 const ogImage = absoluteUrl('/og-image-2026-09.png');
 const pageTitle = title === SITE.name ? title : `${title} | ${SITE.shortName}`;
+const analyticsDisabled =
+  Astro.request.headers.get('Sec-GPC') === '1' || Astro.request.headers.get('DNT') === '1';
 ---
 <!doctype html>
-<html lang={SITE.lang} dir={SITE.dir}>
+<html lang={SITE.lang} dir={SITE.dir} data-analytics-disabled={analyticsDisabled ? '' : undefined}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -86,6 +88,10 @@ const pageTitle = title === SITE.name ? title : `${title} | ${SITE.shortName}`;
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <script>
+      import { initAnalytics } from '~/lib/analytics';
+      initAnalytics();
+    </script>
   </head>
   <body>
     <a href="#main" class="skip-link">Skip to content</a>

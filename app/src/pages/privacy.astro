@@ -34,8 +34,19 @@ const jsonLd = [
 
       <h1>Privacy</h1>
       <p>
-        This site is a static publication for the AI-Driven Development manifesto. It does
-        not run advertising, analytics, tracking pixels, or non-essential cookies.
+        This site publishes the AI-Driven Development manifesto. It does not run
+        advertising or set analytics cookies.
+      </p>
+
+      <h2>Audience measurement</h2>
+      <p>
+        We use our self-hosted Umami service at <code>stats.ai-driven-dev.fr</code> to
+        measure visits to the manifesto and this privacy page, and departures to the
+        GitHub signature form. A departure does not mean a signature has been published.
+        The tracker sends the page path, title, browser language, screen dimensions,
+        and referring site's origin. URL queries and fragments, referrer paths,
+        names, and GitHub handles are not sent. We do not use session replay or assign
+        personal visitor identifiers.
       </p>
 
       <h2>Signatories</h2>
@@ -48,14 +59,14 @@ const jsonLd = [
       <h2>Third-party requests</h2>
       <p>
         The signatory wall loads GitHub avatar images from GitHub-controlled domains. The
-        sign and repository links navigate to GitHub when activated. No third-party script
-        runs on this site.
+        sign and repository links navigate to GitHub when activated. Our Umami script
+        loads from the audience measurement service described above.
       </p>
 
       <h2>Browser signals</h2>
       <p>
-        Global Privacy Control is treated as an opt-out from sale or sharing. This site does
-        not sell or share personal data, so no extra opt-out step is required.
+        Global Privacy Control and Do Not Track disable audience measurement: the tracker
+        does not load when either signal is enabled. This site does not sell personal data.
       </p>
 
       <h2>Contact</h2>
