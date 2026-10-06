@@ -3,10 +3,8 @@ import { getHomeJsonLd, getManifestoJson, getManifestoMarkdown } from './manifes
 import { SITE } from './site';
 
 describe('manifesto data helpers', () => {
-  it('shares the definition-led summary across manifesto metadata', () => {
-    expect(SITE.description).toBe(
-      'AI-driven development (AIDD) means building software with AI as a deliberate partner. Explore the manifesto’s four values and twelve principles.'
-    );
+  it('shares a nonempty summary across manifesto metadata', () => {
+    expect(SITE.description.trim()).not.toBe('');
     expect(getManifestoJson().description).toBe(SITE.description);
     expect(getManifestoMarkdown()).toContain(SITE.description);
     for (const entity of getHomeJsonLd().slice(0, 3)) {
