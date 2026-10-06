@@ -33,13 +33,6 @@ export const PUBLIC_PAGES = [
     priority: '0.3',
     changefreq: 'yearly',
   },
-  {
-    path: '/index.md',
-    title: `${SITE.name} Markdown`,
-    description: 'Raw Markdown source for the manifesto.',
-    priority: '0.7',
-    changefreq: 'monthly',
-  },
 ] as const;
 
 export const MACHINE_ENDPOINTS = [
