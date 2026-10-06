@@ -1,5 +1,6 @@
 import { PRINCIPLES } from '~/content/principles';
 import { FRAMEWORK } from '~/content/framework';
+import { SIGNING } from '~/content/signing';
 import { PREAMBLE } from '~/content/preamble';
 import { VALUES } from '~/content/values';
 import { ENTRY, RELATED_PRACTICES, VERSUS } from '~/content/lexicon';
@@ -70,7 +71,11 @@ ${FRAMEWORK.safety}
 
 ## Sign
 
-Signing is a public act recorded in the source repository. One YAML file, one pull request, no backend.
+${SIGNING.description}
+
+${SIGNING.steps.map((step, index) => `${index + 1}. ${step}`).join('\n')}
+
+[Request your signature](${SIGNING.url})
 
 Repository: ${SITE.repoUrl}
 Canonical URL: ${SITE.origin}/
@@ -89,6 +94,7 @@ export function getManifestoJson() {
     repository: SITE.repoUrl,
     relatedPractices: RELATED_PRACTICES,
     framework: FRAMEWORK,
+    signing: SIGNING,
     values: VALUES.map((value) => ({
       id: value.id,
       number: value.n,

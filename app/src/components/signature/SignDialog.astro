@@ -1,5 +1,6 @@
 ---
 import { SITE } from '~/lib/site';
+import { SIGNING } from '~/content/signing';
 ---
 
 <dialog
@@ -28,9 +29,7 @@ import { SITE } from '~/lib/site';
     </p>
 
     <ol class="sign-dialog-steps" aria-label="Signature publication steps">
-      <li><span>1</span><strong>Submit the GitHub form</strong></li>
-      <li><span>2</span><strong>Review the generated pull request</strong></li>
-      <li><span>3</span><strong>Join the registry after merge</strong></li>
+      {SIGNING.steps.map((step, index) => <li><span>{index + 1}</span><strong>{step}</strong></li>)}
     </ol>
 
     <div class="sign-dialog-actions">
