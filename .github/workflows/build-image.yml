@@ -20,7 +20,9 @@ env:
 jobs:
   build:
     name: Test, build and attest
-    runs-on: ubuntu-latest
+    runs-on:
+      group: website-ci
+      labels: [self-hosted, Linux, X64, aidd-central-ci, isolated]
     timeout-minutes: 30
     outputs:
       digest: ${{ steps.build.outputs.digest }}

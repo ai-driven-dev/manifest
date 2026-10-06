@@ -15,7 +15,9 @@ concurrency:
 jobs:
   # Required check: build, typecheck, unit/signature tests, component LOC budget.
   build:
-    runs-on: ubuntu-latest
+    runs-on:
+      group: website-ci
+      labels: [self-hosted, Linux, X64, aidd-central-ci, isolated]
     defaults:
       run:
         working-directory: app
