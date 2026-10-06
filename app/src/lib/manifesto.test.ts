@@ -1,7 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import { getManifestoJson, getManifestoMarkdown } from './manifesto';
+import { getHomeJsonLd, getManifestoJson, getManifestoMarkdown } from './manifesto';
+import { SITE } from './site';
 
 describe('manifesto data helpers', () => {
+  it('shares the definition-led summary across manifesto metadata', () => {
+    expect(SITE.description).toBe(
+      'AI-driven development (AIDD) means building software with AI as a deliberate partner. Explore the manifesto’s four values and twelve principles.'
+    );
+    expect(getManifestoJson().description).toBe(SITE.description);
+    expect(getManifestoMarkdown()).toContain(SITE.description);
+    for (const entity of getHomeJsonLd().slice(0, 3)) {
+      expect(entity.description).toBe(SITE.description);
+    }
+  });
+
   it('exports the canonical values and principles as structured data', () => {
     const data = getManifestoJson();
 

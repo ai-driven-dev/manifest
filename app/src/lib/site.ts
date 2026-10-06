@@ -7,7 +7,7 @@ export const SITE = {
   shortName: 'AIDD Manifesto',
   version: '1.1.1',
   description:
-    'Four values and twelve principles for developers who build software with AI as a deliberate partner.',
+    'AI-driven development (AIDD) means building software with AI as a deliberate partner. Explore the manifesto’s four values and twelve principles.',
   repoUrl: 'https://github.com/ai-driven-dev/manifest',
   signUrl: 'https://github.com/ai-driven-dev/manifest/issues/new?template=signature.yml',
   publishedDate: '2026-05-08',
