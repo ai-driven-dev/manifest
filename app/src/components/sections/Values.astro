@@ -23,11 +23,13 @@ import Icon from '~/components/Icon.astro';
         <Icon name={v.id as 'V-1' | 'V-2' | 'V-3' | 'V-4'} class="pr-icon" />
         <a class="pr-folio" href={`#${v.id}`} aria-label={`Link to value ${v.n}: ${v.left}`}>{v.n}</a>
         <div class="pr-text">
-          <div class="left serif">{v.left}</div>
-          <div class="over">over</div>
-          <div class="right serif">{v.right}
-            <svg class="strike" preserveAspectRatio="none" viewBox="0 0 400 12"><path d="M2 6 Q 100 3, 200 7 T 398 5"/></svg>
-          </div>
+          <h3 class="pr-title">
+            <span class="left serif">{v.left}</span>
+            <span class="over">over</span>
+            <span class="right serif">{v.right}
+              <svg class="strike" aria-hidden="true" preserveAspectRatio="none" viewBox="0 0 400 12"><path d="M2 6 Q 100 3, 200 7 T 398 5"/></svg>
+            </span>
+          </h3>
           <div class="note" set:html={v.body} />
         </div>
         <div class="pr-art">
