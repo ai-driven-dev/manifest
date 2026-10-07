@@ -34,7 +34,7 @@ const {
   description = SITE.description,
   path = '/',
   noindex = false,
-  jsonLd = getHomeJsonLd(),
+  jsonLd = path === '/' ? getHomeJsonLd() : undefined,
 } = Astro.props;
 const canonical = absoluteUrl(path);
 // Versioned filename forces social crawlers to retrieve the refreshed cover.
@@ -57,8 +57,8 @@ const pageTitle = title === SITE.name ? title : `${title} | ${SITE.shortName}`;
     <link rel="alternate" hreflang="en" href={canonical} />
     <link rel="alternate" hreflang="x-default" href={canonical} />
     <link rel="alternate" type="application/rss+xml" title={`${SITE.shortName} feed`} href="/feed.xml" />
-    <link rel="alternate" type="text/markdown" title={`${SITE.shortName} Markdown`} href="/index.md" />
-    <link rel="describedby" type="application/ld+json" href="/schema/home.jsonld" />
+    {path === '/' && <link rel="alternate" type="text/markdown" title={`${SITE.shortName} Markdown`} href="/index.md" />}
+    {path === '/' && <link rel="describedby" type="application/ld+json" href="/schema/home.jsonld" />}
     <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="alternate icon" href="/favicon.ico" sizes="any" />
@@ -85,7 +85,7 @@ const pageTitle = title === SITE.name ? title : `${title} | ${SITE.shortName}`;
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
-    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
   </head>
   <body>
     <a href="#main" class="skip-link">Skip to content</a>

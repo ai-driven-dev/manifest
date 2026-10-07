@@ -82,13 +82,15 @@ function applyCacheHeaders(headers: Headers, pathname: string, contentType: stri
   headers.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
 }
 
-function applyLinkHeader(headers: Headers): void {
+function applyLinkHeader(headers: Headers, pathname: string): void {
   appendHeader(headers, 'Link', `<${absoluteUrl('/llms.txt')}>; rel="llms"; type="text/plain"`);
   appendHeader(headers, 'Link', `<${absoluteUrl('/llms-full.txt')}>; rel="llms-full"; type="text/markdown"`);
   appendHeader(headers, 'Link', `<${absoluteUrl('/sitemap.xml')}>; rel="sitemap"; type="application/xml"`);
   appendHeader(headers, 'Link', `<${absoluteUrl('/feed.xml')}>; rel="alternate"; type="application/rss+xml"; title="AIDD Manifesto feed"`);
   appendHeader(headers, 'Link', `<${absoluteUrl('/.well-known/api-catalog')}>; rel="api-catalog"; type="application/linkset+json"`);
-  appendHeader(headers, 'Link', `<${absoluteUrl('/schema/home.jsonld')}>; rel="describedby"; type="application/ld+json"`);
+  if (pathname === '/') {
+    appendHeader(headers, 'Link', `<${absoluteUrl('/schema/home.jsonld')}>; rel="describedby"; type="application/ld+json"`);
+  }
   appendHeader(headers, 'Link', `<${absoluteUrl('/mcp')}>; rel="mcp"; type="application/json"`);
   appendHeader(headers, 'Link', `<${absoluteUrl('/ask')}>; rel="nlweb"; type="application/json"`);
 }
@@ -143,7 +145,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   applySecurityHeaders(headers, isLocal);
   applyCacheHeaders(headers, url.pathname, contentType);
-  applyLinkHeader(headers);
+  applyLinkHeader(headers, url.pathname);
 
   if (context.request.headers.get('Sec-GPC') === '1') {
     headers.set('Preference-Applied', 'Sec-GPC');

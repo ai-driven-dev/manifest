@@ -31,6 +31,24 @@ const routeChecks = [
 ] as const;
 
 test.describe('web checklist surface', () => {
+  for (const [path, status] of [['/', 200], ['/privacy', 200], ['/missing-page', 404], ['/500', 500], ['/maintenance', 503]] as const) {
+    test(`manifesto representation metadata is scoped correctly on ${path}`, async ({ request }) => {
+      const response = await request.get(path);
+      expect(response.status()).toBe(status);
+      const html = await response.text();
+      const isHome = path === '/';
+      expect(html.includes('type="text/markdown"')).toBe(isHome);
+      expect(html.includes('rel="describedby"')).toBe(isHome);
+      expect(response.headers().link.includes('rel="describedby"')).toBe(isHome);
+      const structuredData = html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)?.[1];
+      if (path === '/privacy') {
+        expect(JSON.parse(structuredData!)[0].url).toBe(`${SITE.origin}/privacy`);
+      } else {
+        expect(Boolean(structuredData)).toBe(isHome);
+      }
+    });
+  }
+
   test('each manifesto value and principle is a level-three heading with its stable permalink', async ({ page }) => {
     await page.goto('/');
 

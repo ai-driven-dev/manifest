@@ -1,4 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { createContext } from 'astro/middleware';
+import { onRequest } from '../middleware';
 import { GET as getMarkdown } from '../pages/index.md';
 import { GET as getFullMarkdown } from '../pages/llms-full.txt';
 import { GET as getDiscovery } from '../pages/llms.txt';
@@ -8,6 +10,8 @@ import { GET as getSchema } from '../pages/schema/home.jsonld';
 import { GET as getFeed } from '../pages/feed.xml';
 import { getManifestoMarkdown } from './manifesto';
 import { absoluteUrl, MACHINE_ENDPOINTS } from './site';
+
+vi.mock('astro:middleware', () => ({ defineMiddleware: (handler: unknown) => handler }));
 
 const machineRoutes = {
   '/llms-full.txt': getFullMarkdown,
@@ -29,6 +33,15 @@ describe('machine-readable catalog', () => {
 });
 
 describe('canonical content routes', () => {
+  it.each(['/', '/privacy', '/missing-page', '/500', '/maintenance'])(
+    'scopes the HTTP schema description to the homepage for %s',
+    async (path) => {
+      const context = createContext({ request: new Request(`http://localhost${path}`), defaultLocale: '' });
+      const response = await onRequest(context, async () => new Response('test'));
+      expect(response?.headers.get('Link')?.includes('rel="describedby"')).toBe(path === '/');
+    },
+  );
+
   it.each([
     ['/index.md', getMarkdown],
     ['/llms-full.txt', getFullMarkdown],
