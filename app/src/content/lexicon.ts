@@ -16,13 +16,6 @@ export interface LexiconEntry {
   def: string;
 }
 
-/** One axis of the AIDD vs vibe coding contrast. */
-export interface VersusRow {
-  axis: string;
-  aidd: string;
-  vibe: string;
-}
-
 export const ENTRY: LexiconEntry = {
   headword: "AI-Driven Development",
   abbr: "AIDD",
@@ -40,45 +33,8 @@ export const RELATED_PRACTICES: string[] = [
   "context engineering",
 ];
 
-export const VERSUS: VersusRow[] = [
-  {
-    axis: "Posture",
-    aidd: "Deliberate partnership",
-    vibe: "Improvisation — “give in to the vibes”",
-  },
-  {
-    axis: "Authorship",
-    aidd: "You are the architect; every line is yours",
-    vibe: "The model drives; you forget the code exists",
-  },
-  {
-    axis: "Review",
-    aidd: "Same standards as hand-written — review, test, reject",
-    vibe: "Accept the output and move on",
-  },
-  {
-    axis: "Planning",
-    aidd: "The first act of collaboration",
-    vibe: "Prompt and pray",
-  },
-  {
-    axis: "Understanding",
-    aidd: "Extends what you already understand",
-    vibe: "Ships what you don’t",
-  },
-  {
-    axis: "When it stalls",
-    aidd: "A signal to decompose further",
-    vibe: "Regenerate until it runs",
-  },
-  {
-    axis: "Output",
-    aidd: "Production software, without debt",
-    vibe: "Quick experiments, demos, throwaways",
-  },
-  {
-    axis: "Best for",
-    aidd: "Software meant to last",
-    vibe: "Prototypes you’ll discard",
-  },
-];
+/** Shared comparison for the homepage and its Markdown representations. */
+export const VERSUS_SUMMARY =
+  "Vibe coding optimizes for shipping speed without making code quality a requirement. " +
+  "AI-Driven Development keeps the same acceleration while building quality, review, " +
+  "and maintainability into the delivery process.";

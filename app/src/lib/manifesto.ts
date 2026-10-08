@@ -1,7 +1,7 @@
 import { PRINCIPLES } from '~/content/principles';
 import { PREAMBLE } from '~/content/preamble';
 import { VALUES } from '~/content/values';
-import { ENTRY, RELATED_PRACTICES, VERSUS } from '~/content/lexicon';
+import { ENTRY, RELATED_PRACTICES, VERSUS_SUMMARY } from '~/content/lexicon';
 import { absoluteUrl, SITE, stripHtml } from '~/lib/site';
 
 export function getManifestoMarkdown(): string {
@@ -14,10 +14,6 @@ export function getManifestoMarkdown(): string {
     (principle) =>
       `## Principle ${principle.n}\n\n${stripHtml(principle.lead)}\n\n${principle.sub}`
   ).join('\n\n');
-
-  const versus = VERSUS.map(
-    (row) => `| ${row.axis} | ${row.aidd} | ${row.vibe} |`
-  ).join('\n');
 
   return `# ${SITE.name}
 
@@ -39,9 +35,7 @@ Related practices: ${RELATED_PRACTICES.join(', ')}.
 
 ### AIDD vs vibe coding
 
-| Axis | AIDD | Vibe coding |
-| --- | --- | --- |
-${versus}
+${VERSUS_SUMMARY}
 
 # Values
 
@@ -53,7 +47,7 @@ ${principles}
 
 ## Sign
 
-Signing is a public act recorded in the source repository. One YAML file, one pull request, no backend.
+Submit the [GitHub signature request form](${SITE.signUrl}). A pull request is generated for review; your name appears in the public registry after it is reviewed and merged.
 
 Repository: ${SITE.repoUrl}
 Canonical URL: ${SITE.origin}/

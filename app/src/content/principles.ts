@@ -16,7 +16,7 @@ export interface Principle {
 }
 
 export const PRINCIPLES: Principle[] = [
-  { n: "01", r: "1", hue: 28, lead: 'Ship in <span class="hl">verified increments.</span>', sub: 'Working software is the output of spec, plan, tests, review, and release.', proof: 'aidd-dev:00-sdlc' },
+  { n: "01", r: "1", hue: 28, lead: 'Ship in <span class="hl">verified increments.</span>', sub: 'Working software is the output of spec, plan, tests, review, and release.', proof: 'aidd-orchestrator:01-sdlc' },
   { n: "02", r: "2", hue: 50, lead: 'Start from a <span class="hl">clear spec.</span>', sub: 'A story, PRD, or spec gives AI work a contract humans can inspect.', proof: 'aidd-pm:04-spec' },
   { n: "03", r: "3", hue: 80, lead: 'Plan before <span class="hl">generation.</span>', sub: 'The plan is the handoff between human judgment and agent execution.', proof: 'aidd-dev:01-plan' },
   { n: "04", r: "4", hue: 120, lead: 'Decompose until <span class="hl">delegable.</span>', sub: 'Small tasks survive async work, model changes, and team handoffs.', proof: 'aidd-dev:10-todo + 02-implement' },
