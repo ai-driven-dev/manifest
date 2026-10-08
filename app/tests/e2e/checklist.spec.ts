@@ -31,6 +31,23 @@ const routeChecks = [
 ] as const;
 
 test.describe('web checklist surface', () => {
+  for (const path of ['/index.md', '/llms-full.txt']) {
+    test(`${path} shares the homepage AIDD versus vibe coding comparison`, async ({ request }) => {
+      const home = await request.get('/');
+      expect(home.status()).toBe(200);
+      const html = await home.text();
+      const paragraph = html.match(/<div class="lex-vs-intro">[\s\S]*?<p>([\s\S]*?)<\/p>/)?.[1];
+      expect(paragraph?.trim()).toBeTruthy();
+
+      const response = await request.get(path);
+      expect(response.status()).toBe(200);
+      const markdown = await response.text();
+      const comparison = markdown.match(/### AIDD vs vibe coding\n([\s\S]*?)\n# Values/)?.[1];
+      expect(comparison?.trim()).toBeTruthy();
+      expect(stripHtml(comparison!)).toBe(stripHtml(paragraph!));
+    });
+  }
+
   for (const [path, status] of [['/', 200], ['/privacy', 200], ['/missing-page', 404], ['/500', 500], ['/maintenance', 503]] as const) {
     test(`manifesto representation metadata is scoped correctly on ${path}`, async ({ request }) => {
       const response = await request.get(path);

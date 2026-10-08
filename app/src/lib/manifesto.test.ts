@@ -1,8 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { getHomeJsonLd, getManifestoJson, getManifestoMarkdown } from './manifesto';
 import { SITE } from './site';
+import { VERSUS_SUMMARY } from '../content/lexicon';
 
 describe('manifesto data helpers', () => {
+  it('exports the shared AIDD versus vibe coding comparison without extra claims', () => {
+    const comparison = getManifestoMarkdown().split('### AIDD vs vibe coding\n')[1]?.split('\n# Values')[0];
+    expect(VERSUS_SUMMARY.trim()).not.toBe('');
+    expect(comparison?.trim()).toBe(VERSUS_SUMMARY);
+  });
+
   it('shares a nonempty summary across manifesto metadata', () => {
     expect(SITE.description.trim()).not.toBe('');
     expect(getManifestoJson().description).toBe(SITE.description);
