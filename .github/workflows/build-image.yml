@@ -21,8 +21,8 @@ jobs:
   build:
     name: Test, build and attest
     runs-on:
-      group: website-ci
-      labels: [self-hosted, Linux, X64, aidd-central-ci, isolated]
+      group: manifest-public-ci
+      labels: [self-hosted, Linux, X64, aidd-central-manifest-public, isolated]
     timeout-minutes: 30
     outputs:
       digest: ${{ steps.build.outputs.digest }}

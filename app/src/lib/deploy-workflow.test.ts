@@ -25,9 +25,9 @@ describe('Manifest deployment boundary', () => {
       'request-deploy.yml',
     ]) {
       const workflow = readRepositoryFile(`.github/workflows/${path}`);
-      expect(workflow).toContain('group: website-ci');
+      expect(workflow).toContain('group: manifest-public-ci');
       expect(workflow).toContain(
-        'labels: [self-hosted, Linux, X64, aidd-central-ci, isolated]',
+        'labels: [self-hosted, Linux, X64, aidd-central-manifest-public, isolated]',
       );
       expect(workflow).not.toMatch(/runs-on:\s*(?:ubuntu|windows|macos)-/);
     }
