@@ -11,6 +11,8 @@ export default defineConfig({
     port: 4321,
   },
   vite: {
+    // Keep compiled scripts external so the strict script-src policy can allow them.
+    build: { assetsInlineLimit: 0 },
     resolve: {
       alias: {
         '~': fileURLToPath(new URL('./src', import.meta.url)),

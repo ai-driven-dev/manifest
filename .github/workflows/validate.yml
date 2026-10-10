@@ -5,6 +5,9 @@ on:
   push:
     branches: [main, "renovate/**"]
 
+permissions:
+  contents: read
+
 # Cancel an in-progress run when a newer commit lands on the same ref (PR or
 # branch), so rapid pushes don't pile up redundant runs. Scoped per-ref, so
 # different PRs never cancel each other.
@@ -25,6 +28,7 @@ jobs:
           # Full history so the signature-date generator (prebuild) can read
           # each signatory file's add commit.
           fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: 'lts/*'
