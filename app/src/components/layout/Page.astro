@@ -21,6 +21,9 @@ import '~/styles/sections/print.css';
 import '~/styles/sections/tweaks.css';
 import { absoluteUrl, SITE } from '~/lib/site';
 import { getHomeJsonLd } from '~/lib/manifesto';
+import { ANALYTICS } from '~/lib/analytics';
+import { coverSignExperiment } from '~/content/experiments';
+import coverExperimentScript from '~/lib/cover-experiment.js?url';
 
 interface Props {
   title?: string;
@@ -88,6 +91,16 @@ const analyticsDisabled =
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    {coverSignExperiment.enabled && path === coverSignExperiment.path && !analyticsDisabled && (
+      <script
+        is:inline
+        src={coverExperimentScript}
+        data-experiment={coverSignExperiment.id}
+        data-storage-key={coverSignExperiment.storageKey}
+        data-path={coverSignExperiment.path}
+        data-domains={ANALYTICS.domains.join(',')}
+      ></script>
+    )}
     <script>
       import { initAnalytics } from '~/lib/analytics';
       initAnalytics();

@@ -1,3 +1,5 @@
+import { coverSignExperiment } from '~/content/experiments';
+
 export const ANALYTICS = {
   origin: 'https://stats.ai-driven-dev.fr',
   websiteId: 'ef333c9a-9efe-4abb-9b97-256478a9d636',
@@ -14,6 +16,7 @@ interface AnalyticsPayload {
   url?: string;
   referrer?: string;
   name?: string;
+  tag?: string;
 }
 
 declare global {
@@ -25,13 +28,14 @@ declare global {
 function hasPrivacyOptOut(): boolean {
   const browser = navigator as Navigator & { globalPrivacyControl?: boolean; msDoNotTrack?: string };
   const legacyDnt = (window as Window & { doNotTrack?: string }).doNotTrack;
-  const dnt = legacyDnt || browser.doNotTrack || browser.msDoNotTrack;
-  if (browser.globalPrivacyControl || dnt === '1' || dnt === 'yes') return true;
+  const dnt = [legacyDnt, browser.doNotTrack, browser.msDoNotTrack]
+    .some((signal) => signal === '1' || signal === 'yes');
+  if (browser.globalPrivacyControl || dnt) return true;
   if (document.documentElement.hasAttribute('data-analytics-disabled')) return true;
   try {
     return !!localStorage.getItem('umami.disabled');
   } catch {
-    return false;
+    return true;
   }
 }
 
@@ -53,6 +57,11 @@ export function initAnalytics(): void {
     if (hasPrivacyOptOut() || type !== 'event') return false;
     if (payload.name && payload.name !== 'signature_started') return false;
     if (!ANALYTICS.paths.some((path) => path === location.pathname)) return false;
+    const variant = document.documentElement.dataset.manifestVariant;
+    const tag = coverSignExperiment.enabled && location.pathname === coverSignExperiment.path &&
+      document.documentElement.dataset.manifestExperiment === coverSignExperiment.id &&
+      (variant === 'a' || variant === 'b')
+      ? `${coverSignExperiment.id}-${variant}` : undefined;
     // Keep only standard aggregate fields: no query, fragment, identity, or event data.
     return {
       website: payload.website,
@@ -63,6 +72,7 @@ export function initAnalytics(): void {
       url: location.pathname,
       referrer: referrerOrigin(payload.referrer),
       ...(payload.name ? { name: payload.name } : {}),
+      ...(tag ? { tag } : {}),
     };
   };
 
