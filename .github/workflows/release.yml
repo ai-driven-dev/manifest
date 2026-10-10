@@ -37,9 +37,7 @@ permissions:
 jobs:
   release:
     name: Create GitHub release
-    runs-on:
-      group: manifest-public-ci
-      labels: [self-hosted, Linux, X64, aidd-central-manifest-public, isolated]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Guard release branch

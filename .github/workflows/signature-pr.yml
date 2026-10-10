@@ -27,9 +27,7 @@ jobs:
       github.event.issue.state == 'open'
       && contains(github.event.issue.labels.*.name, 'signature-request')
       && (github.event.action != 'labeled' || github.event.label.name == 'signature-retry')
-    runs-on:
-      group: manifest-public-ci
-      labels: [self-hosted, Linux, X64, aidd-central-manifest-public, isolated]
+    runs-on: ubuntu-latest
     steps:
       # A pull request opened by GITHUB_TOKEN leaves its Validate run stuck on
       # action_required, so the required `build` check never reports and the

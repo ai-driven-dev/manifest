@@ -20,9 +20,7 @@ env:
 jobs:
   build:
     name: Test, build and attest
-    runs-on:
-      group: manifest-public-ci
-      labels: [self-hosted, Linux, X64, aidd-central-manifest-public, isolated]
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     outputs:
       digest: ${{ steps.build.outputs.digest }}

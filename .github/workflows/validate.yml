@@ -18,9 +18,7 @@ concurrency:
 jobs:
   # Required check: build, typecheck, unit/signature tests, component LOC budget.
   build:
-    runs-on:
-      group: manifest-public-ci
-      labels: [self-hosted, Linux, X64, aidd-central-manifest-public, isolated]
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: app

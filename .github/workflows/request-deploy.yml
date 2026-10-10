@@ -20,9 +20,7 @@ jobs:
       github.event.workflow_run.event == 'push' &&
       github.event.workflow_run.head_branch == 'main' &&
       github.event.workflow_run.head_repository.full_name == 'ai-driven-dev/manifest'
-    runs-on:
-      group: manifest-public-ci
-      labels: [self-hosted, Linux, X64, aidd-central-manifest-public, isolated]
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
       actions: read

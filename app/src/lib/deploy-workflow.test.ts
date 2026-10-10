@@ -16,24 +16,9 @@ const requestWorkflow = readRepositoryFile(
 const compose = readRepositoryFile('app/compose.yaml');
 
 describe('Manifest deployment boundary', () => {
-  it('runs every repository workflow on isolated Central runners', () => {
-    for (const path of [
-      'build-image.yml',
-      'validate.yml',
-      'release.yml',
-      'signature-pr.yml',
-      'request-deploy.yml',
-    ]) {
-      const workflow = readRepositoryFile(`.github/workflows/${path}`);
-      expect(workflow).toContain('group: manifest-public-ci');
-      expect(workflow).toContain(
-        'labels: [self-hosted, Linux, X64, aidd-central-manifest-public, isolated]',
-      );
-      expect(workflow).not.toMatch(/runs-on:\s*(?:ubuntu|windows|macos)-/);
-    }
-  });
-
-  it('builds, tests and attests an immutable image', () => {
+  it('builds, tests and attests only on a GitHub-hosted runner', () => {
+    expect(buildWorkflow).toContain('runs-on: ubuntu-latest');
+    expect(buildWorkflow).not.toContain('self-hosted');
     expect(buildWorkflow).toContain('run: npm run build');
     expect(buildWorkflow).toContain('run: npm test');
     expect(buildWorkflow).toContain('run: bash tests/check-component-loc.sh');
@@ -72,6 +57,7 @@ describe('Manifest deployment boundary', () => {
     expect(requestWorkflow).toContain('repositories: aidd-ops');
     expect(requestWorkflow).toContain('permission-actions: write');
     expect(requestWorkflow).not.toContain('permission-contents: write');
+    expect(requestWorkflow).not.toContain('self-hosted');
     expect(requestWorkflow).toContain(
       'repos/ai-driven-dev/aidd-ops/actions/workflows/deploy-manifest.yml/dispatches',
     );
