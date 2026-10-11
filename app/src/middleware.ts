@@ -3,6 +3,7 @@ import { Readable } from 'node:stream';
 import { createBrotliCompress, createGzip } from 'node:zlib';
 import { absoluteUrl } from '~/lib/site';
 import { ANALYTICS } from '~/lib/analytics';
+import { coverExperimentCspHash } from '~/lib/cover-experiment-source';
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
 const TEXT_TYPES = [
@@ -35,7 +36,7 @@ function buildCsp(isLocal: boolean): string {
     "default-src 'self'",
     "base-uri 'self'",
     "object-src 'none'",
-    `script-src 'self' ${ANALYTICS.origin}`,
+    `script-src 'self' ${ANALYTICS.origin} ${coverExperimentCspHash}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https://github.com https://avatars.githubusercontent.com",
     "font-src 'self'",

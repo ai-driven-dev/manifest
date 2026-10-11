@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { expect, test, type Page } from '@playwright/test';
 import { ANALYTICS } from '../../src/lib/analytics';
 import { coverSignExperiment } from '../../src/content/experiments';
@@ -189,6 +190,10 @@ for (const [random, expected] of [[0.4999, 'a'], [0.5, 'b']] as const) {
 
 test('selects B before first paint without waiting for the deferred application script', async ({ page, baseURL }) => {
   await interceptAnalytics(page, baseURL!);
+  const experimentRequests: string[] = [];
+  page.on('request', (request) => {
+    if (request.url().includes('/_astro/cover-experiment.')) experimentRequests.push(request.url());
+  });
   await page.route('**/_astro/Page.astro*', (route) => route.abort());
   await page.addInitScript((key) => {
     localStorage.setItem(key, 'b');
@@ -198,14 +203,22 @@ test('selects B before first paint without waiting for the deferred application 
       }
     }).observe({ type: 'paint', buffered: true });
   }, coverSignExperiment.storageKey);
-  await page.goto(SITE_ORIGIN);
+  const response = await page.goto(SITE_ORIGIN);
   await expect(page.locator('.cover-link-primary')).toHaveAccessibleName(coverSignExperiment.labels.b);
   await expect.poll(() => page.evaluate(() => (window as Window & { firstPaintVariant?: string }).firstPaintVariant)).toBe('b');
   const script = page.locator('head script[data-experiment]');
-  await expect(script).toHaveAttribute('src', /^\/_astro\/cover-experiment\..*\.js$/);
+  await expect(script).not.toHaveAttribute('src');
   await expect(script).not.toHaveAttribute('async');
   await expect(script).not.toHaveAttribute('defer');
   await expect(script).not.toHaveAttribute('type', 'module');
+  const source = await script.textContent();
+  expect(source).toBeTruthy();
+  const hash = createHash('sha256').update(source!, 'utf8').digest('base64');
+  const scriptCsp = response!.headers()['content-security-policy']
+    .split('; ').find((directive) => directive.startsWith('script-src '));
+  expect(scriptCsp).toContain(`'sha256-${hash}'`);
+  expect(scriptCsp).not.toContain("'unsafe-inline'");
+  expect(experimentRequests).toEqual([]);
 });
 
 for (const failure of ['read', 'write'] as const) {
