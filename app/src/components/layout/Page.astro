@@ -23,7 +23,7 @@ import { absoluteUrl, SITE } from '~/lib/site';
 import { getHomeJsonLd } from '~/lib/manifesto';
 import { ANALYTICS } from '~/lib/analytics';
 import { coverSignExperiment } from '~/content/experiments';
-import coverExperimentScript from '~/lib/cover-experiment.js?url';
+import { coverExperimentScript } from '~/lib/cover-experiment-source';
 
 interface Props {
   title?: string;
@@ -94,11 +94,11 @@ const analyticsDisabled =
     {coverSignExperiment.enabled && path === coverSignExperiment.path && !analyticsDisabled && (
       <script
         is:inline
-        src={coverExperimentScript}
         data-experiment={coverSignExperiment.id}
         data-storage-key={coverSignExperiment.storageKey}
         data-path={coverSignExperiment.path}
         data-domains={ANALYTICS.domains.join(',')}
+        set:html={coverExperimentScript}
       ></script>
     )}
     <script>
