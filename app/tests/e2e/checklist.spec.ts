@@ -125,7 +125,7 @@ test.describe('web checklist surface', () => {
 
     const externalStyleOrScript = await page.evaluate(() =>
       [...document.querySelectorAll('script[src], link[rel="stylesheet"]')]
-        .map((el) => (el as HTMLScriptElement | HTMLLinkElement).src || (el as HTMLLinkElement).href)
+        .map((el) => el instanceof HTMLScriptElement ? el.src : (el as HTMLLinkElement).href)
         .filter((url) => url && !url.startsWith(location.origin))
     );
     expect(externalStyleOrScript).toEqual([]);

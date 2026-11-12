@@ -2,6 +2,7 @@ import { defineMiddleware } from 'astro:middleware';
 import { Readable } from 'node:stream';
 import { createBrotliCompress, createGzip } from 'node:zlib';
 import { absoluteUrl } from '~/lib/site';
+import { ANALYTICS } from '~/lib/analytics';
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
 const TEXT_TYPES = [
@@ -34,11 +35,11 @@ function buildCsp(isLocal: boolean): string {
     "default-src 'self'",
     "base-uri 'self'",
     "object-src 'none'",
-    "script-src 'self'",
+    `script-src 'self' ${ANALYTICS.origin}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https://github.com https://avatars.githubusercontent.com",
     "font-src 'self'",
-    "connect-src 'self'",
+    `connect-src 'self' ${ANALYTICS.origin}`,
     "manifest-src 'self'",
     "worker-src 'self'",
     "frame-ancestors 'none'",
@@ -72,6 +73,7 @@ function applyCacheHeaders(headers: Headers, pathname: string, contentType: stri
 
   if (contentType?.includes('text/html')) {
     headers.set('Cache-Control', 'no-cache');
+    appendHeader(headers, 'Vary', 'Sec-GPC, DNT');
     headers.set(
       'No-Vary-Search',
       'params=("utm_source" "utm_medium" "utm_campaign" "utm_term" "utm_content" "gclid" "fbclid")'
@@ -147,7 +149,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   if (context.request.headers.get('Sec-GPC') === '1') {
     headers.set('Preference-Applied', 'Sec-GPC');
-    appendHeader(headers, 'Vary', 'Sec-GPC');
+    if (!contentType?.includes('text/html')) appendHeader(headers, 'Vary', 'Sec-GPC');
   }
 
   if (response.status >= 400) {

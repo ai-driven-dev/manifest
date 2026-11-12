@@ -20,14 +20,14 @@ jobs:
       run:
         working-directory: app
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           # Full history so the signature-date generator (prebuild) can read
           # each signatory file's add commit.
           fetch-depth: 0
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: '24'
+          node-version: 'lts/*'
           cache: 'npm'
           cache-dependency-path: app/package-lock.json
       - run: npm ci
