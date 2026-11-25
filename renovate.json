@@ -1,4 +1,58 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>ai-driven-dev/aidd-ops//renovate/default"]
+  "description": "Copy of the organisation's shared Renovate configuration (ai-driven-dev/aidd-ops, renovate/default.json). This repository is public and the hosted Renovate app cannot read a preset from a private repository, so the settings are kept here: change both together.",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigests",
+    ":dependencyDashboard",
+    "security:minimumReleaseAgeNpm"
+  ],
+  "timezone": "Europe/Paris",
+  "schedule": [
+    "before 8am on Monday"
+  ],
+  "prConcurrentLimit": 1,
+  "branchConcurrentLimit": 1,
+  "prHourlyLimit": 1,
+  "prCreation": "status-success",
+  "internalChecksFilter": "strict",
+  "rangeStrategy": "bump",
+  "automerge": true,
+  "automergeType": "branch",
+  "platformAutomerge": false,
+  "ignoreTests": false,
+  "labels": [
+    "dependencies"
+  ],
+  "packageRules": [
+    {
+      "description": "Trois jours d'attente sur toute version npm : security:minimumReleaseAgeNpm n'attend pas pour les mises à jour dans la plage (rangeStrategy bump).",
+      "matchDatasources": [
+        "npm"
+      ],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "description": "Un seul lot hebdomadaire, tous gestionnaires confondus : une mise à jour isolée ne doit pas occuper seule l'unique branche autorisée.",
+      "matchPackageNames": [
+        "*"
+      ],
+      "groupName": "weekly dependencies",
+      "groupSlug": "weekly-dependencies"
+    }
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": [
+      "before 8am on Monday"
+    ],
+    "automerge": true
+  },
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "schedule": [
+      "at any time"
+    ],
+    "automerge": true
+  }
 }
